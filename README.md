@@ -1,61 +1,73 @@
 # 🖥️ Rekap IT - Sistem Manajemen Aset & Maintenance Profesional
 
-**Rekap IT** adalah solusi manajemen infrastruktur IT berbasis web yang dirancang untuk membantu tim IT dalam mengelola, memantau, dan merawat aset perusahaan secara efisien. Dikembangkan dengan fokus pada kemudahan penggunaan, keamanan data, dan estetika antarmuka.
+Rekap IT adalah aplikasi manajemen infrastruktur IT berbasis web yang dibangun untuk memantau siklus hidup aset, mulai dari pendataan, pemeliharaan rutin, hingga manajemen perbaikan jika terjadi kerusakan.
 
 ---
 
-## ✨ Fitur Unggulan
+## 🚀 Fitur Utama
 
-### 🎨 Premium & Aesthetic Interface
-*   **Modern Dashboard:** Visualisasi data aset, statistik kondisi perangkat, dan monitoring biaya perbaikan secara real-time.
-*   **Responsive Design:** Antarmuka yang adaptif untuk akses lancar melalui desktop, tablet, maupun smartphone.
-*   **Interactive UI:** Menggunakan *Plus Jakarta Sans* untuk keterbacaan tinggi dan efek *Glassmorphism* yang elegan.
+### 1. Manajemen Inventarisasi Aset
+Sistem terpusat untuk mendata aset IT perusahaan dengan fitur:
+- **CRUD Aset:** Mengelola data detail (Kode, Serial Number, Lokasi/Cabang, Divisi, Pemegang).
+- **Kategorisasi:** Klasifikasi aset untuk memudahkan filtering dan pelaporan.
 
-### ⚙️ Manajemen Data Master (Full CRUD)
-*   **Manajemen Terpusat:** Kontrol penuh untuk data **Cabang**, **Divisi**, dan **Karyawan**.
-*   **Smart Assignee:** Sistem otomatis memfilter daftar karyawan berdasarkan cabang yang dipilih.
+### 2. Manajemen Pemeliharaan (Maintenance)
+- **Log Maintenance:** Pencatatan rutinitas pemeriksaan kondisi aset.
+- **Filter Cerdas:** Aset yang sudah dimaintenance pada bulan berjalan akan **otomatis disembunyikan** dari form input maintenance untuk mencegah duplikasi pengecekan.
+- **Maintenance Massal (Bulk):** Efisiensi input untuk teknisi dalam melakukan pengecekan aset dalam jumlah besar.
 
-### 📦 Inventarisasi Aset Cerdas
-*   **Pelacakan Detail:** Pencatatan Kode Aset, Serial Number, Merk, Model, hingga histori pemegang.
-*   **Kondisi Real-time:** Status visual untuk kondisi aset (Baik, Rusak Ringan, Rusak Berat).
+### 3. Manajemen Perbaikan (Repair)
+- **Tiket Perbaikan:** Jika aset mengalami kerusakan, sistem menyediakan modul Repair yang terpisah untuk melacak:
+    - Keluhan/Kerusakan.
+    - Status Perbaikan (Proses, Selesai, Batal).
+    - Histori biaya dan tindakan perbaikan.
+- Aset yang sedang dalam status perbaikan tetap dapat dikelola di modul ini meskipun sudah melewati bulan maintenance.
 
-### 🛡️ Audit & Mutasi
-*   **Audit Fisik:** Modul khusus untuk verifikasi lapangan periodik.
-*   **Histori Mutasi:** Pencatatan riwayat perpindahan aset antar lokasi atau antar karyawan.
-
-### 🔧 Operasional & Pemeliharaan IT
-*   **Maintenance Massal (Bulk):** Efisiensi tinggi bagi teknisi.
-*   **Filter Cerdas (Baru!):** Sistem otomatis menyembunyikan aset dari daftar pilihan maintenance jika aset tersebut sudah dilakukan maintenance pada bulan berjalan. Aset hanya akan muncul kembali jika diperlukan perbaikan (Repair).
-*   **Tiket Perbaikan (Repair):** Sistem pelacakan kerusakan aset dari mulai laporan masuk hingga penyelesaian beserta rincian biaya.
-*   **Stok Sparepart:** Manajemen inventaris suku cadang.
-
-### 📊 Pelaporan & Keamanan
-*   **Export Excel:** Hasilkan laporan operasional siap cetak.
-*   **Log Aktivitas:** Rekam jejak setiap aksi penting.
-*   **Keamanan Database:** Proteksi penuh terhadap serangan SQL Injection menggunakan *PDO Prepared Statements*.
+### 4. Audit & Mutasi
+- **Audit Fisik:** Modul untuk verifikasi kecocokan data sistem dengan kondisi nyata.
+- **Mutasi:** Pencatatan riwayat perpindahan aset antar lokasi atau karyawan.
 
 ---
 
-## 🛠️ Spesifikasi Teknologi
-*   **Backend:** PHP 8.2+ (OOP & PDO)
-*   **Database:** MySQL / MariaDB
-*   **Frontend:** Bootstrap 5.3, Vanilla JS, CSS3 Custom Properties
-*   **Icons:** FontAwesome 6 & Bootstrap Icons
+## 🛠️ Spesifikasi Teknis
+
+| Komponen | Spesifikasi |
+| :--- | :--- |
+| **Bahasa** | PHP 8.2+ |
+| **Database** | MySQL / MariaDB |
+| **Frontend** | Bootstrap 5.3, Vanilla JS, CSS3 |
+| **Keamanan** | PDO Prepared Statements (SQL Injection Protection) |
+
+---
+
+## 📦 Panduan Instalasi & Setup
+
+### Prasyarat
+- PHP 8.2 atau lebih tinggi.
+- MySQL/MariaDB server.
+- Web Server (Apache/Nginx/Localhost).
+
+### Langkah-langkah
+1. **Clone Repositori:**
+   ```bash
+   git clone https://github.com/anangsuper/rekap-it-hafiz.git
+   ```
+2. **Setup Database:**
+   - Impor file `database/rekap_it.sql` ke database MySQL Anda.
+3. **Konfigurasi:**
+   - Sesuaikan konfigurasi database pada file `config/database.php` sesuai dengan environment lokal Anda.
+4. **Jalankan Aplikasi:**
+   - Arahkan web server Anda ke direktori root proyek.
 
 ---
 
 ## 📂 Struktur Direktori
-```text
-rekap-it/
-├── config/          # Konfigurasi Database & Koneksi
-├── controllers/     # Business Logic & Request Handlers
-├── database/        # Skema Database SQL
-├── models/          # Data Models (Asset, Karyawan, Maintenance, dsb)
-├── views/           # UI Components & Page Templates
-├── index.php        # Router Utama
-└── login.php        # Autentikasi Keamanan
-```
+- `/config` : Konfigurasi koneksi database.
+- `/controllers` : Logic pemrosesan data (MVC pattern).
+- `/models` : Interaksi dengan tabel database.
+- `/views` : File tampilan antarmuka (UI).
+- `/database` : Skema database.
 
 ---
 
-**Rekap IT - Transformasi Digital untuk Manajemen Aset IT yang Lebih Terukur dan Profesional.**
+**Rekap IT - Transformasi Digital untuk Manajemen Aset IT yang Lebih Terukur.**
