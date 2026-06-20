@@ -18,6 +18,7 @@ if (isset($_POST['hapus'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
+    checkAccess('admin'); // Memastikan hanya admin yang bisa menambah user
     $data = [
         'nama' => $_POST['nama'],
         'username' => $_POST['username'],
