@@ -46,7 +46,9 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role ENUM('admin', 'teknisi') DEFAULT 'teknisi',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id_cabang INT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_cabang) REFERENCES cabang(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 6. Assets
