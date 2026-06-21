@@ -207,12 +207,6 @@ try {
             </div>
         </div>
 
-        <!-- 3D Model -->
-        <div class="card mt-4 p-3 border-0 shadow-sm" style="border-radius: 28px; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px);">
-            <div class="sketchfab-embed-wrapper"> 
-                <iframe title="Free Voxel Retro Computer | Ретро Компьютер" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/d93b923c8e284281891203bf4362e83c/embed" style="width: 100%; height: 400px; border-radius: 20px;"> </iframe> 
-            </div>
-        </div>
     </div>
 </div>
 
