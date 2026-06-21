@@ -1,45 +1,59 @@
-# Alur Aplikasi Rekap IT
+# Alur Aplikasi Rekap IT (Panduan Pengguna)
 
-Berikut adalah alur kerja (workflow) pengguna dalam aplikasi Rekap IT:
+Berikut adalah alur kerja (workflow) pengguna dalam aplikasi Rekap IT, disusun berdasarkan aktivitas yang sering dilakukan pengguna.
 
-## 1. Akses Awal
-- **Login:** Pengguna masuk ke sistem melalui halaman `login.php`.
-- **Dashboard:** Setelah login berhasil, pengguna diarahkan ke `dashboard.php` yang menampilkan statistik aset (Total Aset, Maintenance, Perbaikan, Biaya).
+## 1. Login & Dashboard
+- **Login:** Masuk melalui `login.php`.
+- **Dashboard:** Ringkasan statistik (Total Aset, Maintenance, Perbaikan, Biaya) dan aktivitas terbaru.
 
-## 2. Navigasi Utama (Navbar)
-Pengguna dapat memilih menu berdasarkan peran (Admin/Teknisi):
+## 2. Menu Utama (Berbasis Aktivitas)
+Navigasi disusun agar pengguna lebih mudah menemukan fitur berdasarkan apa yang ingin mereka kerjakan:
 
-- **Master Data (Admin Only):**
-  - Mengelola data dasar: `Cabang`, `Divisi`, dan `Data Karyawan`.
-- **Inventaris:**
-  - Mengelola `Kategori` aset.
-  - Mengelola `Data Aset` (Inventaris IT).
-  - Mengelola `Mutasi` (perpindahan aset antar lokasi).
-- **Operasional:**
-  - `Perawatan` (Maintenance rutin).
-  - `Perbaikan` (Tiket perbaikan aset rusak).
-  - `Sparepart` (Manajemen suku cadang).
-- **Laporan (Admin Only):**
-  - `Audit Fisik` (Pengecekan aset langsung).
-  - `Log Aktivitas` (Riwayat tindakan pengguna).
-  - `Export Laporan` (Data ke Excel).
+- **Dashboard:** Pusat informasi.
+- **Data Master:** Pengelolaan referensi (Cabang, Divisi, Karyawan).
+- **Aset:** Pengelolaan Kategori, Inventaris, dan Mutasi.
+- **Maintenance:** Pencatatan perawatan rutin.
+- **Perbaikan:** Pengelolaan tiket kerusakan dan sparepart.
+- **Audit:** Verifikasi fisik aset.
+- **Laporan:** Export data laporan.
 
-## 3. Alur Kerja Spesifik (Contoh)
+---
 
-### A. Registrasi Aset Baru
-1. Masuk ke menu **Inventaris > Data Aset**.
-2. Klik tombol "Add Asset".
-3. Isi detail aset (Kode, SN, Nama, Cabang, Kondisi, dll).
-4. Klik simpan.
+## 3. Alur Kerja Utama
 
-### B. Proses Audit Fisik
-1. Masuk ke menu **Laporan > Audit Fisik**.
-2. Klik "Mulai Audit Baru".
-3. Pilih aset yang akan diaudit (Sistem otomatis menampilkan kondisi dan lokasi saat ini).
-4. Masukkan kondisi fisik hasil pemeriksaan lapangan dan catatan jika ada selisih.
-5. Klik simpan (Sistem akan secara otomatis mencatat audit dan memperbarui status aset jika diperlukan).
+### A. Menambahkan Aset Baru
+1. Buka **Aset → Data Aset**.
+2. Klik **Tambah Aset**.
+3. Isi informasi aset (Kode, Nama, SN, Kategori, Cabang, PIC, Kondisi).
+4. Klik **Simpan**.
 
-### C. Penanganan Perbaikan
-1. Masuk ke menu **Operasional > Perbaikan**.
-2. Catat kerusakan aset dan status perbaikan (Proses/Selesai).
-3. Jika selesai, sistem akan menghitung biaya perbaikan yang diakumulasikan ke biaya bulanan.
+### B. Memindahkan Aset (Mutasi)
+1. Buka **Aset → Mutasi Aset**.
+2. Klik **Mutasi Baru**.
+3. Pilih aset, lokasi lama, lokasi baru, dan PIC baru.
+4. Klik **Simpan**.
+
+### C. Melakukan Maintenance
+1. Buka **Maintenance**.
+2. Pilih aset dan isi detail aktivitas perawatan.
+3. Masukkan tanggal dan catatan.
+4. Klik **Simpan**.
+
+### D. Menangani Perbaikan Aset
+1. Buka **Perbaikan → Buat Tiket**.
+2. Pilih aset, isi jenis kerusakan, deskripsi, dan prioritas.
+3. Simpan tiket.
+4. Teknisi memperbarui status (Proses/Selesai) dan mencatat sparepart yang digunakan serta biaya.
+
+### E. Melakukan Audit Fisik
+1. Buka **Audit**.
+2. Klik **Mulai Audit**.
+3. Pilih aset/lokasi, periksa fisik di lapangan.
+4. Isi kondisi aktual, lokasi aktual, dan catatan jika ada selisih.
+5. Simpan hasil audit.
+
+### F. Membuat Laporan
+1. Buka **Laporan**.
+2. Pilih jenis laporan (Inventaris, Maintenance, Perbaikan, Audit).
+3. Tentukan periode.
+4. Klik **Export Excel**.
