@@ -304,16 +304,16 @@ $notifCount = count($notifications);
                         </span>
                     <?php endif; ?>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 300px;">
-                    <li class="px-3 py-2 border-bottom fw-bold">Notifikasi Maintenance (7 Hari Kedepan)</li>
+                <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 300px; z-index: 2000;">
+                    <li class="px-3 py-2 border-bottom fw-bold text-white">Notifikasi Maintenance (7 Hari Kedepan)</li>
                     <?php if ($notifCount === 0): ?>
                         <li class="px-3 py-2 text-muted small">Tidak ada maintenance</li>
                     <?php else: ?>
                         <?php foreach ($notifications as $n): ?>
                             <li>
-                                <a class="dropdown-item py-2 text-dark" href="index.php?page=maintenance">
+                                <a class="dropdown-item py-2 text-white" href="index.php?page=maintenance">
                                     <div class="small fw-bold text-truncate"><?= $n['kode_aset'] ?> - <?= $n['nama_aset'] ?></div>
-                                    <div class="small text-secondary">Tanggal: <?= date('d M Y', strtotime($n['tanggal'])) ?></div>
+                                    <div class="small text-light">Tanggal: <?= date('d M Y', strtotime($n['tanggal'])) ?></div>
                                 </a>
                             </li>
                         <?php endforeach; ?>
