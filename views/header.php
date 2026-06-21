@@ -311,18 +311,28 @@ $notifCount = count($notifications);
                     <?php else: ?>
                         <?php foreach ($notifications as $n): ?>
                             <li>
-                                <a class="dropdown-item py-2" href="index.php?page=maintenance">
+                                <a class="dropdown-item py-2 text-dark" href="index.php?page=maintenance">
                                     <div class="small fw-bold text-truncate"><?= $n['kode_aset'] ?> - <?= $n['nama_aset'] ?></div>
-                                    <div class="small text-muted">Tanggal: <?= date('d M Y', strtotime($n['tanggal'])) ?></div>
+                                    <div class="small text-secondary">Tanggal: <?= date('d M Y', strtotime($n['tanggal'])) ?></div>
                                 </a>
                             </li>
                         <?php endforeach; ?>
                     <?php endif; ?>
-                </ul>
-            </div>
-        </div>
-    </div>
-...
+                    </ul>
+                    </div>
+                    </div>
+                    </div>
+                    </nav>
+
+                    <script>
+                    // Prevent dropdown from closing when clicking inside
+                    document.querySelectorAll('.dropdown-menu').forEach(function(menu) {
+                    menu.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    });
+                    });
+                    </script>
+
 
     <div class="content-body">
         <div class="animate-fade-in">
