@@ -1,53 +1,76 @@
 <?php
 require_once 'models/Maintenance.php';
 require_once 'models/Asset.php';
+require_once 'models/Cabang.php';
 
 $maintenanceModel = new Maintenance($conn);
 $assetModel = new Asset($conn);
+$cabangModel = new Cabang($conn);
 
-// Ambil semua aset untuk list utama (tetap perlu untuk history, atau mungkin ini juga harus difilter? User bilang "tidak ada di list lagi", jadi untuk tabel maintenance history mungkin tetap perlu menampilkan semua, tapi untuk select asset_id di form tambah harus difilter. Saya asumsikan untuk form tambah saja).
-$maintenances = $maintenanceModel->getAll();
-$assets = $assetModel->getAll();
-$assetsAvailable = $assetModel->getAssetsAvailableForMaintenance(date('m'), date('Y'));
+$sub = $_GET['sub'] ?? 'history';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
-    $data = [
-        'asset_id' => $_POST['asset_id'],
-        'tanggal' => $_POST['tanggal'],
-        'teknisi' => $_POST['teknisi'],
-        'temuan' => $_POST['temuan'],
-        'tindakan' => $_POST['tindakan'],
-        'rekomendasi' => $_POST['rekomendasi'],
-        'id_detail_jadwal' => null
-    ];
-    if ($maintenanceModel->create($data)) {
-        header("Location: index.php?page=maintenance&status=success");
-        exit();
+// Handle form submissions based on sub-page
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['tambah']) && $sub === 'history') {
+        $data = [
+            'asset_id' => $_POST['asset_id'],
+            'tanggal' => $_POST['tanggal'],
+            'teknisi' => $_POST['teknisi'],
+            'temuan' => $_POST['temuan'],
+            'tindakan' => $_POST['tindakan'],
+            'rekomendasi' => $_POST['rekomendasi'],
+            'id_detail_jadwal' => null
+        ];
+        if ($maintenanceModel->create($data)) {
+            header("Location: index.php?page=maintenance&status=success");
+            exit();
+        }
+    } elseif (isset($_POST['proses_massal']) && $sub === 'massal') {
+        $selected_assets = $_POST['asset_ids'] ?? [];
+        if (!empty($selected_assets)) {
+            $commonData = [
+                'tanggal' => $_POST['tanggal'],
+                'teknisi' => $_POST['teknisi'],
+                'temuan' => $_POST['temuan'],
+                'tindakan' => $_POST['tindakan'],
+                'rekomendasi' => $_POST['rekomendasi']
+            ];
+            if ($maintenanceModel->createBulk($selected_assets, $commonData)) {
+                header("Location: index.php?page=maintenance&sub=history&status=mass_success");
+                exit();
+            }
+        }
     }
 }
+
+// Prepare data
+$maintenances = $maintenanceModel->getAll();
+$assetsAvailable = $assetModel->getAssetsAvailableForMaintenance(date('m'), date('Y'));
+$cabangs = $cabangModel->getAll();
+$id_cabang = $_GET['id_cabang'] ?? '';
+$assets = $id_cabang ? $assetModel->getAll($id_cabang) : [];
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-4 animate-fade-in">
-    <div class="d-flex align-items-center">
-        <div class="bg-success bg-opacity-10 p-2 rounded-3 me-3 text-success">
-            <i class="bi bi-tools fs-4"></i>
-        </div>
-        <div>
-            <h4 class="fw-800 m-0">Maintenance History</h4>
-            <p class="text-muted small m-0">Tracking routine system checks</p>
-        </div>
-    </div>
     <div>
-        <a href="index.php?page=maintenance_massal" class="btn btn-outline-primary shadow-sm me-2 border-0 bg-white" style="border-radius: 12px;">
-            <i class="bi bi-layers-half me-2"></i> Bulk Maintenance
-        </a>
-        <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambah">
-            <i class="bi bi-plus-lg me-2"></i> Log Check
-        </button>
+        <h4 class="fw-800 m-0">Maintenance</h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="index.php?page=maintenance&sub=history" class="text-decoration-none <?= $sub === 'history' ? 'fw-bold text-primary' : 'text-muted' ?>">History</a></li>
+                <li class="breadcrumb-item"><a href="index.php?page=maintenance&sub=massal" class="text-decoration-none <?= $sub === 'massal' ? 'fw-bold text-primary' : 'text-muted' ?>">Massal</a></li>
+            </ol>
+        </nav>
     </div>
+    <?php if ($sub === 'history'): ?>
+    <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambah">
+        <i class="bi bi-plus-lg me-2"></i> Log Check
+    </button>
+    <?php endif; ?>
 </div>
 
-<div class="card border-0 shadow-sm animate-fade-in" style="animation-delay: 0.1s;">
+<?php if ($sub === 'history'): ?>
+<!-- History Content -->
+<div class="card border-0 shadow-sm animate-fade-in">
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover mb-0">
@@ -96,58 +119,118 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
         </div>
     </div>
 </div>
-
-<!-- Modal Tambah -->
-<div class="modal fade" id="modalTambah" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 28px;">
-            <form method="POST">
-                <div class="modal-header border-0 p-4 pb-0">
-                    <h5 class="fw-800 m-0"><i class="bi bi-check2-square text-success me-2"></i> Log New Maintenance</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Select Asset</label>
-                        <select name="asset_id" class="form-select shadow-sm" required>
-                            <?php foreach ($assetsAvailable as $a): ?>
-                                <option value="<?= $a['id'] ?>"><?= $a['kode_aset'] ?> - <?= $a['nama_aset'] ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-6">
-                            <label class="form-label small fw-bold">Check Date</label>
-                            <input type="date" name="tanggal" class="form-control shadow-sm" value="<?= date('Y-m-d') ?>" required>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label small fw-bold">Technician Name</label>
-                            <input type="text" name="teknisi" class="form-control shadow-sm" placeholder="Full name" required>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Findings</label>
-                        <textarea name="temuan" class="form-control shadow-sm" rows="2" placeholder="Describe current condition..."></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Actions Taken</label>
-                        <textarea name="tindakan" class="form-control shadow-sm" rows="2" placeholder="What was done?"></textarea>
-                    </div>
-                    <div class="mb-0">
-                        <label class="form-label small fw-bold">Recommendation</label>
-                        <textarea name="rekomendasi" class="form-control shadow-sm" rows="2" placeholder="Future advice..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer border-0 p-4">
-                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal" style="border-radius: 12px;">Cancel</button>
-                    <button type="submit" name="tambah" class="btn btn-success px-4 text-white" style="border-radius: 12px; box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.3);">Save Record</button>
-                </div>
-            </form>
+<?php else: ?>
+<!-- Massal Content -->
+<div class="card p-4 mb-4">
+    <form method="GET" action="index.php" class="row g-3">
+        <input type="hidden" name="page" value="maintenance">
+        <input type="hidden" name="sub" value="massal">
+        <div class="col-md-6">
+            <label class="form-label fw-bold">Pilih Cabang untuk Maintenance</label>
+            <div class="input-group">
+                <select name="id_cabang" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Pilih Cabang --</option>
+                    <?php foreach ($cabangs as $c): ?>
+                        <option value="<?= $c['id'] ?>" <?= ($id_cabang == $c['id']) ? 'selected' : '' ?>><?= $c['nama_cabang'] ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="submit" class="btn btn-primary">Muat Aset</button>
+            </div>
         </div>
-    </div>
+    </form>
 </div>
 
-<style>
-    .fw-800 { font-weight: 800; }
-    .fw-500 { font-weight: 500; }
-</style>
+<?php if ($id_cabang): ?>
+<form method="POST">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card p-4">
+                <h5 class="fw-bold mb-3">Daftar Komputer / Aset</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th width="40"><input type="checkbox" id="checkAll" class="form-check-input"></th>
+                                <th>Kode Aset</th>
+                                <th>Nama Aset</th>
+                                <th>Kondisi</th>
+                                <th>Pemegang</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($assets)): ?>
+                                <tr><td colspan="5" class="text-center">Tidak ada aset di cabang ini.</td></tr>
+                            <?php else: ?>
+                                <?php foreach ($assets as $a): ?>
+                                <tr>
+                                    <td><input type="checkbox" name="asset_ids[]" value="<?= $a['id'] ?>" class="form-check-input asset-checkbox"></td>
+                                    <td><span class="badge bg-light text-dark"><?= $a['kode_aset'] ?></span></td>
+                                    <td><strong><?= $a['nama_aset'] ?></strong></td>
+                                    <td><?= $a['kondisi'] ?></td>
+                                    <td><?= $a['nama_karyawan'] ?? '-' ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-4 sticky-top" style="top: 100px; z-index: 1;">
+                <h5 class="fw-bold mb-3">Detail Maintenance</h5>
+                <div class="mb-3">
+                    <label class="form-label">Tanggal</label>
+                    <input type="date" name="tanggal" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Teknisi</label>
+                    <input type="text" name="teknisi" class="form-control" placeholder="Nama Teknisi" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Temuan</label>
+                    <textarea name="temuan" class="form-control" rows="2" placeholder="Sama untuk semua aset"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tindakan</label>
+                    <textarea name="tindakan" class="form-control" rows="2" placeholder="Sama untuk semua aset"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Rekomendasi</label>
+                    <textarea name="rekomendasi" class="form-control" rows="2"></textarea>
+                </div>
+                <hr>
+                <div id="selection-count" class="mb-3 small fw-bold text-primary">0 Aset Terpilih</div>
+                <button type="submit" name="proses_massal" class="btn btn-success w-100 py-2 fw-bold" id="btnSubmit" disabled>
+                    <i class="bi bi-save me-2"></i> PROSES MAINTENANCE
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    const checkAll = document.getElementById('checkAll');
+    const checkboxes = document.querySelectorAll('.asset-checkbox');
+    const countLabel = document.getElementById('selection-count');
+    const btnSubmit = document.getElementById('btnSubmit');
+
+    function updateCount() {
+        const checkedCount = document.querySelectorAll('.asset-checkbox:checked').length;
+        countLabel.innerText = checkedCount + " Aset Terpilih";
+        btnSubmit.disabled = checkedCount === 0;
+    }
+
+    if (checkAll) {
+        checkAll.addEventListener('change', function() {
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            updateCount();
+        });
+    }
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateCount);
+    });
+</script>
+<?php endif; ?>
+<?php endif; ?>
