@@ -82,25 +82,28 @@ $assets = $id_cabang ? $assetModel->getAll($id_cabang) : [];
 <div class="card border-0 shadow-sm animate-fade-in">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead>
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
                     <tr>
-                        <th class="ps-4">Date</th>
-                        <th>Asset Information</th>
-                        <th>Technician</th>
-                        <th>Maintenance Details</th>
-                        <th class="text-end pe-4">Status</th>
+                        <th class="ps-4">Tanggal</th>
+                        <th>Aset</th>
+                        <th>Teknisi</th>
+                        <th>Temuan / Kondisi</th>
+                        <th>Tindakan</th>
+                        <th class="text-end pe-4">Detail</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if(empty($maintenances)): ?>
-                        <tr><td colspan="5" class="text-center py-5 text-muted">No maintenance records found.</td></tr>
+                        <tr><td colspan="6" class="text-center py-5 text-muted">Belum ada riwayat maintenance.</td></tr>
                     <?php endif; ?>
-                    <?php foreach ($maintenances as $m): ?>
+                    <?php foreach ($maintenances as $m): 
+                        // Logic untuk menentukan badge kondisi
+                        $is_bad = (!empty($m['temuan']) && strtolower($m['temuan']) !== 'baik' && strtolower($m['temuan']) !== 'normal');
+                    ?>
                     <tr>
                         <td class="ps-4">
-                            <div class="fw-bold"><?= date('d M Y', strtotime($m['tanggal'])) ?></div>
-                            <div class="small text-muted" style="font-size: 0.65rem;">Logged: <?= date('H:i', strtotime($m['created_at'])) ?></div>
+                            <div class="fw-bold text-dark"><?= date('d M Y', strtotime($m['tanggal'])) ?></div>
                         </td>
                         <td>
                             <div class="fw-bold text-primary"><?= $m['kode_aset'] ?></div>
@@ -108,18 +111,32 @@ $assets = $id_cabang ? $assetModel->getAll($id_cabang) : [];
                         </td>
                         <td>
                             <div class="d-flex align-items-center">
-                                <div class="bg-light rounded-circle p-1 me-2"><i class="bi bi-person text-secondary"></i></div>
-                                <span class="small fw-500"><?= $m['teknisi'] ?></span>
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill"><?= $m['teknisi'] ?></span>
                             </div>
                         </td>
                         <td>
-                            <div class="small fw-bold">Findings:</div>
-                            <div class="small text-muted text-truncate" style="max-width: 250px;"><?= $m['temuan'] ?: 'No issues noted.' ?></div>
+                            <span class="badge <?= $is_bad ? 'bg-danger' : 'bg-success' ?> bg-opacity-10 text-<?= $is_bad ? 'danger' : 'success' ?> rounded-pill">
+                                <?= $m['temuan'] ?: 'Normal' ?>
+                            </span>
+                        </td>
+                        <td>
+                            <div class="text-truncate" style="max-width: 200px;" title="<?= $m['tindakan'] ?>">
+                                <?= $m['tindakan'] ?: '-' ?>
+                            </div>
                         </td>
                         <td class="text-end pe-4">
-                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2" style="font-size: 0.65rem;">
-                                COMPLETED
-                            </span>
+                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#detail<?= $m['id'] ?>">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="collapse" id="detail<?= $m['id'] ?>">
+                        <td colspan="6" class="bg-light p-3">
+                            <div class="row small">
+                                <div class="col-md-4"><strong>Tindakan:</strong><br><?= $m['tindakan'] ?></div>
+                                <div class="col-md-4"><strong>Rekomendasi:</strong><br><?= $m['rekomendasi'] ?: '-' ?></div>
+                                <div class="col-md-4 text-muted"><em>Dicatat pada: <?= $m['created_at'] ?></em></div>
+                            </div>
                         </td>
                     </tr>
                     <?php endforeach; ?>
