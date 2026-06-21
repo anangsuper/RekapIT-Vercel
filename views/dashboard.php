@@ -47,7 +47,7 @@ try {
 <div class="row g-4 mb-5 animate-fade-in">
     <!-- Stat Card 1 -->
     <div class="col-md-3">
-        <div class="lux-card" style="background: linear-gradient(135deg, #6366f1 0%, #4361ee 100%);">
+        <div class="lux-card" style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);">
             <div class="card-body p-4 position-relative text-white">
                 <div class="position-absolute top-0 end-0 p-3 opacity-20" style="font-size: 5rem; transform: translate(20%, -20%);">
                     <i class="bi bi-box-seam"></i>
@@ -65,7 +65,7 @@ try {
 
     <!-- Stat Card 2 -->
     <div class="col-md-3">
-        <div class="lux-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+        <div class="lux-card" style="background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);">
             <div class="card-body p-4 position-relative text-white">
                 <div class="position-absolute top-0 end-0 p-3 opacity-20" style="font-size: 5rem; transform: translate(20%, -20%);">
                     <i class="bi bi-check2-circle"></i>
@@ -83,7 +83,7 @@ try {
 
     <!-- Stat Card 3 -->
     <div class="col-md-3">
-        <div class="lux-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+        <div class="lux-card" style="background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);">
             <div class="card-body p-4 position-relative text-white">
                 <div class="position-absolute top-0 end-0 p-3 opacity-20" style="font-size: 5rem; transform: translate(20%, -20%);">
                     <i class="bi bi-exclamation-triangle"></i>
@@ -101,7 +101,7 @@ try {
 
     <!-- Stat Card 4 -->
     <div class="col-md-3">
-        <div class="lux-card" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+        <div class="lux-card" style="background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);">
             <div class="card-body p-4 position-relative text-white">
                 <div class="position-absolute top-0 end-0 p-3 opacity-20" style="font-size: 5rem; transform: translate(20%, -20%);">
                     <i class="bi bi-wallet2"></i>
