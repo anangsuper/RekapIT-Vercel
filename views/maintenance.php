@@ -135,56 +135,52 @@ $stage = $_POST['stage'] ?? 'select';
 $selected_ids = $_POST['asset_ids'] ?? [];
 ?>
 
-<form method="POST">
-    <?php if ($stage === 'select'): ?>
-        <form method="GET" action="index.php" class="card p-4 mb-4">
-            <input type="hidden" name="page" value="maintenance">
-            <input type="hidden" name="sub" value="massal">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Pilih Cabang untuk Maintenance</label>
-                    <div class="input-group">
-                        <select name="id_cabang" class="form-select" onchange="this.form.submit()">
-                            <option value="">-- Pilih Cabang --</option>
-                            <?php foreach ($cabangs as $c): ?>
-                                <option value="<?= $c['id'] ?>" <?= ($id_cabang == $c['id']) ? 'selected' : '' ?>><?= $c['nama_cabang'] ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <button type="submit" class="btn btn-primary">Muat Aset</button>
-                    </div>
-                </div>
+<form method="GET" action="index.php" class="card p-4 mb-4">
+    <input type="hidden" name="page" value="maintenance">
+    <input type="hidden" name="sub" value="massal">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label fw-bold">Pilih Cabang untuk Maintenance</label>
+            <div class="input-group">
+                <select name="id_cabang" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Pilih Cabang --</option>
+                    <?php foreach ($cabangs as $c): ?>
+                        <option value="<?= $c['id'] ?>" <?= ($id_cabang == $c['id']) ? 'selected' : '' ?>><?= $c['nama_cabang'] ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="submit" class="btn btn-primary">Muat Aset</button>
             </div>
-        </form>
+        </div>
+    </div>
+</form>
 
-        <?php if ($id_cabang): ?>
-            <form method="POST">
-                <input type="hidden" name="stage" value="select">
-                <div class="card p-4">
-                    <h5 class="fw-bold mb-3">Daftar Komputer / Aset</h5>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th width="40"><input type="checkbox" id="checkAll" class="form-check-input"></th>
-                                    <th>Kode Aset</th>
-                                    <th>Nama Aset</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($assets as $a): ?>
-                                <tr>
-                                    <td><input type="checkbox" name="asset_ids[]" value="<?= $a['id'] ?>" class="form-check-input asset-checkbox"></td>
-                                    <td><?= $a['kode_aset'] ?></td>
-                                    <td><?= $a['nama_aset'] ?></td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                    <button type="submit" name="stage" value="review" class="btn btn-primary" id="btnNext" disabled>Lanjut ke Edit Detail</button>
-                </div>
-            </form>
-        <?php endif; ?>
+<form method="POST">
+    <?php if ($id_cabang && $stage === 'select'): ?>
+        <input type="hidden" name="stage" value="select">
+        <div class="card p-4">
+            <h5 class="fw-bold mb-3">Daftar Komputer / Aset</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th width="40"><input type="checkbox" id="checkAll" class="form-check-input"></th>
+                            <th>Kode Aset</th>
+                            <th>Nama Aset</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($assets as $a): ?>
+                        <tr>
+                            <td><input type="checkbox" name="asset_ids[]" value="<?= $a['id'] ?>" class="form-check-input asset-checkbox"></td>
+                            <td><?= $a['kode_aset'] ?></td>
+                            <td><?= $a['nama_aset'] ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <button type="submit" name="stage" value="review" class="btn btn-primary" id="btnNext" disabled>Lanjut ke Edit Detail</button>
+        </div>
     <?php elseif ($stage === 'review'): ?>
         <input type="hidden" name="stage" value="review">
         <h5 class="fw-bold mb-4">Edit Detail Maintenance Aset Terpilih</h5>
@@ -205,6 +201,25 @@ $selected_ids = $_POST['asset_ids'] ?? [];
         <button type="submit" name="proses_massal_final" class="btn btn-success btn-lg px-5">Simpan Semua</button>
     <?php endif; ?>
 </form>
+
+<script>
+    const checkAll = document.getElementById('checkAll');
+    const checkboxes = document.querySelectorAll('.asset-checkbox');
+    const btnNext = document.getElementById('btnNext');
+
+    if (checkAll) {
+        checkAll.addEventListener('change', function() {
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            btnNext.disabled = !this.checked;
+        });
+    }
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', function() {
+            btnNext.disabled = document.querySelectorAll('.asset-checkbox:checked').length === 0;
+        });
+    });
+</script>
 
 <script>
     const checkAll = document.getElementById('checkAll');
