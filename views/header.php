@@ -194,55 +194,60 @@ if (!function_exists('get_branch_badge_style')) {
                 <?php if (hasRole('admin')): ?>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle <?= in_array($page, ['cabang', 'divisi', 'karyawan']) ? 'active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-building me-1"></i> Master
+                        <i class="bi bi-database me-1"></i> Data Master
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="index.php?page=cabang">Daftar Cabang</a></li>
-                        <li><a class="dropdown-item" href="index.php?page=divisi">Bagian / Divisi</a></li>
-                        <li><a class="dropdown-item" href="index.php?page=karyawan">Data Karyawan</a></li>
-                    </ul>
-                </li>
-
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?= in_array($page, ['kategori', 'inventaris', 'mutasi']) ? 'active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-laptop me-1"></i> Inventaris
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="index.php?page=kategori">Kategori</a></li>
-                        <li><a class="dropdown-item" href="index.php?page=inventaris">Data Aset</a></li>
-                        <li><a class="dropdown-item" href="index.php?page=mutasi">Mutasi</a></li>
+                        <li><a class="dropdown-item" href="index.php?page=cabang">Cabang</a></li>
+                        <li><a class="dropdown-item" href="index.php?page=divisi">Divisi</a></li>
+                        <li><a class="dropdown-item" href="index.php?page=karyawan">Karyawan</a></li>
+                        <li><a class="dropdown-item" href="index.php?page=pengguna">Pengguna</a></li>
                     </ul>
                 </li>
                 <?php endif; ?>
 
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?= in_array($page, ['maintenance', 'laporan_maintenance', 'perbaikan', 'sparepart']) ? 'active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-tools me-1"></i> Operasional
+                    <a class="nav-link dropdown-toggle <?= in_array($page, ['kategori', 'inventaris', 'mutasi']) ? 'active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-laptop me-1"></i> Aset
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="index.php?page=maintenance">Perawatan</a></li>
-                        <li><a class="dropdown-item" href="index.php?page=laporan_maintenance">Laporan Maint.</a></li>
-                        <li><a class="dropdown-item" href="index.php?page=perbaikan">Perbaikan</a></li>
+                        <li><a class="dropdown-item" href="index.php?page=inventaris">Data Aset</a></li>
+                        <li><a class="dropdown-item" href="index.php?page=kategori">Kategori</a></li>
+                        <li><a class="dropdown-item" href="index.php?page=mutasi">Mutasi</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a href="index.php?page=maintenance" class="nav-link <?= ($page == 'maintenance') ? 'active' : '' ?>">
+                        <i class="bi bi-calendar-check me-1"></i> Maintenance
+                    </a>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle <?= in_array($page, ['perbaikan', 'sparepart']) ? 'active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-tools me-1"></i> Perbaikan
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="index.php?page=perbaikan">Tiket Perbaikan</a></li>
                         <li><a class="dropdown-item" href="index.php?page=sparepart">Sparepart</a></li>
                     </ul>
                 </li>
 
                 <?php if (hasRole('admin')): ?>
+                <li class="nav-item">
+                    <a href="index.php?page=audit" class="nav-link <?= ($page == 'audit') ? 'active' : '' ?>">
+                        <i class="bi bi-shield-check me-1"></i> Audit
+                    </a>
+                </li>
+
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?= in_array($page, ['audit', 'logs', 'laporan']) ? 'active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle <?= in_array($page, ['laporan', 'logs', 'laporan_maintenance']) ? 'active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown">
                         <i class="bi bi-file-earmark-bar-graph me-1"></i> Laporan
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="index.php?page=audit">Audit Fisik</a></li>
-                        <li><a class="dropdown-item" href="index.php?page=logs">Log Aktivitas</a></li>
                         <li><a class="dropdown-item" href="index.php?page=laporan">Export Excel</a></li>
+                        <li><a class="dropdown-item" href="index.php?page=laporan_maintenance">Laporan Maintenance</a></li>
+                        <li><a class="dropdown-item" href="index.php?page=logs">Log Aktivitas</a></li>
                     </ul>
-                </li>
-
-                <li class="nav-item">
-                    <a href="index.php?page=pengguna" class="nav-link <?= ($page == 'pengguna') ? 'active' : '' ?>">
-                        <i class="bi bi-shield-lock me-1"></i> Admin
-                    </a>
                 </li>
                 <?php endif; ?>
             </ul>
