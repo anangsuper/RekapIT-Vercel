@@ -167,6 +167,10 @@ $assets = $assetModel->getAll();
                         <hr class="my-2 opacity-25">
 
                         <div class="col-md-6">
+                            <label class="form-label small fw-bold">Nama Auditor</label>
+                            <input type="text" class="form-control" value="<?= $_SESSION['nama'] ?>" readonly>
+                        </div>
+                        <div class="col-md-6">
                             <label class="form-label small fw-bold">Tanggal Audit</label>
                             <input type="date" name="tanggal_audit" class="form-control" value="<?= date('Y-m-d') ?>" required>
                         </div>
