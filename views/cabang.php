@@ -39,15 +39,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
 $cabangs = $cabangModel->getAll();
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold">Manajemen Cabang</h4>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambah">
-        <i class="fas fa-plus me-2"></i> Tambah Cabang
-    </button>
-</div>
+<div class="card p-4 lux-card" style="border-radius: 20px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold">Manajemen Cabang</h4>
+        <button class="btn btn-primary" style="background: linear-gradient(135deg, #6366f1, #a855f7); border: none; padding: 10px 20px; border-radius: 12px;" data-bs-toggle="modal" data-bs-target="#modalTambah">
+            <i class="fas fa-plus me-2"></i> Tambah Cabang
+        </button>
+    </div>
 
 <?php if (isset($_GET['status'])): ?>
-    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+    <div class="alert alert-success alert-dismissible fade show mb-4" style="border-radius: 15px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #065f46;" role="alert">
         Berhasil memproses data cabang!
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
