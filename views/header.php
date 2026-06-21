@@ -216,10 +216,14 @@ if (!function_exists('get_branch_badge_style')) {
                     </ul>
                 </li>
 
-                <li class="nav-item">
-                    <a href="index.php?page=maintenance" class="nav-link <?= ($page == 'maintenance') ? 'active' : '' ?>">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle <?= ($page == 'maintenance') ? 'active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown">
                         <i class="bi bi-calendar-check me-1"></i> Maintenance
                     </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="index.php?page=maintenance&sub=history">History Maintenance</a></li>
+                        <li><a class="dropdown-item" href="index.php?page=maintenance&sub=massal">Bulk Maintenance</a></li>
+                    </ul>
                 </li>
 
                 <li class="nav-item dropdown">
