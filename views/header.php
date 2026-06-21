@@ -257,6 +257,49 @@ if (!function_exists('get_branch_badge_style')) {
             </ul>
 
             <div class="navbar-nav align-items-center">
+                <!-- Notifications -->
+                <div class="dropdown me-3">
+                    <button class="nav-link position-relative p-2 border-0 bg-transparent" data-bs-toggle="dropdown" aria-expanded="false" id="notifDropdown">
+                        <i class="bi bi-bell fs-5"></i>
+                        <?php if ($notifCount > 0): ?>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-dark" style="font-size: 0.6rem;">
+                                <?= $notifCount ?>
+                            </span>
+                        <?php endif; ?>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 animate-slide-down" style="width: 320px; border-radius: 20px; overflow: hidden; z-index: 9999;">
+                        <li class="px-4 py-3 border-bottom bg-light">
+                            <h6 class="m-0 fw-bold text-dark">Notifikasi Maintenance</h6>
+                            <small class="text-muted"><?= $notifCount ?> jadwal dalam 7 hari kedepan</small>
+                        </li>
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            <?php if ($notifCount === 0): ?>
+                                <li class="px-4 py-3 text-muted small">Tidak ada jadwal maintenance</li>
+                            <?php else: ?>
+                                <?php foreach ($notifications as $n): ?>
+                                    <li class="border-bottom">
+                                        <a class="dropdown-item px-4 py-3 text-dark transition-hover" href="index.php?page=maintenance">
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-primary bg-opacity-10 p-2 rounded-circle me-3">
+                                                    <i class="bi bi-tools text-primary"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="fw-bold small text-truncate"><?= $n['kode_aset'] ?> - <?= $n['nama_aset'] ?></div>
+                                                    <small class="text-muted"><?= date('d M Y', strtotime($n['tanggal'])) ?></small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                        <li class="px-4 py-2 border-top bg-light text-center">
+                            <a href="index.php?page=maintenance" class="text-primary text-decoration-none small fw-bold">Lihat Semua</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- User Profile -->
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
                         <img src="https://ui-avatars.com/api/?name=<?= urlencode($_SESSION['nama']) ?>&background=4361ee&color=fff" class="rounded-circle" width="32">
@@ -286,57 +329,9 @@ if (!function_exists('get_branch_badge_style')) {
                 <div class="small fw-bold" id="realtime-clock">Loading time...</div>
                 <div class="text-muted" style="font-size: 0.7rem;">Status: <span class="text-success fw-bold">Online</span></div>
             </div>
-<?php
-require_once 'models/Maintenance.php';
-$mModel = new Maintenance($conn);
-$notifications = $mModel->getUpcomingNotifications(7);
-$notifCount = count($notifications);
-?>
-<!DOCTYPE html>
-...
-            <div class="dropdown">
-                <button class="btn btn-light btn-sm rounded-circle position-relative p-2 border-0 shadow-sm" data-bs-toggle="dropdown" aria-expanded="false" id="notifDropdown">
-                    <i class="bi bi-bell fs-5 text-dark"></i>
-                    <?php if ($notifCount > 0): ?>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white" style="font-size: 0.6rem;">
-                            <?= $notifCount ?>
-                        </span>
-                    <?php endif; ?>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-3 animate-slide-down" style="width: 320px; border-radius: 20px; overflow: hidden; z-index: 9999;">
-                    <li class="px-4 py-3 border-bottom bg-light">
-                        <h6 class="m-0 fw-bold text-dark">Notifikasi Maintenance</h6>
-                        <small class="text-muted"><?= $notifCount ?> jadwal dalam 7 hari kedepan</small>
-                    </li>
-                    <div style="max-height: 300px; overflow-y: auto;">
-                        <?php if ($notifCount === 0): ?>
-                            <li class="px-4 py-3 text-muted small">Tidak ada jadwal maintenance</li>
-                        <?php else: ?>
-                            <?php foreach ($notifications as $n): ?>
-                                <li class="border-bottom">
-                                    <a class="dropdown-item px-4 py-3 text-dark transition-hover" href="index.php?page=maintenance">
-                                        <div class="d-flex align-items-center">
-                                            <div class="bg-primary bg-opacity-10 p-2 rounded-circle me-3">
-                                                <i class="bi bi-tools text-primary"></i>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <div class="fw-bold small text-truncate"><?= $n['kode_aset'] ?> - <?= $n['nama_aset'] ?></div>
-                                                <small class="text-muted"><?= date('d M Y', strtotime($n['tanggal'])) ?></small>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </li>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </div>
-                    <li class="px-4 py-2 border-top bg-light text-center">
-                        <a href="index.php?page=maintenance" class="text-primary text-decoration-none small fw-bold">Lihat Semua</a>
-                    </li>
-                </ul>
-            </div>
+            <!-- Notifications moved out -->
         </div>
     </div>
-</nav>
 
 <style>
     .animate-slide-down {
