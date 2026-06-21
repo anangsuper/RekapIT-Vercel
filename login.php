@@ -348,6 +348,29 @@ if (isset($_POST['login'])) {
             padding: 2px 6px;
             border-radius: 4px;
         }
+
+        /* 3D Model Canvas Container */
+        #canvas-container {
+            background: rgba(30, 41, 59, 0.35);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #gltf-loader {
+            pointer-events: none;
+            z-index: 20;
+            transition: opacity 0.5s ease;
+        }
     </style>
 </head>
 <body>
@@ -362,9 +385,16 @@ if (isset($_POST['login'])) {
 <div class="d-flex align-items-center justify-content-center w-100 h-100 flex-wrap gap-5">
     
     <!-- 3D Model Area -->
-    <div class="d-none d-lg-block" style="width: 460px;">
-        <div class="sketchfab-embed-wrapper lux-card" style="border-radius: 28px; overflow: hidden; height: 400px;"> 
-            <iframe title="retro_computer_-_pc_low_poly_3d_model" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/d93b923c8e284281891203bf4362e83c/embed" style="width: 100%; height: 100%;"> </iframe> 
+    <div class="d-none d-lg-block" style="width: 480px; height: 480px;">
+        <div id="canvas-container"> 
+            <!-- Loader -->
+            <div id="gltf-loader" class="position-absolute top-50 start-50 translate-middle text-center d-flex flex-column align-items-center justify-content-center">
+                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Memuat model...</span>
+                </div>
+                <div class="text-muted fw-semibold" style="font-size: 0.8rem; letter-spacing: 0.05em; text-transform: uppercase;">MEMUAT MODEL 3D...</div>
+            </div>
+            <!-- Canvas will be loaded here dynamically -->
         </div>
     </div>
 
@@ -437,5 +467,155 @@ if (isset($_POST['login'])) {
     });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Three.js Library & GLTF Loader -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const container = document.getElementById('canvas-container');
+        if (!container) return;
+
+        // Initialize Three.js scene, camera, renderer
+        const scene = new THREE.Scene();
+
+        // Create camera
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+        camera.position.set(0, 0, 8);
+
+        // Create renderer with alpha (transparent background) and antialiasing
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
+        container.appendChild(renderer.domElement);
+
+        // Add Ambient light for soft global lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambientLight);
+
+        // Main Directional light for shadows/highlights
+        const dirLight1 = new THREE.DirectionalLight(0xffffff, 1.5);
+        dirLight1.position.set(5, 10, 7);
+        scene.add(dirLight1);
+
+        const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+        dirLight2.position.set(-5, -5, -5);
+        scene.add(dirLight2);
+
+        // Tech theme glowing accent lights (blue and purple)
+        const blueLight = new THREE.PointLight(0x4361ee, 8, 15);
+        blueLight.position.set(-3, 2, 3);
+        scene.add(blueLight);
+
+        const purpleLight = new THREE.PointLight(0x7209b7, 8, 15);
+        purpleLight.position.set(3, -2, -3);
+        scene.add(purpleLight);
+
+        // Add OrbitControls for interactive 3D navigation
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.enableZoom = true;
+        controls.maxPolarAngle = Math.PI / 2 + 0.1; // Restrict camera from going too far below the floor
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 1.5; // Smooth slow rotation
+
+        const loaderSpinner = document.getElementById('gltf-loader');
+
+        // Load GLTF / GLB model
+        const loader = new THREE.GLTFLoader();
+        let loadedModel;
+
+        loader.load(
+            'retro_computer_-_pc_low_poly_3d_model.glb',
+            function (gltf) {
+                loadedModel = gltf.scene;
+
+                // Robust auto-scaling and auto-centering
+                const box = new THREE.Box3().setFromObject(loadedModel);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+
+                // Offset model to be centered at origin (0,0,0)
+                loadedModel.position.x += (loadedModel.position.x - center.x);
+                loadedModel.position.y += (loadedModel.position.y - center.y);
+                loadedModel.position.z += (loadedModel.position.z - center.z);
+
+                // Compute ideal camera distance based on model's dimensions
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const fov = camera.fov * (Math.PI / 180);
+                let cameraDistance = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+                cameraDistance *= 1.4; // Add visual padding/margin
+
+                // Position camera & look at center
+                camera.position.set(cameraDistance * 0.7, cameraDistance * 0.5, cameraDistance * 1.1);
+                camera.lookAt(0, 0, 0);
+
+                // Configure control boundaries based on computed distance
+                controls.target.set(0, 0, 0);
+                controls.maxDistance = cameraDistance * 2.2;
+                controls.minDistance = cameraDistance * 0.4;
+
+                // Enable shadow casting and standard material properties for all meshes
+                loadedModel.traverse(function (node) {
+                    if (node.isMesh) {
+                        node.castShadow = true;
+                        node.receiveShadow = true;
+                        if (node.material) {
+                            node.material.roughness = 0.3;
+                            node.material.metalness = 0.7;
+                        }
+                    }
+                });
+
+                scene.add(loadedModel);
+
+                // Fade out and remove loading spinner smoothly
+                if (loaderSpinner) {
+                    loaderSpinner.style.opacity = '0';
+                    setTimeout(() => loaderSpinner.style.display = 'none', 500);
+                }
+            },
+            // Loader progress
+            function (xhr) {
+                if (xhr.lengthComputable && loaderSpinner) {
+                    const percent = Math.round((xhr.loaded / xhr.total) * 100);
+                    const label = loaderSpinner.querySelector('.text-muted');
+                    if (label) label.textContent = `MEMUAT MODEL 3D (${percent}%)`;
+                }
+            },
+            // Loader error
+            function (error) {
+                console.error('Error loading GLTF model:', error);
+                if (loaderSpinner) {
+                    loaderSpinner.innerHTML = '<div class="text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill fs-3 d-block mb-2"></i> GAGAL MEMUAT MODEL 3D</div>';
+                }
+            }
+        );
+
+        // Animation rendering loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Responsive handling on window resize
+        window.addEventListener('resize', function () {
+            if (!container) return;
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        });
+    });
+</script>
 </body>
 </html>
