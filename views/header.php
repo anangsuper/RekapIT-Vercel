@@ -29,7 +29,8 @@ if (!function_exists('get_branch_badge_style')) {
             --primary-color: #4361ee;
             --primary-light: rgba(67, 97, 238, 0.1);
             --secondary-color: #3f37c9;
-            --bg-body: #f1f5f9;
+            /* Vibrant gradient background */
+            --bg-body: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
             --navbar-bg: #0f172a;
             --navbar-text: #94a3b8;
             --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
@@ -39,13 +40,15 @@ if (!function_exists('get_branch_badge_style')) {
 
         body {
             font-family: "Plus Jakarta Sans", sans-serif;
-            background-color: var(--bg-body);
+            background: var(--bg-body);
+            background-attachment: fixed;
+            min-height: 100vh;
             color: #1e293b;
             letter-spacing: -0.01em;
-            padding-top: 85px;
+            padding-top: 90px;
             overflow-x: hidden;
+            line-height: 1.6;
         }
-
         /* Navbar Modern */
         .navbar-custom {
             background: var(--navbar-bg);
