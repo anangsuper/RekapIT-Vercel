@@ -138,9 +138,7 @@ $selected_ids = $_POST['asset_ids'] ?? [];
 <form method="POST">
     <?php if ($stage === 'select'): ?>
         <div class="card p-4 mb-4">
-            <form method="GET" action="index.php" class="row g-3">
-                <input type="hidden" name="page" value="maintenance">
-                <input type="hidden" name="sub" value="massal">
+            <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label fw-bold">Pilih Cabang untuk Maintenance</label>
                     <div class="input-group">
@@ -153,7 +151,7 @@ $selected_ids = $_POST['asset_ids'] ?? [];
                         <button type="submit" class="btn btn-primary">Muat Aset</button>
                     </div>
                 </div>
-            </form>
+            </div>
         </div>
 
         <?php if ($id_cabang): ?>
