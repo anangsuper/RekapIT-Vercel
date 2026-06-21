@@ -184,22 +184,48 @@ $selected_ids = $_POST['asset_ids'] ?? [];
     <?php elseif ($stage === 'review'): ?>
         <input type="hidden" name="stage" value="review">
         <h5 class="fw-bold mb-4">Edit Detail Maintenance Aset Terpilih</h5>
+        
+        <!-- Apply to All -->
+        <div class="card p-3 mb-4 bg-light border-0">
+            <h6 class="fw-bold mb-3">Terapkan ke Semua Aset:</h6>
+            <div class="row g-3">
+                <div class="col-md-2"><input type="date" id="all_tanggal" class="form-control" value="<?= date('Y-m-d') ?>"></div>
+                <div class="col-md-2"><input type="text" id="all_teknisi" class="form-control" placeholder="Nama Teknisi"></div>
+                <div class="col-md-3"><input type="text" id="all_temuan" class="form-control" placeholder="Temuan"></div>
+                <div class="col-md-3"><input type="text" id="all_tindakan" class="form-control" placeholder="Tindakan"></div>
+                <div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-primary w-100" onclick="applyToAll()">Terapkan</button></div>
+            </div>
+        </div>
+
         <?php foreach ($selected_ids as $id): 
             $a = $assetModel->getById($id); ?>
-            <div class="card p-4 mb-3 border-0 shadow-sm">
+            <div class="card p-4 mb-3 border-0 shadow-sm asset-row">
                 <h6 class="fw-bold text-primary mb-3"><?= $a['nama_aset'] ?> (<?= $a['kode_aset'] ?>)</h6>
                 <input type="hidden" name="asset_ids[]" value="<?= $id ?>">
                 <div class="row g-3">
-                    <div class="col-md-2"><input type="date" name="tanggal[<?= $id ?>]" class="form-control" value="<?= date('Y-m-d') ?>" required></div>
-                    <div class="col-md-2"><input type="text" name="teknisi[<?= $id ?>]" class="form-control" placeholder="Teknisi" required></div>
-                    <div class="col-md-3"><input type="text" name="temuan[<?= $id ?>]" class="form-control" placeholder="Temuan"></div>
-                    <div class="col-md-3"><input type="text" name="tindakan[<?= $id ?>]" class="form-control" placeholder="Tindakan"></div>
-                    <div class="col-md-2"><input type="text" name="rekomendasi[<?= $id ?>]" class="form-control" placeholder="Rekomendasi"></div>
+                    <div class="col-md-2"><input type="date" name="tanggal[<?= $id ?>]" class="form-control row-tanggal" value="<?= date('Y-m-d') ?>" required></div>
+                    <div class="col-md-2"><input type="text" name="teknisi[<?= $id ?>]" class="form-control row-teknisi" placeholder="Teknisi" required></div>
+                    <div class="col-md-3"><input type="text" name="temuan[<?= $id ?>]" class="form-control row-temuan" placeholder="Temuan"></div>
+                    <div class="col-md-3"><input type="text" name="tindakan[<?= $id ?>]" class="form-control row-tindakan" placeholder="Tindakan"></div>
+                    <div class="col-md-2"><input type="text" name="rekomendasi[<?= $id ?>]" class="form-control row-rekomendasi" placeholder="Rekomendasi"></div>
                 </div>
             </div>
         <?php endforeach; ?>
         <button type="submit" name="proses_massal_final" class="btn btn-success btn-lg px-5">Simpan Semua</button>
+
+        <script>
+            function applyToAll() {
+                const fields = ['tanggal', 'teknisi', 'temuan', 'tindakan'];
+                fields.forEach(field => {
+                    const allVal = document.getElementById('all_' + field).value;
+                    if (allVal) {
+                        document.querySelectorAll('.row-' + field).forEach(el => el.value = allVal);
+                    }
+                });
+            }
+        </script>
     <?php endif; ?>
+
 </form>
 
 <script>
