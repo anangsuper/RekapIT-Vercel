@@ -2,7 +2,8 @@
 ob_start();
 session_start();
 require_once __DIR__ . '/config/database.php';
-require_once __DIR__ . '/helpers/auth.php'; // Menggunakan __DIR__ untuk path absolut yang portabel
+require_once __DIR__ . '/helpers/auth.php';
+require_once __DIR__ . '/helpers/pagination.php'; // Include pagination helper
 
 if (!isset($_SESSION['user_id'])) {
     $currentPage = basename($_SERVER['PHP_SELF']);
