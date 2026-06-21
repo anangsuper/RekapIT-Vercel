@@ -532,7 +532,7 @@ if (isset($_POST['login'])) {
         let loadedModel;
 
         loader.load(
-            'smol_ame_in_an_upcycled_terrarium_hololiveen.glb',
+            '/smol_ame_in_an_upcycled_terrarium_hololiveen.glb',
             function (gltf) {
                 loadedModel = gltf.scene;
 
