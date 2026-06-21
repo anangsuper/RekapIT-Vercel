@@ -29,10 +29,11 @@ if (!function_exists('get_branch_badge_style')) {
             --primary-color: #4361ee;
             --primary-light: rgba(67, 97, 238, 0.1);
             --secondary-color: #3f37c9;
-            --bg-body: #f8fafc;
+            --bg-body: #f1f5f9;
             --navbar-bg: #0f172a;
             --navbar-text: #94a3b8;
-            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             --glass-bg: rgba(255, 255, 255, 0.85);
         }
 
