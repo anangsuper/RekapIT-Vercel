@@ -185,4 +185,15 @@ class Maintenance {
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    public function getYearlyStats($id_cabang, $tahun) {
+        $query = "SELECT MONTH(tanggal) as bulan, COUNT(*) as jumlah 
+                  FROM maintenance m
+                  JOIN assets a ON m.asset_id = a.id
+                  WHERE a.id_cabang = :id_cabang AND YEAR(tanggal) = :tahun
+                  GROUP BY MONTH(tanggal)";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute(['id_cabang' => $id_cabang, 'tahun' => $tahun]);
+        return $stmt->fetchAll();
+    }
 }
