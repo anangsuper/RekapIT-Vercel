@@ -1,3 +1,8 @@
+ 1 <?php
+   2 ini_set('display_errors', 1);
+   3 ini_set('display_startup_errors', 1);
+   4 error_reporting(E_ALL);
+   5 // ... kode Anda selanjutnya ...
 <?php
 ob_start();
 session_start();
