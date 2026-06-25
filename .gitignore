@@ -1,0 +1,14 @@
+# Database
+# config/database.php (Removed from ignore to allow Railway deployment)
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# PHP temporary
+*.log
+vendor/
