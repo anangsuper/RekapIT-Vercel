@@ -50,7 +50,7 @@ Sistem terpusat untuk mendata aset IT perusahaan dengan fitur:
 ### Langkah-langkah
 1. **Clone Repositori:**
    ```bash
-   git clone https://github.com/anangsuper/rekap-it-hafiz.git
+   git clone https://github.com/anangsuper/RekapIT-Vercel.git
    ```
 2. **Setup Database:**
    - Impor file `database/rekap_it.sql` ke database MySQL Anda.
