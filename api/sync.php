@@ -16,7 +16,7 @@ if (!isset($_SESSION['user_id']) && ($input_token === '' || $input_token !== $va
 
 try {
     // Force sync pull from Google Sheets
-    $sync->ensureInitialized(true);
+    $sync->ensureInitialized(true, true);
     
     echo json_encode([
         'success' => true,

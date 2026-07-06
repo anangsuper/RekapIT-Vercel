@@ -99,7 +99,7 @@ class GoogleSheetsSync {
         return $conn;
     }
 
-    public function ensureInitialized($forceSync = false) {
+    public function ensureInitialized($forceSync = false, $throwOnError = false) {
         if (isset($_SESSION['needs_sync']) && $_SESSION['needs_sync'] === true) {
             $forceSync = true;
             $_SESSION['needs_sync'] = false;
@@ -138,7 +138,7 @@ class GoogleSheetsSync {
             if (defined('SKIP_DB_SYNC') && SKIP_DB_SYNC && file_exists($this->dbPath)) {
                 return;
             }
-            $this->pullFromGoogleSheets();
+            $this->pullFromGoogleSheets($throwOnError);
         }
     }
 
@@ -349,10 +349,13 @@ class GoogleSheetsSync {
         return $resData['access_token'];
     }
 
-    public function pullFromGoogleSheets() {
+    public function pullFromGoogleSheets($throwOnError = false) {
         if (!$this->spreadsheetId) {
             if (!file_exists($this->dbPath)) {
                 $this->initializeOfflineDatabase();
+            }
+            if ($throwOnError) {
+                throw new Exception("GOOGLE_SPREADSHEET_ID tidak terkonfigurasi di env variable.");
             }
             return;
         }
@@ -366,6 +369,9 @@ class GoogleSheetsSync {
             }
             // Update last_sync to prevent immediate retry loop
             @file_put_contents($this->dbPath . '.json', json_encode(['last_sync' => time()]));
+            if ($throwOnError) {
+                throw $e;
+            }
             return;
         }
 
@@ -389,12 +395,16 @@ class GoogleSheetsSync {
         @curl_close($ch);
 
         if ($httpCode !== 200 || !$response) {
-            error_log("Google Sheets API error HTTP " . $httpCode . ": " . $response);
+            $errMsg = "Google Sheets API error HTTP " . $httpCode . ": " . $response;
+            error_log($errMsg);
             if (!file_exists($this->dbPath)) {
                 $this->initializeOfflineDatabase();
             }
             // Update last_sync to prevent immediate retry loop
             @file_put_contents($this->dbPath . '.json', json_encode(['last_sync' => time()]));
+            if ($throwOnError) {
+                throw new Exception($errMsg);
+            }
             return;
         }
 
@@ -405,6 +415,9 @@ class GoogleSheetsSync {
             }
             // Update last_sync to prevent immediate retry loop
             @file_put_contents($this->dbPath . '.json', json_encode(['last_sync' => time()]));
+            if ($throwOnError) {
+                throw new Exception("Format respons Google Sheets API tidak valid.");
+            }
             return;
         }
 
