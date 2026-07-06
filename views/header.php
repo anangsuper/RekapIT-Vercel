@@ -698,7 +698,7 @@ $notifCount = count($notifications);
     <ul class="sidebar-nav">
         <li>
             <a href="index.php?page=maintenance&sub=history" class="sidebar-link <?= ($page == 'maintenance') ? 'active' : '' ?>">
-                <i class="bi bi-calendar-check"></i> Maintenance PC
+                <i class="bi bi-calendar-check"></i> Maintenance Aset
             </a>
         </li>
         <li>

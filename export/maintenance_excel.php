@@ -31,7 +31,7 @@ header("Content-Disposition: attachment; filename=\"$filename\"");
 ?>
 <table border="1">
     <tr>
-        <th colspan="4" style="font-size: 16px;">LAPORAN MAINTENANCE PC BULANAN</th>
+        <th colspan="4" style="font-size: 16px;">LAPORAN MAINTENANCE ASET BULANAN</th>
     </tr>
     <tr>
         <th colspan="4">Cabang: <?= $branchName ?></th>

@@ -116,7 +116,7 @@ $months = [
                 <i class="bi bi-file-earmark-bar-graph fs-4"></i>
             </div>
             <div>
-                <h4 class="fw-800 m-0">Laporan Maintenance PC</h4>
+                <h4 class="fw-800 m-0">Laporan Maintenance Aset</h4>
                 <p class="text-muted small m-0">Analisis dan rekapitulasi data pemeriksaan berkala</p>
             </div>
         </div>
