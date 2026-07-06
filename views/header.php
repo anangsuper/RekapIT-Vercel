@@ -65,6 +65,7 @@ $notifCount = count($notifications);
             --surface-soft: rgba(255, 255, 255, 0.02);
             --line: rgba(255, 255, 255, 0.06);
             --dropdown-bg: rgba(10, 15, 30, 0.95);
+            --select-option-bg: #0b0f19;
             --modal-bg: rgba(10, 15, 30, 0.95);
             --btn-text-color: #ffffff;
             --blob-opacity: 0.18;
@@ -105,6 +106,7 @@ $notifCount = count($notifications);
             --surface-soft: rgba(0, 0, 0, 0.02);
             --line: rgba(99, 102, 241, 0.1);
             --dropdown-bg: #ffffff;
+            --select-option-bg: #ffffff;
             --modal-bg: rgba(255, 255, 255, 0.95);
             --btn-text-color: #0f172a;
             --blob-opacity: 0.06;
@@ -377,6 +379,11 @@ $notifCount = count($notifications);
             font-weight: 500;
             color: var(--text-main) !important;
             transition: all 0.2s ease;
+        }
+        .form-select option,
+        select option {
+            background-color: var(--select-option-bg) !important;
+            color: var(--text-main) !important;
         }
 
         .form-control:focus, .form-select:focus {
