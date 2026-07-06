@@ -584,7 +584,17 @@ $months = [
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
-                <p class="text-muted small mb-4">Silakan lengkapi nama dan jabatan penandatangan laporan sebelum mencetak PDF.</p>
+                <p class="text-muted small mb-3">Silakan pilih tipe laporan dan lengkapi nama/jabatan penandatangan laporan sebelum mencetak PDF.</p>
+                
+                <!-- Pilih Tipe Laporan -->
+                <div class="mb-4 col-md-6">
+                    <label class="form-label text-muted mb-1.5" style="font-size: 0.78rem; font-weight: bold;"><i class="bi bi-gear-fill me-1"></i>Pilih Tipe Laporan PDF</label>
+                    <select id="ttd_tipe_laporan" class="form-select bg-light border py-2 rounded-3" style="font-size: 0.85rem;" onchange="updateExportLinks()">
+                        <option value="1">Tipe 1: Laporan Rinci (Checklist Detail - Tampilan Awal)</option>
+                        <option value="2">Tipe 2: Laporan Ringkas / Resmi (Kop Bank Mitra - Tampilan Baru)</option>
+                    </select>
+                </div>
+                
                 <div class="row g-4">
                     <!-- Dibuat Oleh -->
                     <div class="col-md-4">
@@ -977,6 +987,7 @@ $months = [
     }
 
     function updateExportLinks() {
+        const tipe = document.getElementById('ttd_tipe_laporan')?.value || '1';
         const dibuatNama = encodeURIComponent(document.getElementById('ttd_dibuat_nama')?.value || '');
         const dibuatJabatan = encodeURIComponent(document.getElementById('ttd_dibuat_jabatan')?.value || '');
         const mengetahuiNama = encodeURIComponent(document.getElementById('ttd_mengetahui_nama')?.value || '');
@@ -989,7 +1000,7 @@ $months = [
 
         if (modalPdfBtn) {
             const baseUrl = `export/maintenance_pdf.php?id_cabang=<?= $selected_cabang ?>&bulan=<?= $selected_bulan ?>&tahun=<?= $selected_tahun ?>`;
-            modalPdfBtn.href = `${baseUrl}&dibuat_nama=${dibuatNama}&dibuat_jabatan=${dibuatJabatan}&mengetahui_nama=${mengetahuiNama}&mengetahui_jabatan=${mengetahuiJabatan}&menyetujui_nama=${menyetujuiNama}&menyetujui_jabatan=${menyetujuiJabatan}`;
+            modalPdfBtn.href = `${baseUrl}&tipe=${tipe}&dibuat_nama=${dibuatNama}&dibuat_jabatan=${dibuatJabatan}&mengetahui_nama=${mengetahuiNama}&mengetahui_jabatan=${mengetahuiJabatan}&menyetujui_nama=${menyetujuiNama}&menyetujui_jabatan=${menyetujuiJabatan}`;
         }
         if (excelBtn) {
             const baseUrl = excelBtn.getAttribute('data-base-url');
