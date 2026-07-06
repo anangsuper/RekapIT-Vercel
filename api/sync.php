@@ -18,6 +18,8 @@ try {
     // Force sync pull from Google Sheets
     $sync->ensureInitialized(true, true);
     
+    $_SESSION['needs_sync'] = true;
+    
     echo json_encode([
         'success' => true,
         'message' => 'Sinkronisasi berhasil dilakukan.',
