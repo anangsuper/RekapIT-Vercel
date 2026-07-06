@@ -601,6 +601,11 @@ if (isset($_POST['login'])) {
     </div>
 </div>
 
+<!-- Bottom Left Branding Tag -->
+<div class="dibuat-tag" style="position: fixed; bottom: 16px; left: 20px; font-size: 0.72rem; color: #64748b; opacity: 0.6; font-family: 'Fira Code', 'Courier New', monospace; z-index: 100; pointer-events: none; letter-spacing: 0.05em;">
+    dibuat 2026 AHF
+</div>
+
 <script>
     const togglePassword = document.querySelector('#togglePassword');
     const password = document.querySelector('#password');
