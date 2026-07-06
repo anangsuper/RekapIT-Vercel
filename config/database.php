@@ -510,6 +510,9 @@ class GoogleSheetsSync {
             }
             // Update last_sync to prevent immediate retry loop
             @file_put_contents($this->dbPath . '.json', json_encode(['last_sync' => time()]));
+            if ($throwOnError) {
+                throw $e;
+            }
         }
     }
 
