@@ -702,8 +702,13 @@ $notifCount = count($notifications);
             </a>
         </li>
         <li>
-            <a href="index.php?page=perbaikan" class="sidebar-link <?= in_array($page, ['perbaikan', 'sparepart']) ? 'active' : '' ?>">
+            <a href="index.php?page=perbaikan" class="sidebar-link <?= ($page == 'perbaikan') ? 'active' : '' ?>">
                 <i class="bi bi-tools"></i> Tiket Perbaikan
+            </a>
+        </li>
+        <li>
+            <a href="index.php?page=sparepart" class="sidebar-link <?= ($page == 'sparepart') ? 'active' : '' ?>">
+                <i class="bi bi-cpu-fill"></i> Suku Cadang (Sparepart)
             </a>
         </li>
         <?php if (hasRole('admin')): ?>
