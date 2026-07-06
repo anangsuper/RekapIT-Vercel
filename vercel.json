@@ -6,6 +6,10 @@
   },
   "routes": [
     {
+      "src": "/test_db.php",
+      "dest": "/api/test_db.php"
+    },
+    {
       "src": "/(assets|uploads)/(.*)",
       "dest": "/$1/$2"
     },
