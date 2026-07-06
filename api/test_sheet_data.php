@@ -7,7 +7,7 @@ $response = [];
 
 try {
     $accessToken = $sync->getAccessToken();
-    $url = 'https://sheets.googleapis.com/v4/spreadsheets/' . $google_spreadsheet_id . '/values/maintenance!A1:Z100';
+    $url = 'https://sheets.googleapis.com/v4/spreadsheets/' . $google_spreadsheet_id . '/values/users!A1:Z100';
     
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
