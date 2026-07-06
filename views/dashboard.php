@@ -33,12 +33,23 @@ try {
     $stmtBranch = $conn->query("SELECT c.nama_cabang, COUNT(a.id) as total FROM cabang c LEFT JOIN assets a ON c.id = a.id_cabang GROUP BY c.id");
     $branchDistribution = $stmtBranch->fetchAll();
 
+    // Top 5 Aset Terboros (Biaya Perbaikan Tertinggi)
+    $stmtCostlyAssets = $conn->query("SELECT a.id, a.kode_aset, a.nama_aset, c.nama_cabang, SUM(r.biaya) as total_biaya
+                                     FROM repairs r
+                                     JOIN assets a ON r.asset_id = a.id
+                                     LEFT JOIN cabang c ON a.id_cabang = c.id
+                                     GROUP BY a.id
+                                     ORDER BY total_biaya DESC
+                                     LIMIT 5");
+    $costlyAssets = $stmtCostlyAssets->fetchAll();
+
 } catch (PDOException $e) {
     error_log("Dashboard PDO Error: " . $e->getMessage());
     $totalAssets = $totalMaintenance = $totalRepairs = $totalCost = $totalPerluTindakan = 0;
     $brokenAssets = [];
     $recentLogs = [];
     $branchDistribution = [];
+    $costlyAssets = [];
 }
 ?>
 
@@ -415,21 +426,22 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
     </div>
 </div>
 
-<!-- Distribusi Aset per Cabang -->
+<!-- Distribusi Aset & Top 5 Aset Terboros -->
 <div class="row g-4 mb-5 animate-fade-in">
-    <div class="col-md-12">
-        <div class="card p-4 border-0">
+    <!-- Distribusi Aset per Cabang -->
+    <div class="col-md-6">
+        <div class="card p-4 border-0 h-100 shadow-sm">
             <h6 class="fw-800 mb-4 text-dark d-flex align-items-center">
                 <i class="bi bi-pie-chart me-2 text-primary"></i> Distribusi Aset per Cabang
             </h6>
             <div class="row align-items-center">
-                <div class="col-md-5 d-flex justify-content-center">
-                    <div style="max-height: 250px; position: relative; width: 100%;">
+                <div class="col-md-5 d-flex justify-content-center mb-3 mb-md-0">
+                    <div style="max-height: 200px; position: relative; width: 100%;">
                         <canvas id="branchDistChart"></canvas>
                     </div>
                 </div>
                 <div class="col-md-7">
-                    <div class="row g-3">
+                    <div class="row g-2">
                         <?php 
                         $colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#a855f7', '#06b6d4', '#ec4899', '#3b82f6'];
                         $idx = 0;
@@ -438,18 +450,62 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
                             $idx++;
                             $pct = ($totalAssets > 0) ? round($branch['total'] / $totalAssets * 100, 1) : 0;
                         ?>
-                            <div class="col-md-6">
-                                <div class="p-3 rounded-3 bg-light border-start border-4 d-flex justify-content-between align-items-center" style="border-color: <?= $color ?> !important;">
-                                    <div>
-                                        <div class="small fw-bold text-dark"><?= htmlspecialchars($branch['nama_cabang']) ?></div>
-                                        <small class="text-muted"><?= $pct ?>% dari total</small>
+                            <div class="col-6">
+                                <div class="p-2 rounded-3 bg-light border-start border-4 d-flex justify-content-between align-items-center" style="border-color: <?= $color ?> !important; font-size: 0.8rem;">
+                                    <div class="text-truncate me-2">
+                                        <div class="fw-bold text-dark text-truncate" title="<?= htmlspecialchars($branch['nama_cabang']) ?>"><?= htmlspecialchars($branch['nama_cabang']) ?></div>
+                                        <small class="text-muted"><?= $pct ?>%</small>
                                     </div>
-                                    <span class="badge bg-white text-dark border fw-bold px-2.5 py-1.5"><?= $branch['total'] ?> Aset</span>
+                                    <span class="badge bg-white text-dark border fw-bold px-2 py-1"><?= $branch['total'] ?></span>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top 5 Aset Terboros -->
+    <div class="col-md-6">
+        <div class="card p-4 border-0 h-100 shadow-sm">
+            <h6 class="fw-800 mb-4 text-dark d-flex align-items-center">
+                <i class="bi bi-cash-coin me-2 text-danger"></i> Top 5 Aset Terboros (Biaya Perbaikan)
+            </h6>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
+                    <thead class="table-light border-bottom">
+                        <tr>
+                            <th>Aset</th>
+                            <th>Cabang</th>
+                            <th class="text-end">Total Biaya</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($costlyAssets)): ?>
+                            <tr>
+                                <td colspan="3" class="text-center py-4 text-muted small">
+                                    <i class="bi bi-info-circle me-1 fs-5"></i> Belum ada data perbaikan dengan biaya.
+                                </td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($costlyAssets as $asset): ?>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-bold text-dark"><?= htmlspecialchars($asset['nama_aset']) ?></span>
+                                            <small class="text-muted"><?= htmlspecialchars($asset['kode_aset']) ?></small>
+                                        </div>
+                                    </td>
+                                    <td><?= htmlspecialchars($asset['nama_cabang'] ?: '-') ?></td>
+                                    <td class="text-end fw-bold text-danger">
+                                        Rp <?= number_format($asset['total_biaya'], 0, ',', '.') ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
