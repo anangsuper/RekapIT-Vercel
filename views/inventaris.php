@@ -55,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
         'id_divisi' => $_POST['id_divisi'],
         'id_karyawan' => $_POST['id_karyawan'],
         'kondisi' => $_POST['kondisi'],
+        'tanggal_kadaluarsa_garansi' => $_POST['tanggal_kadaluarsa_garansi'] ?: null,
         'spesifikasi' => $_POST['spesifikasi'] ?? null
     ];
     if ($assetModel->create($data)) {
@@ -78,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
         'id_divisi' => $_POST['id_divisi'],
         'id_karyawan' => $_POST['id_karyawan'],
         'kondisi' => $_POST['kondisi'],
+        'tanggal_kadaluarsa_garansi' => $_POST['tanggal_kadaluarsa_garansi'] ?: null,
         'spesifikasi' => $_POST['spesifikasi'] ?? null
     ];
     if ($assetModel->update($id, $data, $_SESSION['user_id'])) {
@@ -265,6 +267,7 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                             <th>Detail Perangkat</th>
                             <th>Lokasi</th>
                             <th>Penanggung Jawab</th>
+                            <th>Garansi</th>
                             <th>Kondisi</th>
                             <th class="text-end pe-4" width="120">Aksi</th>
                         </tr>
@@ -313,6 +316,34 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                                 </td>
                                 <td>
                                     <?php 
+                                    if (!empty($a['tanggal_kadaluarsa_garansi'])) {
+                                        $exp_date = strtotime($a['tanggal_kadaluarsa_garansi']);
+                                        $today = strtotime(date('Y-m-d'));
+                                        $diff_seconds = $exp_date - $today;
+                                        $diff_days = round($diff_seconds / (60 * 60 * 24));
+                                        
+                                        if ($diff_days > 30) {
+                                            $w_color = 'success';
+                                            $w_text = 'Aktif (' . $diff_days . ' hari)';
+                                        } elseif ($diff_days >= 0) {
+                                            $w_color = 'warning';
+                                            $w_text = 'Limit (' . $diff_days . ' hari)';
+                                        } else {
+                                            $w_color = 'danger';
+                                            $w_text = 'Habis';
+                                        }
+                                        ?>
+                                        <span class="badge bg-<?= $w_color ?> bg-opacity-10 text-<?= $w_color ?> rounded px-2.5 py-1.5 fw-bold" style="font-size: 0.68rem;" title="Hingga: <?= date('d M Y', $exp_date) ?>">
+                                            🛡️ <?= $w_text ?>
+                                        </span>
+                                        <?php
+                                    } else {
+                                        echo '<span class="text-muted small">-</span>';
+                                    }
+                                    ?>
+                                </td>
+                                <td>
+                                    <?php 
                                     $bg = 'success';
                                     if ($a['kondisi'] == 'Rusak Ringan') $bg = 'warning';
                                     if ($a['kondisi'] == 'Rusak Berat') $bg = 'danger';
@@ -327,7 +358,6 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                                             <a href="index.php?page=perbaikan&asset_id=<?= $a['id'] ?>" class="btn btn-warning text-dark btn-sm rounded-pill fw-bold px-3 py-1.5 d-inline-flex align-items-center gap-1 shadow-sm" style="font-size: 0.72rem;">
                                                 <i class="bi bi-wrench" style="font-size: 0.75rem;"></i> Perbaikan
                                             </a>
-                                        <?php endif; ?>
                                         <div class="dropdown">
                                             <button class="btn btn-light btn-sm rounded-circle shadow-sm border" data-bs-toggle="dropdown">
                                                 <i class="bi bi-three-dots-vertical"></i>
@@ -344,6 +374,7 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                                                        data-divisi="<?= htmlspecialchars($a['nama_divisi']) ?>"
                                                        data-karyawan="<?= htmlspecialchars($a['nama_karyawan'] ?: 'Unassigned') ?>"
                                                        data-kondisi="<?= $a['kondisi'] ?>"
+                                                       data-garansi="<?= !empty($a['tanggal_kadaluarsa_garansi']) ? date('d M Y', strtotime($a['tanggal_kadaluarsa_garansi'])) : '-' ?>"
                                                        data-spesifikasi="<?= htmlspecialchars($a['spesifikasi'] ?: '') ?>">
                                                     <i class="bi bi-eye me-2 text-info"></i> Lihat Detail</a></li>
                                                 <?php if ($a['kondisi'] !== 'Baik'): ?>
@@ -369,6 +400,7 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                                                    data-divisi="<?= $a['id_divisi'] ?>"
                                                    data-karyawan="<?= $a['id_karyawan'] ?>"
                                                    data-kondisi="<?= $a['kondisi'] ?>"
+                                                   data-garansi="<?= htmlspecialchars($a['tanggal_kadaluarsa_garansi'] ?: '') ?>"
                                                    data-spesifikasi="<?= htmlspecialchars($a['spesifikasi'] ?: '') ?>">
                                                 <i class="bi bi-pencil me-2 text-warning"></i> Edit Aset</a></li>
                                             <li><hr class="dropdown-divider"></li>
@@ -376,7 +408,7 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                                                 <form method="POST" onsubmit="return confirm('Hapus aset ini secara permanen?')">
                                                     <input type="hidden" name="id" value="<?= $a['id'] ?>">
                                                     <button type="submit" name="hapus" class="dropdown-item py-2 text-danger">
-                                                        <i class="bi bi-trash me-2"></i> Hapus Aset
+                                                        <i class="bi bi-trash text-danger me-2"></i> Hapus Aset
                                                     </button>
                                                 </form>
                                             </li>
@@ -394,7 +426,7 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
             <!-- Mobile Layout -->
             <div class="d-block d-md-none p-3" id="mobileAssetContainer">
                 <?php foreach ($assets as $a): ?>
-                    <div class="card border p-3.5 mb-3 rounded-3 shadow-sm mobile-asset-card-item" data-search="<?= htmlspecialchars(strtolower($a['kode_aset'] . ' ' . $a['nama_aset'] . ' ' . ($a['serial_number'] ?? '') . ' ' . ($a['merk'] ?? '') . ' ' . ($a['model'] ?? '') . ' ' . $a['nama_cabang'] . ' ' . ($a['nama_karyawan'] ?? ''))) ?>">
+                    <div class="card border p-3.5 mb-3 rounded-3 shadow-sm mobile-asset-card-item" data-search="<?= htmlspecialchars(strtolower($a['kode_aset'] . ' ' . $a['nama_aset'] . ' ' . ($a['serial_number'] ?? '') . ' ' . ($a['merk'] ?? '') . ' ' . ($a['model'] ?? '') . ' ' . ($a['nama_cabang'] . ' ' . ($a['nama_karyawan'] ?? '')))) ?>">
                         <div class="d-flex justify-content-between align-items-start mb-2.5">
                             <div>
                                 <span class="badge bg-primary bg-opacity-10 text-primary rounded px-2 py-1 small fw-bold" style="font-size: 0.7rem;"><?= $a['kode_aset'] ?></span>
@@ -415,8 +447,27 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                         </div>
                         
                         <div class="p-2.5 bg-light rounded-3 mb-3 small row g-2">
-                            <div class="col-6"><span class="text-muted text-xs">Lokasi:</span><br><strong><?= htmlspecialchars($a['nama_cabang']) ?></strong></div>
-                            <div class="col-6"><span class="text-muted text-xs">Assignee:</span><br><strong><?= htmlspecialchars($a['nama_karyawan'] ?: 'Unassigned') ?></strong></div>
+                            <div class="col-4"><span class="text-muted text-xs">Lokasi:</span><br><strong class="text-truncate d-block" style="max-width:100%;"><?= htmlspecialchars($a['nama_cabang']) ?></strong></div>
+                            <div class="col-4"><span class="text-muted text-xs">Assignee:</span><br><strong class="text-truncate d-block" style="max-width:100%;"><?= htmlspecialchars($a['nama_karyawan'] ?: 'Unassigned') ?></strong></div>
+                            <div class="col-4">
+                                <span class="text-muted text-xs">Garansi:</span><br>
+                                <?php 
+                                if (!empty($a['tanggal_kadaluarsa_garansi'])) {
+                                    $exp_date = strtotime($a['tanggal_kadaluarsa_garansi']);
+                                    $today = strtotime(date('Y-m-d'));
+                                    $diff_days = round(($exp_date - $today) / 86400);
+                                    if ($diff_days > 30) {
+                                        echo '<span class="text-success fw-bold">Aktif</span>';
+                                    } elseif ($diff_days >= 0) {
+                                        echo '<span class="text-warning fw-bold">Limit</span>';
+                                    } else {
+                                        echo '<span class="text-danger fw-bold">Habis</span>';
+                                    }
+                                } else {
+                                    echo '<span class="text-muted">-</span>';
+                                }
+                                ?>
+                            </div>
                         </div>
 
                         <div class="d-flex gap-2 flex-wrap">
@@ -436,6 +487,7 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                                     data-divisi="<?= htmlspecialchars($a['nama_divisi']) ?>"
                                     data-karyawan="<?= htmlspecialchars($a['nama_karyawan'] ?: 'Unassigned') ?>"
                                     data-kondisi="<?= $a['kondisi'] ?>"
+                                    data-garansi="<?= !empty($a['tanggal_kadaluarsa_garansi']) ? date('d M Y', strtotime($a['tanggal_kadaluarsa_garansi'])) : '-' ?>"
                                     data-spesifikasi="<?= htmlspecialchars($a['spesifikasi'] ?: '') ?>">
                                 <i class="bi bi-eye"></i> Detail
                             </button>
@@ -459,6 +511,7 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                                    data-divisi="<?= $a['id_divisi'] ?>"
                                    data-karyawan="<?= $a['id_karyawan'] ?>"
                                    data-kondisi="<?= $a['kondisi'] ?>"
+                                   data-garansi="<?= htmlspecialchars($a['tanggal_kadaluarsa_garansi'] ?: '') ?>"
                                    data-spesifikasi="<?= htmlspecialchars($a['spesifikasi'] ?: '') ?>">
                                 <i class="bi bi-pencil me-1"></i> Edit
                             </button>
@@ -570,6 +623,10 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                                 <option value="Rusak Berat">Rusak Berat</option>
                             </select>
                         </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Tanggal Habis Garansi</label>
+                            <input type="date" name="tanggal_kadaluarsa_garansi" class="form-control bg-light border-0">
+                        </div>
                         <div class="col-md-12">
                             <label class="form-label small fw-bold text-muted">Spesifikasi / Detail Teknis</label>
                             <textarea name="spesifikasi" class="form-control bg-light border-0" rows="3" placeholder="Contoh: RAM 16GB, SSD 512GB, Intel Core i7"></textarea>
@@ -660,6 +717,10 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                                 <option value="Rusak Berat">Rusak Berat</option>
                             </select>
                         </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Tanggal Habis Garansi</label>
+                            <input type="date" name="tanggal_kadaluarsa_garansi" id="edit_garansi" class="form-control bg-light border-0">
+                        </div>
                         <div class="col-md-12">
                             <label class="form-label small fw-bold text-muted">Spesifikasi / Detail Teknis</label>
                             <textarea name="spesifikasi" id="edit_spesifikasi" class="form-control bg-light border-0" rows="3" placeholder="Contoh: RAM 16GB, SSD 512GB, Intel Core i7"></textarea>
@@ -718,6 +779,7 @@ document.querySelectorAll('.btn-edit').forEach(btn => {
         const divisi = this.getAttribute('data-divisi');
         const karyawan = this.getAttribute('data-karyawan');
         const kondisi = this.getAttribute('data-kondisi');
+        const garansi = this.getAttribute('data-garansi');
         const spesifikasi = this.getAttribute('data-spesifikasi');
 
         document.getElementById('edit_id').value = id;
@@ -733,6 +795,7 @@ document.querySelectorAll('.btn-edit').forEach(btn => {
         filterKaryawan('edit_select_cabang', 'edit_select_karyawan');
         document.getElementById('edit_select_karyawan').value = karyawan || "";
         document.getElementById('edit_kondisi').value = kondisi;
+        document.getElementById('edit_garansi').value = garansi || "";
         document.getElementById('edit_spesifikasi').value = spesifikasi || "";
 
         new bootstrap.Modal(document.getElementById('modalEdit')).show();
@@ -774,6 +837,7 @@ document.querySelectorAll('.btn-detail').forEach(btn => {
         const divisi = this.getAttribute('data-divisi');
         const karyawan = this.getAttribute('data-karyawan');
         const kondisi = this.getAttribute('data-kondisi');
+        const garansi = this.getAttribute('data-garansi');
         const spesifikasi = this.getAttribute('data-spesifikasi');
 
         document.getElementById('detail_kode').innerText = kode;
@@ -783,6 +847,7 @@ document.querySelectorAll('.btn-detail').forEach(btn => {
         document.getElementById('detail_sn').innerText = sn;
         document.getElementById('detail_lokasi').innerText = `${cabang} - ${divisi}`;
         document.getElementById('detail_user').innerText = karyawan;
+        document.getElementById('detail_garansi').innerText = garansi || '-';
         document.getElementById('detail_spesifikasi').innerText = spesifikasi || '-';
         
         const badgeKondisi = document.getElementById('detail_kondisi');
@@ -896,6 +961,10 @@ function printQRLabel() {
                             <tr class="border-bottom py-2">
                                 <td class="text-muted fw-semibold py-2">Serial Number</td>
                                 <td class="text-dark fw-bold py-2" id="detail_sn">-</td>
+                            </tr>
+                            <tr class="border-bottom py-2">
+                                <td class="text-muted fw-semibold py-2">Masa Berlaku Garansi</td>
+                                <td class="text-dark fw-bold py-2" id="detail_garansi">-</td>
                             </tr>
                             <tr class="border-bottom py-2">
                                 <td class="text-muted fw-semibold py-2">Lokasi & Divisi</td>
