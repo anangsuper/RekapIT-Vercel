@@ -24,7 +24,7 @@ if (isset($_SESSION['user_id'])) {
 
 $error = '';
 if (isset($_GET['reason']) && $_GET['reason'] === 'timeout') {
-    $error = 'Sesi Anda telah berakhir karena tidak ada aktivitas selama 5 menit.';
+    $error = 'Sesi Anda telah berakhir karena tidak ada aktivitas.';
 }
 
 if (isset($_POST['login'])) {

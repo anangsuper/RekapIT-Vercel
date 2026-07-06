@@ -2,10 +2,10 @@
 ob_start();
 session_start();
 
-// Inactivity timeout: 5 minutes (300 seconds)
+// Inactivity timeout: 24 hours (86400 seconds)
 if (isset($_SESSION['user_id'])) {
     $now = time();
-    $expire_time = 300;
+    $expire_time = 86400; // 24 jam
     if (isset($_SESSION['last_activity']) && ($now - $_SESSION['last_activity'] > $expire_time)) {
         header("Location: logout.php?reason=timeout");
         exit();
