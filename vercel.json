@@ -1,0 +1,49 @@
+{
+  "functions": {
+    "api/*.php": {
+      "runtime": "vercel-php@0.9.0"
+    }
+  },
+  "routes": [
+    {
+      "src": "/(assets|uploads)/(.*)",
+      "dest": "/$1/$2"
+    },
+    {
+      "src": "/export/maintenance_pdf.php",
+      "dest": "/api/maintenance_pdf.php"
+    },
+    {
+      "src": "/export/maintenance_excel.php",
+      "dest": "/api/maintenance_excel.php"
+    },
+    {
+      "src": "/export/excel.php",
+      "dest": "/api/excel.php"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/login.php",
+      "dest": "/api/login.php"
+    },
+    {
+      "src": "/logout.php",
+      "dest": "/api/logout.php"
+    },
+    {
+      "src": "/health.php",
+      "dest": "/api/health.php"
+    },
+    {
+      "src": "/migrate_mysql_to_sheets.php",
+      "dest": "/api/migrate_mysql_to_sheets.php"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.php"
+    }
+  ]
+}
