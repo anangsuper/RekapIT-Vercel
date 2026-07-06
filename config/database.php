@@ -8,6 +8,13 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Prevent browser and CDN caching for all dynamic pages
+if (!headers_sent()) {
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+    header("Cache-Control: post-check=0, pre-check=0", false);
+    header("Pragma: no-cache");
+}
+
 // Load local .env file if it exists to populate getenv/$_ENV
 $envPath = dirname(__DIR__) . '/.env';
 if (file_exists($envPath)) {
