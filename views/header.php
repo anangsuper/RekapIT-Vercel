@@ -643,6 +643,70 @@ $notifCount = count($notifications);
             animation: spin 1s linear infinite;
             display: inline-block;
         }
+
+        /* Dynamic Theme Overrides for hardcoded elements */
+        body:not(.light-theme) .bg-white {
+            background-color: var(--card-bg) !important;
+            color: var(--text-main) !important;
+        }
+        body:not(.light-theme) .card-header.bg-white,
+        body:not(.light-theme) .card-footer.bg-white {
+            background-color: transparent !important;
+        }
+        body:not(.light-theme) .bg-light {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+            color: var(--text-main) !important;
+        }
+        body:not(.light-theme) .text-dark {
+            color: var(--text-dark) !important;
+        }
+        body:not(.light-theme) .text-black {
+            color: var(--text-main) !important;
+        }
+        body:not(.light-theme) .border,
+        body:not(.light-theme) .border-top,
+        body:not(.light-theme) .border-bottom,
+        body:not(.light-theme) .border-start,
+        body:not(.light-theme) .border-end {
+            border-color: var(--card-border) !important;
+        }
+        body:not(.light-theme) input.bg-white,
+        body:not(.light-theme) select.bg-white,
+        body:not(.light-theme) textarea.bg-white {
+            background-color: var(--input-bg) !important;
+            border-color: var(--input-border) !important;
+            color: var(--text-main) !important;
+        }
+        body:not(.light-theme) *[style*="background-color: #fff"],
+        body:not(.light-theme) *[style*="background-color: #ffffff"],
+        body:not(.light-theme) *[style*="background: #fff"],
+        body:not(.light-theme) *[style*="background: #ffffff"],
+        body:not(.light-theme) *[style*="background: white"],
+        body:not(.light-theme) *[style*="background-color: white"] {
+            background-color: var(--card-bg) !important;
+            background: var(--card-bg) !important;
+            color: var(--text-main) !important;
+        }
+        body:not(.light-theme) .alert-success {
+            background-color: rgba(34, 197, 94, 0.1) !important;
+            border-color: rgba(34, 197, 94, 0.25) !important;
+            color: #4ade80 !important;
+        }
+        body:not(.light-theme) .alert-danger {
+            background-color: rgba(239, 68, 68, 0.1) !important;
+            border-color: rgba(239, 68, 68, 0.25) !important;
+            color: #fca5a5 !important;
+        }
+        body:not(.light-theme) .alert-warning {
+            background-color: rgba(245, 158, 11, 0.1) !important;
+            border-color: rgba(245, 158, 11, 0.25) !important;
+            color: #fde047 !important;
+        }
+        body:not(.light-theme) .alert-info {
+            background-color: rgba(59, 130, 246, 0.1) !important;
+            border-color: rgba(59, 130, 246, 0.25) !important;
+            color: #93c5fd !important;
+        }
     </style>
 </head>
 <body>
@@ -845,7 +909,7 @@ $notifCount = count($notifications);
                     </span>
                 <?php endif; ?>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 p-0 overflow-hidden" style="width: 320px; border-radius: 16px; z-index: 1050; background: #ffffff;">
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 p-0 overflow-hidden" style="width: 320px; border-radius: 16px; z-index: 1050; background: var(--dropdown-bg);">
                 <li class="px-4 py-3 bg-light border-bottom d-flex justify-content-between align-items-center">
                     <div>
                         <h6 class="m-0 fw-bold text-dark"><i class="bi bi-bell-fill text-primary me-2"></i>Notifikasi</h6>
