@@ -153,19 +153,15 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
 <div class="row g-4 mb-5 animate-fade-in">
     <!-- Stat Card 1 -->
     <div class="col-md-3">
-        <div class="lux-card" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
-            <!-- Glossy Glass Overlay -->
-            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%); pointer-events: none; z-index: 0;"></div>
-            <div class="card-body p-4 position-relative text-white" style="z-index: 1;">
-                <div class="position-absolute top-0 end-0 p-3 opacity-20" style="font-size: 5rem; transform: translate(15%, -15%); pointer-events: none; z-index: 0;">
-                    <i class="bi bi-box-seam"></i>
+        <div class="card border-0 h-100 shadow-sm" style="border-radius: 18px;">
+            <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="small fw-bold text-muted stat-label mb-1">TOTAL ASET</div>
+                    <h2 class="fw-800 text-dark mb-0"><?= $totalAssets ?></h2>
+                    <small class="text-muted d-block mt-2"><i class="bi bi-arrow-up-right me-1 text-primary"></i> Aktif di sistem</small>
                 </div>
-                <div class="small fw-bold mb-1 stat-label">TOTAL ASET</div>
-                <h2 class="fw-800 mb-0"><?= $totalAssets ?></h2>
-                <div class="mt-3">
-                    <span class="badge stat-chip rounded-pill small">
-                        <i class="bi bi-arrow-up-right me-1"></i> Aktif
-                    </span>
+                <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-4 fs-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                    <i class="bi bi-box-seam"></i>
                 </div>
             </div>
         </div>
@@ -173,19 +169,15 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
 
     <!-- Stat Card 2 -->
     <div class="col-md-3">
-        <div class="lux-card" style="background: linear-gradient(135deg, #059669 0%, #0d9488 100%);">
-            <!-- Glossy Glass Overlay -->
-            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%); pointer-events: none; z-index: 0;"></div>
-            <div class="card-body p-4 position-relative text-white" style="z-index: 1;">
-                <div class="position-absolute top-0 end-0 p-3 opacity-20" style="font-size: 5rem; transform: translate(15%, -15%); pointer-events: none; z-index: 0;">
-                    <i class="bi bi-check2-circle"></i>
+        <div class="card border-0 h-100 shadow-sm" style="border-radius: 18px;">
+            <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="small fw-bold text-muted stat-label mb-1">MAINTENANCE</div>
+                    <h2 class="fw-800 text-dark mb-0"><?= $totalMaintenance ?></h2>
+                    <small class="text-muted d-block mt-2"><i class="bi bi-calendar-event me-1 text-success"></i> Bulan ini</small>
                 </div>
-                <div class="small fw-bold mb-1 stat-label">MAINTENANCE</div>
-                <h2 class="fw-800 mb-0"><?= $totalMaintenance ?></h2>
-                <div class="mt-3">
-                    <span class="badge stat-chip rounded-pill small">
-                        <i class="bi bi-calendar-event me-1"></i> Bulan ini
-                    </span>
+                <div class="bg-success bg-opacity-10 text-success p-3 rounded-4 fs-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                    <i class="bi bi-check2-circle"></i>
                 </div>
             </div>
         </div>
@@ -193,20 +185,16 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
 
     <!-- Stat Card 3 -->
     <div class="col-md-3">
-        <a href="index.php?page=inventaris&filter_kondisi=rusak" class="text-decoration-none d-block h-100" style="color: inherit;">
-            <div class="lux-card h-100" style="background: linear-gradient(135deg, #d97706 0%, #db2777 100%);">
-                <!-- Glossy Glass Overlay -->
-                <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%); pointer-events: none; z-index: 0;"></div>
-                <div class="card-body p-4 position-relative text-white" style="z-index: 1;">
-                    <div class="position-absolute top-0 end-0 p-3 opacity-20" style="font-size: 5rem; transform: translate(15%, -15%); pointer-events: none; z-index: 0;">
-                        <i class="bi bi-exclamation-triangle"></i>
+        <a href="index.php?page=inventaris&filter_kondisi=rusak" class="text-decoration-none d-block h-100">
+            <div class="card border-0 h-100 shadow-sm" style="border-radius: 18px;">
+                <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="small fw-bold text-muted stat-label mb-1">PERLU TINDAKAN</div>
+                        <h2 class="fw-800 text-dark mb-0"><?= $totalPerluTindakan ?></h2>
+                        <small class="text-muted d-block mt-2"><i class="bi bi-exclamation-circle me-1 text-warning"></i> Bermasalah</small>
                     </div>
-                    <div class="small fw-bold mb-1 stat-label">PERLU TINDAKAN</div>
-                    <h2 class="fw-800 mb-0"><?= $totalPerluTindakan ?></h2>
-                    <div class="mt-3">
-                        <span class="badge stat-chip rounded-pill small">
-                            <i class="bi bi-exclamation-circle me-1"></i> Bermasalah
-                        </span>
+                    <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-4 fs-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                        <i class="bi bi-exclamation-triangle"></i>
                     </div>
                 </div>
             </div>
@@ -215,29 +203,25 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
 
     <!-- Stat Card 4 -->
     <div class="col-md-3">
-        <div class="lux-card" style="background: linear-gradient(135deg, #dc2626 0%, #ea580c 100%);">
-            <!-- Glossy Glass Overlay -->
-            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%); pointer-events: none; z-index: 0;"></div>
-            <div class="card-body p-4 position-relative text-white" style="z-index: 1;">
-                <div class="position-absolute top-0 end-0 p-3 opacity-20" style="font-size: 5rem; transform: translate(15%, -15%); pointer-events: none; z-index: 0;">
-                    <i class="bi bi-wallet2"></i>
+        <div class="card border-0 h-100 shadow-sm" style="border-radius: 18px;">
+            <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="small fw-bold text-muted stat-label mb-1">BIAYA REPAIR</div>
+                    <h3 class="fw-800 text-dark mb-0 text-nowrap" style="font-size: 1.35rem; margin-top: 2px;">Rp <?= number_format($totalCost, 0, ',', '.') ?></h3>
+                    <small class="text-muted d-block mt-2"><i class="bi bi-graph-up me-1 text-danger"></i> Periode ini</small>
                 </div>
-                <div class="small fw-bold mb-1 stat-label">BIAYA REPAIR</div>
-                <h2 class="fw-800 mb-0 text-nowrap" style="font-size: 1.45rem;">Rp <?= number_format($totalCost, 0, ',', '.') ?></h2>
-                <div class="mt-3">
-                    <span class="badge stat-chip rounded-pill small">
-                        <i class="bi bi-graph-up me-1"></i> Periode ini
-                    </span>
+                <div class="bg-danger bg-opacity-10 text-danger p-3 rounded-4 fs-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                    <i class="bi bi-wallet2"></i>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row g-4 animate-fade-in" style="animation-delay: 0.1s;">
+<div class="row g-4 mb-5 animate-fade-in" style="animation-delay: 0.1s;">
     <!-- Welcome Card -->
     <div class="col-md-8">
-        <div class="card p-4 border-0 mb-4 h-100">
+        <div class="card p-4 border-0 mb-4 h-100 shadow-sm">
             <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
                 <div class="d-flex align-items-center">
                     <div class="bg-dark text-white p-3 rounded-4 me-3">
@@ -304,38 +288,34 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
         }
         ?>
         <!-- Google Sheets Card -->
-        <div class="card p-4 border-0 mb-4 shadow-sm text-white" style="background: linear-gradient(135deg, #107c41 0%, #1f9a55 100%); border-radius: 18px; position: relative; overflow: hidden;">
-            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%); pointer-events: none;"></div>
-            <div class="position-absolute top-0 end-0 p-3 opacity-10" style="font-size: 5rem; transform: translate(10%, -10%); pointer-events: none;">
-                <i class="bi bi-file-earmark-spreadsheet text-white"></i>
-            </div>
+        <div class="card p-4 border-0 mb-4 shadow-sm h-100" style="border-radius: 18px;">
             <div class="d-flex align-items-center mb-3">
-                <div class="bg-white bg-opacity-20 p-2 rounded-3 me-3 text-white d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                <div class="bg-success bg-opacity-10 p-2.5 rounded-3 me-3 text-success d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
                     <i class="bi bi-cloud-check fs-4"></i>
                 </div>
                 <div>
-                    <h6 class="fw-800 m-0">Koneksi Google Sheets</h6>
-                    <span class="badge bg-white bg-opacity-25 rounded-pill small mt-1">
+                    <h6 class="fw-800 m-0 text-dark">Google Sheets</h6>
+                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill small mt-1">
                         <?= $google_spreadsheet_id ? 'Terhubung' : 'Belum Terhubung' ?>
                     </span>
                 </div>
             </div>
             <div class="mb-4">
-                <div class="small text-white text-opacity-75 mb-1" style="font-size: 0.75rem; letter-spacing: 0.05em;">ID SPREADSHEET</div>
-                <div class="fw-bold text-truncate mb-3" style="max-width: 100%; font-size: 0.85rem;" title="<?= htmlspecialchars($google_spreadsheet_id) ?>">
+                <div class="small text-muted mb-1" style="font-size: 0.72rem; letter-spacing: 0.05em;">ID SPREADSHEET</div>
+                <div class="fw-bold text-dark text-truncate mb-3" style="max-width: 100%; font-size: 0.85rem;" title="<?= htmlspecialchars($google_spreadsheet_id) ?>">
                     <?= $google_spreadsheet_id ? htmlspecialchars($google_spreadsheet_id) : 'Tidak terkonfigurasi' ?>
                 </div>
-                <div class="small text-white text-opacity-75 mb-1" style="font-size: 0.75rem; letter-spacing: 0.05em;">SINKRONISASI TERAKHIR</div>
-                <div class="fw-bold" style="font-size: 0.85rem;">
+                <div class="small text-muted mb-1" style="font-size: 0.72rem; letter-spacing: 0.05em;">SINKRONISASI TERAKHIR</div>
+                <div class="fw-bold text-dark" style="font-size: 0.85rem;">
                     <?= $lastSync ?>
                 </div>
             </div>
             <?php if ($google_spreadsheet_id): ?>
                 <div class="d-grid gap-2">
-                    <a href="<?= $spreadsheet_url ?>" target="_blank" class="btn btn-light btn-sm fw-bold border-0 text-success py-2 d-flex align-items-center justify-content-center gap-2" style="border-radius: 12px; box-shadow: 0 4px 12px rgba(16, 124, 65, 0.2);">
+                    <a href="<?= $spreadsheet_url ?>" target="_blank" class="btn btn-outline-success btn-sm fw-bold py-2 d-flex align-items-center justify-content-center gap-2" style="border-radius: 12px;">
                         <i class="bi bi-box-arrow-up-right"></i> Buka Spreadsheet
                     </a>
-                    <button onclick="triggerDashboardSync(this)" class="btn btn-outline-light btn-sm fw-bold py-2 d-flex align-items-center justify-content-center gap-2" style="border-radius: 12px;">
+                    <button onclick="triggerDashboardSync(this)" class="btn btn-success btn-sm fw-bold py-2 d-flex align-items-center justify-content-center gap-2" style="border-radius: 12px; color: #ffffff !important;">
                         <i class="bi bi-arrow-repeat"></i> Sinkronisasi Sekarang
                     </button>
                 </div>
@@ -366,59 +346,58 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
                 </script>
             <?php endif; ?>
         </div>
-
     </div>
 </div>
 
-<!-- Panduan Penggunaan / Instruksi Cepat -->
-<div class="row g-4 mb-5 animate-fade-in" style="animation-delay: 0.15s;">
-    <div class="col-md-12">
-        <div class="card p-4 border-0 shadow-sm">
-            <div class="d-flex align-items-center mb-4">
-                <div class="bg-primary bg-opacity-10 p-3 rounded-4 me-3 text-primary">
-                    <i class="bi bi-info-circle fs-4"></i>
+<!-- Panduan Penggunaan / Instruksi Cepat (Collapsible) -->
+<div class="accordion mb-5 animate-fade-in" id="accordionGuide" style="animation-delay: 0.15s; border-radius: 18px;">
+    <div class="accordion-item border-0 card shadow-sm" style="border-radius: 18px; overflow: hidden;">
+        <h2 class="accordion-header" id="headingGuide">
+            <button class="accordion-button collapsed fw-800 text-dark bg-transparent border-0 py-3.5 d-flex align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGuide" aria-expanded="false" aria-controls="collapseGuide" style="box-shadow: none; font-size: 0.95rem;">
+                <div class="bg-primary bg-opacity-10 text-primary p-2 rounded-3 me-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                    <i class="bi bi-info-circle-fill"></i>
                 </div>
-                <div>
-                    <h6 class="fw-800 m-0 text-dark">Panduan & Instruksi Penggunaan Sistem</h6>
-                    <p class="text-muted small m-0">Ikuti langkah-langkah berikut untuk mengoptimalkan pengelolaan aset IT Anda.</p>
-                </div>
-            </div>
-
-            <div class="row g-4">
-                <div class="col-md-3">
-                    <div class="h-100 p-3 rounded-4 bg-white border border-light shadow-sm transition-hover">
-                        <div class="d-flex align-items-center mb-3">
-                            <span class="badge bg-primary rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">1</span>
-                            <h6 class="fw-bold m-0 text-dark">Registrasi Aset</h6>
+                Panduan & Instruksi Penggunaan Sistem (Klik untuk membuka)
+            </button>
+        </h2>
+        <div id="collapseGuide" class="accordion-collapse collapse" aria-labelledby="headingGuide" data-bs-parent="#accordionGuide">
+            <div class="accordion-body p-4 pt-0">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="h-100 p-3 rounded-4 bg-light border-0 transition-hover">
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge bg-primary rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">1</span>
+                                <h6 class="fw-bold m-0 text-dark">Registrasi Aset</h6>
+                            </div>
+                            <p class="small text-muted mb-0">Masuk ke menu <strong>Inventaris</strong>, klik <strong>Tambah Aset</strong>. Isi detail perangkat seperti Merk, SN, Lokasi Cabang, dan Kategori.</p>
                         </div>
-                        <p class="small text-muted mb-0">Masuk ke menu <strong>Inventaris</strong>, klik <strong>Tambah Aset</strong>. Isi detail perangkat seperti Merk, SN, Lokasi Cabang, dan Kategori.</p>
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="h-100 p-3 rounded-4 bg-white border border-light shadow-sm transition-hover">
-                        <div class="d-flex align-items-center mb-3">
-                            <span class="badge bg-success rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">2</span>
-                            <h6 class="fw-bold m-0 text-dark">Perawatan Berkala</h6>
+                    <div class="col-md-3">
+                        <div class="h-100 p-3 rounded-4 bg-light border-0 transition-hover">
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge bg-success rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">2</span>
+                                <h6 class="fw-bold m-0 text-dark">Perawatan Berkala</h6>
+                            </div>
+                            <p class="small text-muted mb-0">Lakukan pengecekan rutin di menu <strong>Maintenance</strong>. Aset yang sudah diperiksa bulan ini otomatis difilter agar tidak terinput ganda.</p>
                         </div>
-                        <p class="small text-muted mb-0">Lakukan pengecekan rutin di menu <strong>Maintenance</strong>. Aset yang sudah diperiksa bulan ini otomatis difilter agar tidak terinput ganda.</p>
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="h-100 p-3 rounded-4 bg-white border border-light shadow-sm transition-hover">
-                        <div class="d-flex align-items-center mb-3">
-                            <span class="badge bg-warning text-dark rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">3</span>
-                            <h6 class="fw-bold m-0 text-dark">Kelola Perbaikan</h6>
+                    <div class="col-md-3">
+                        <div class="h-100 p-3 rounded-4 bg-light border-0 transition-hover">
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge bg-warning text-dark rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">3</span>
+                                <h6 class="fw-bold m-0 text-dark">Kelola Perbaikan</h6>
+                            </div>
+                            <p class="small text-muted mb-0">Jika aset bermasalah, buat tiket di menu <strong>Perbaikan</strong>. Anda bisa memantau status pengerjaan dan melacak total pengeluaran biaya.</p>
                         </div>
-                        <p class="small text-muted mb-0">Jika aset bermasalah, buat tiket di menu <strong>Perbaikan</strong>. Anda bisa memantau status pengerjaan dan melacak total pengeluaran biaya.</p>
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="h-100 p-3 rounded-4 bg-white border border-light shadow-sm transition-hover">
-                        <div class="d-flex align-items-center mb-3">
-                            <span class="badge bg-info text-dark rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">4</span>
-                            <h6 class="fw-bold m-0 text-dark">Audit & Laporan</h6>
+                    <div class="col-md-3">
+                        <div class="h-100 p-3 rounded-4 bg-light border-0 transition-hover">
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge bg-info text-dark rounded-circle p-2 me-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">4</span>
+                                <h6 class="fw-bold m-0 text-dark">Audit & Laporan</h6>
+                            </div>
+                            <p class="small text-muted mb-0">Lakukan pencocokan data fisik di menu <strong>Audit Fisik</strong>. Ekspor seluruh laporan ke format Excel melalui menu <strong>Laporan</strong>.</p>
                         </div>
-                        <p class="small text-muted mb-0">Lakukan pencocokan data fisik di menu <strong>Audit Fisik</strong>. Ekspor seluruh laporan ke format Excel melalui menu <strong>Laporan</strong>.</p>
                     </div>
                 </div>
             </div>
@@ -576,26 +555,26 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 
-<!-- Perangkat Perlu Tindakan / Bermasalah -->
+<!-- Perangkat Perlu Tindakan & Aktivitas Terkini -->
 <div class="row g-4 mb-5 animate-fade-in" style="animation-delay: 0.2s;">
-    <div class="col-md-12">
-        <div class="card p-4 border-0 shadow-sm">
+    <!-- Perangkat Perlu Tindakan / Bermasalah -->
+    <div class="col-md-7">
+        <div class="card p-4 border-0 shadow-sm h-100" style="border-radius: 18px;">
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                <h6 class="fw-800 text-dark d-flex align-items-center m-0">
+                <h6 class="fw-800 text-dark d-flex align-items-center m-0" style="font-size: 0.95rem;">
                     <i class="bi bi-exclamation-octagon-fill me-2 text-danger animate-pulse"></i> Perangkat Rusak / Perlu Tindakan
                 </h6>
-                <a href="index.php?page=inventaris&filter_kondisi=rusak" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1 fw-bold">
+                <a href="index.php?page=inventaris&filter_kondisi=rusak" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1.5 fw-bold" style="font-size: 0.72rem;">
                     Lihat Semua
                 </a>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive" style="font-size: 0.82rem;">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light border-bottom">
                         <tr>
-                            <th>Kode Aset</th>
+                            <th>Kode</th>
                             <th>Nama Aset</th>
                             <th>Cabang</th>
-                            <th>Divisi</th>
                             <th>Kondisi</th>
                             <th class="text-end">Aksi</th>
                         </tr>
@@ -603,7 +582,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     <tbody>
                         <?php if (empty($brokenAssets)): ?>
                             <tr>
-                                <td colspan="6" class="text-center py-4 text-muted small">
+                                <td colspan="5" class="text-center py-4 text-muted small">
                                     <i class="bi bi-emoji-smile me-1 text-success fs-5"></i> Semua perangkat saat ini dalam kondisi Baik.
                                 </td>
                             </tr>
@@ -616,22 +595,21 @@ document.addEventListener("DOMContentLoaded", function() {
                                     <td><span class="fw-bold text-dark"><?= $asset['kode_aset'] ?></span></td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <div class="bg-light p-2 rounded-circle me-3">
-                                                <i class="bi bi-pc-display text-muted"></i>
+                                            <div class="bg-light p-1.5 rounded-circle me-2">
+                                                <i class="bi bi-pc-display text-muted" style="font-size: 0.8rem;"></i>
                                             </div>
-                                            <strong><?= $asset['nama_aset'] ?></strong>
+                                            <strong class="text-truncate" style="max-width: 140px;" title="<?= htmlspecialchars($asset['nama_aset']) ?>"><?= htmlspecialchars($asset['nama_aset']) ?></strong>
                                         </div>
                                     </td>
-                                    <td><?= $asset['nama_cabang'] ?: '-' ?></td>
-                                    <td><?= $asset['nama_divisi'] ?: '-' ?></td>
+                                    <td class="text-truncate" style="max-width: 100px;"><?= htmlspecialchars($asset['nama_cabang'] ?: '-') ?></td>
                                     <td>
-                                        <span class="badge <?= $badge_class ?> rounded-pill px-2.5 py-1.5 fw-bold">
-                                            <i class="bi bi-exclamation-circle-fill me-1"></i><?= $asset['kondisi'] ?>
+                                        <span class="badge <?= $badge_class ?> rounded-pill px-2 py-1 fw-bold" style="font-size: 0.65rem;">
+                                            <?= $asset['kondisi'] ?>
                                         </span>
                                     </td>
                                     <td class="text-end">
-                                        <a href="index.php?page=perbaikan&asset_id=<?= $asset['id'] ?>" class="btn btn-sm btn-primary py-1.5 shadow-sm rounded-3">
-                                            <i class="bi bi-wrench-adjustable"></i> Perbaiki
+                                        <a href="index.php?page=perbaikan&asset_id=<?= $asset['id'] ?>" class="btn btn-sm btn-primary py-1 px-2.5 shadow-sm rounded-3" style="font-size: 0.72rem;">
+                                            Perbaiki
                                         </a>
                                     </td>
                                 </tr>
@@ -642,39 +620,37 @@ document.addEventListener("DOMContentLoaded", function() {
             </div>
         </div>
     </div>
-</div>
 
-<!-- Aktivitas Terkini di paling bawah -->
-<div class="row g-4 mb-5 animate-fade-in" style="animation-delay: 0.25s;">
-    <div class="col-md-12">
-        <div class="card p-4 border-0 shadow-sm">
+    <!-- Aktivitas Terkini -->
+    <div class="col-md-5">
+        <div class="card p-4 border-0 shadow-sm h-100" style="border-radius: 18px;">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h6 class="fw-800 text-dark d-flex align-items-center m-0">
+                <h6 class="fw-800 text-dark d-flex align-items-center m-0" style="font-size: 0.95rem;">
                     <i class="bi bi-clock-history me-2 text-primary"></i> Aktivitas Terkini
                 </h6>
-                <a href="index.php?page=logs" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1 fw-bold">
-                    Lihat Semua Log
+                <a href="index.php?page=logs" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1.5 fw-bold" style="font-size: 0.72rem;">
+                    Lihat Semua
                 </a>
             </div>
-            <div class="list-group list-group-flush">
+            <div class="list-group list-group-flush" style="font-size: 0.82rem;">
                 <?php if (empty($recentLogs)): ?>
                     <div class="text-center py-4 text-muted small">
                         Tidak ada aktivitas yang tercatat.
                     </div>
                 <?php else: ?>
                     <?php foreach ($recentLogs as $log): ?>
-                        <div class="list-group-item px-0 border-0 mb-3 d-flex align-items-start">
-                            <div class="bg-light p-2 rounded-circle me-3 mt-1">
-                                <i class="bi bi-person-fill text-secondary"></i>
+                        <div class="list-group-item px-0 border-0 mb-2.5 d-flex align-items-start">
+                            <div class="bg-light p-1.5 rounded-circle me-2.5 mt-1 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                                <i class="bi bi-person-fill text-secondary" style="font-size: 0.8rem;"></i>
                             </div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="badge bg-secondary-subtle text-dark border-0 fw-bold px-2 py-1" style="font-size: 0.75rem;"><?= htmlspecialchars($log['action']) ?></span>
-                                    <span class="text-muted small" style="font-size: 0.75rem;" title="<?= date('d M Y, H:i:s', strtotime($log['created_at'])) ?>">
-                                        <?= htmlspecialchars($log['user_nama'] ?: 'Sistem') ?> &bull; <?= date('d M Y, H:i', strtotime($log['created_at'])) ?>
+                            <div class="flex-grow-1 min-width-0">
+                                <div class="d-flex justify-content-between align-items-center gap-2">
+                                    <span class="badge bg-secondary-subtle text-dark border-0 fw-bold px-2 py-0.5 text-truncate" style="font-size: 0.65rem; max-width: 100px;"><?= htmlspecialchars($log['action']) ?></span>
+                                    <span class="text-muted small text-truncate" style="font-size: 0.68rem;" title="<?= date('d M Y, H:i:s', strtotime($log['created_at'])) ?>">
+                                        <?= htmlspecialchars($log['user_nama'] ?: 'Sistem') ?> &bull; <?= date('d M, H:i', strtotime($log['created_at'])) ?>
                                     </span>
                                 </div>
-                                <div class="text-muted small mt-2" style="font-size: 0.8rem; line-height: 1.4;">
+                                <div class="text-muted small mt-1 text-truncate" style="font-size: 0.78rem;" title="<?= htmlspecialchars($log['description']) ?>">
                                     <?= htmlspecialchars($log['description']) ?>
                                 </div>
                             </div>
