@@ -358,6 +358,7 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                                             <a href="index.php?page=perbaikan&asset_id=<?= $a['id'] ?>" class="btn btn-warning text-dark btn-sm rounded-pill fw-bold px-3 py-1.5 d-inline-flex align-items-center gap-1 shadow-sm" style="font-size: 0.72rem;">
                                                 <i class="bi bi-wrench" style="font-size: 0.75rem;"></i> Perbaikan
                                             </a>
+                                        <?php endif; ?>
                                         <div class="dropdown">
                                             <button class="btn btn-light btn-sm rounded-circle shadow-sm border" data-bs-toggle="dropdown">
                                                 <i class="bi bi-three-dots-vertical"></i>
