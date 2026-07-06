@@ -75,23 +75,25 @@ if (isset($_POST['login'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <style>
         :root {
             --primary-color: #6366f1; /* Indigo */
             --primary-hover: #4f46e5;
-            --accent-color: #bef264; /* Lime */
-            --bg-body: #090d16;
+            --accent-color: #a855f7;  /* Purple */
+            --secondary-color: #06b6d4; /* Cyan */
+            --bg-body: #05070f;
             --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --glass-bg: rgba(15, 23, 42, 0.6);
-            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-muted: #64748b;
+            --glass-bg: rgba(7, 10, 22, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --neon-glow: rgba(99, 102, 241, 0.15);
         }
 
         body {
             background: var(--bg-body);
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.12) 0%, transparent 40%);
+                radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
             color: var(--text-main);
             letter-spacing: -0.01em;
             font-family: "Plus Jakarta Sans", sans-serif;
@@ -100,6 +102,34 @@ if (isset($_POST['login'])) {
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+        }
+
+        /* Tech grid lines overlay */
+        body::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.02) 1px, transparent 1px);
+            background-size: 45px 45px;
+            background-position: center;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Ambient scanline overlay */
+        body::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(rgba(18, 24, 38, 0) 50%, rgba(0, 0, 0, 0.12) 50%), 
+                        linear-gradient(90deg, rgba(18, 24, 38, 0) 50%, rgba(0, 0, 0, 0.12) 50%);
+            background-size: 4px 4px;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0.35;
         }
 
         /* Ambient Blobs */
@@ -108,52 +138,101 @@ if (isset($_POST['login'])) {
             inset: 0;
             overflow: hidden;
             pointer-events: none;
-            z-index: 0;
+            z-index: 3;
             display: block !important;
         }
         .blob {
             position: absolute;
             border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.15;
-            animation: pulse 12s infinite alternate;
+            filter: blur(130px);
+            opacity: 0.22;
         }
         .blob-1 {
-            top: 20%;
-            left: 15%;
-            width: 300px;
-            height: 300px;
-            background: #6366f1;
-        }
-        .blob-2 {
-            bottom: 20%;
-            right: 15%;
+            top: 15%;
+            left: 10%;
             width: 350px;
             height: 350px;
-            background: #a855f7;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, rgba(99, 102, 241, 0) 70%);
+            animation: float-1 16s infinite ease-in-out;
+        }
+        .blob-2 {
+            bottom: 15%;
+            right: 10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, rgba(168, 85, 247, 0) 70%);
+            animation: float-2 20s infinite ease-in-out;
             animation-delay: -4s;
         }
-        @keyframes pulse {
-            0% { transform: scale(1) translate(0, 0); }
-            100% { transform: scale(1.2) translate(30px, -30px); }
+        .blob-3 {
+            top: 50%;
+            left: 45%;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, rgba(6, 182, 212, 0) 70%);
+            animation: float-3 18s infinite ease-in-out;
+            animation-delay: -8s;
+        }
+        @keyframes float-1 {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        @keyframes float-2 {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(-40px, 40px) scale(0.9); }
+            66% { transform: translate(40px, -30px) scale(1.15); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        @keyframes float-3 {
+            0% { transform: translate(0px, 0px) scale(1); }
+            50% { transform: translate(50px, 50px) scale(1.1); }
+            100% { transform: translate(0px, 0px) scale(1); }
         }
 
+        /* Glassmorphism Card with Border Gradient */
         .login-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
+            background: linear-gradient(var(--glass-bg), var(--glass-bg)) padding-box,
+                        linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.05) 50%, rgba(6, 182, 212, 0.2) 100%) border-box;
+            border: 1px solid transparent;
             border-radius: 28px;
             padding: 44px;
             width: 100%;
             max-width: 440px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8),
+                        0 0 50px -10px rgba(99, 102, 241, 0.1);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             z-index: 10;
-            transition: all 0.3s ease;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .login-card:hover {
-            border-color: rgba(99, 102, 241, 0.25);
-            box-shadow: 0 30px 60px -12px rgba(99, 102, 241, 0.1);
+            background: linear-gradient(var(--glass-bg), var(--glass-bg)) padding-box,
+                        linear-gradient(135deg, rgba(99, 102, 241, 0.5) 0%, rgba(168, 85, 247, 0.15) 50%, rgba(6, 182, 212, 0.5) 100%) border-box;
+            box-shadow: 0 40px 80px -15px rgba(0, 0, 0, 0.9),
+                        0 0 60px -10px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Corner Brackets Accents */
+        .corner-bracket {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(6, 182, 212, 0.4);
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        .cb-tl { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+        .cb-tr { top: 12px; right: 12px; border-left: none; border-bottom: none; }
+        .cb-bl { bottom: 12px; left: 12px; border-right: none; border-top: none; }
+        .cb-br { bottom: 12px; right: 12px; border-left: none; border-top: none; }
+
+        .login-card:hover .corner-bracket {
+            border-color: rgba(99, 102, 241, 0.8);
+            width: 20px;
+            height: 20px;
         }
 
         .brand-wrapper {
@@ -162,30 +241,44 @@ if (isset($_POST['login'])) {
         }
 
         .brand-icon {
-            width: 60px;
-            height: 60px;
+            width: 64px;
+            height: 64px;
             border-radius: 20px;
-            background: linear-gradient(135deg, var(--primary-color) 0%, #a855f7 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 18px;
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+            position: relative;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+            animation: pulse-ring 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0%, 100% {
+                box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4), 0 0 0 0px rgba(99, 102, 241, 0.3);
+            }
+            50% {
+                box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4), 0 0 0 10px rgba(99, 102, 241, 0);
+            }
         }
 
         .brand-icon i {
             color: #ffffff;
-            font-size: 1.6rem;
+            font-size: 1.7rem;
+            z-index: 5;
         }
 
         .brand-name {
             font-weight: 800;
-            font-size: 2.2rem;
-            color: #ffffff;
+            font-size: 2.4rem;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 6px;
-            letter-spacing: -1px;
+            letter-spacing: -1.5px;
             cursor: default;
-            transition: text-shadow 0.2s ease;
+            transition: all 0.3s ease;
         }
 
         .brand-tagline {
@@ -204,26 +297,50 @@ if (isset($_POST['login'])) {
         }
 
         .input-group-custom {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(10, 15, 30, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 16px;
             display: flex;
             align-items: center;
-            transition: all 0.2s ease;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
         }
 
         .input-group-custom:focus-within {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+            background: rgba(10, 15, 30, 0.7);
+            border-color: rgba(6, 182, 212, 0.5);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.15);
+        }
+
+        /* Glowing indicator bottom-bar */
+        .input-group-custom::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transition: width 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .input-group-custom:focus-within::after {
+            width: 100%;
         }
 
         .input-group-icon {
             padding: 0 12px 0 18px;
-            color: var(--text-muted);
-            font-size: 1.05rem;
+            color: #64748b;
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
+            transition: color 0.3s ease;
+        }
+
+        .input-group-custom:focus-within .input-group-icon {
+            color: var(--secondary-color);
         }
 
         .input-control-custom {
@@ -234,10 +351,11 @@ if (isset($_POST['login'])) {
             font-size: 0.95rem;
             flex: 1;
             outline: none;
+            z-index: 5;
         }
 
         .input-control-custom::placeholder {
-            color: rgba(148, 163, 184, 0.5);
+            color: rgba(148, 163, 184, 0.35);
         }
 
         .input-control-custom:-webkit-autofill,
@@ -251,11 +369,12 @@ if (isset($_POST['login'])) {
             padding: 0 18px;
             background: transparent;
             border: none;
-            color: var(--text-muted);
+            color: #64748b;
             cursor: pointer;
             display: flex;
             align-items: center;
             transition: color 0.2s ease;
+            z-index: 5;
         }
 
         .password-toggle:hover {
@@ -266,17 +385,23 @@ if (isset($_POST['login'])) {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%) !important;
             border-radius: 16px;
             color: white !important;
-            padding: 14px;
+            padding: 15px;
             font-weight: 700;
             font-size: 0.95rem;
             border: none !important;
-            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3) !important;
-            transition: all 0.25s ease;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25) !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
         }
 
         .btn-login:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45) !important;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.45) !important;
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
         }
 
         .alert-custom {
@@ -292,37 +417,77 @@ if (isset($_POST['login'])) {
             margin-bottom: 24px;
         }
 
+        /* Monospace Retro Terminal Credentials Card */
         .hint-box {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px dashed rgba(255, 255, 255, 0.08);
-            border-radius: 18px;
-            padding: 14px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(190, 242, 100, 0.15);
+            border-radius: 16px;
+            padding: 18px;
             margin-top: 32px;
-            text-align: center;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.6);
+        }
+
+        .hint-box::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(190, 242, 100, 0.3), transparent);
+            animation: scan-line 4s linear infinite;
+        }
+
+        @keyframes scan-line {
+            0% { transform: translateY(-10px); }
+            100% { transform: translateY(120px); }
         }
 
         .hint-title {
-            font-size: 0.8rem;
+            font-size: 0.72rem;
             font-weight: 700;
-            color: #cbd5e1;
-            margin-bottom: 6px;
+            color: #bef264;
+            margin-bottom: 8px;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.08em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hint-title::before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background-color: #bef264;
+            border-radius: 50%;
+            animation: blink 1s infinite alternate;
+        }
+
+        @keyframes blink {
+            0% { opacity: 0.2; }
+            100% { opacity: 1; }
         }
 
         .hint-text {
-            font-size: 0.78rem;
-            color: var(--text-muted);
+            font-size: 0.76rem;
+            color: #a3e635;
             margin: 0;
+            line-height: 1.4;
         }
 
         .hint-text code {
-            color: var(--accent-color);
-            background: rgba(190, 242, 100, 0.1);
-            border: 1px solid rgba(190, 242, 100, 0.2);
-            border-radius: 6px;
-            padding: 2px 6px;
-            font-family: monospace;
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            padding: 1px 4px;
+            font-family: inherit;
         }
 
         /* 3D Model Canvas Container */
@@ -376,6 +541,12 @@ if (isset($_POST['login'])) {
     </div>
 
     <div class="login-card">
+        <!-- Sci-Fi Corner Brackets -->
+        <div class="corner-bracket cb-tl"></div>
+        <div class="corner-bracket cb-tr"></div>
+        <div class="corner-bracket cb-bl"></div>
+        <div class="corner-bracket cb-br"></div>
+
         <div class="brand-wrapper">
             <div class="brand-icon">
                 <i class="fa-solid fa-laptop-code"></i>
