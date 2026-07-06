@@ -47,6 +47,7 @@ if ($selected_cabang) {
             $brokenCount++;
         }
     }
+    $default_teknisi = !empty($detailedMaintenance) ? ($detailedMaintenance[0]['teknisi'] ?? 'Staff MIS & IT') : 'Staff MIS & IT';
 }
 
 function generateConclusion($stats, $bulan, $tahun, $branchName) {
@@ -122,8 +123,8 @@ $months = [
         <?php if ($selected_cabang): ?>
         <div class="d-flex gap-2">
             <button onclick="window.print()" class="btn btn-outline-secondary shadow-sm px-3 py-2"><i class="bi bi-printer me-2"></i>Print</button>
-            <a href="export/maintenance_excel.php?id_cabang=<?= $selected_cabang ?>&bulan=<?= $selected_bulan ?>&tahun=<?= $selected_tahun ?>" class="btn btn-outline-success shadow-sm px-3 py-2"><i class="bi bi-file-earmark-excel me-2"></i>Excel</a>
-            <a href="export/maintenance_pdf.php?id_cabang=<?= $selected_cabang ?>&bulan=<?= $selected_bulan ?>&tahun=<?= $selected_tahun ?>" class="btn btn-danger shadow-sm px-3 py-2"><i class="bi bi-file-earmark-pdf me-2"></i>Generate PDF</a>
+            <a href="export/maintenance_excel.php?id_cabang=<?= $selected_cabang ?>&bulan=<?= $selected_bulan ?>&tahun=<?= $selected_tahun ?>" id="btn-export-excel" data-base-url="export/maintenance_excel.php?id_cabang=<?= $selected_cabang ?>&bulan=<?= $selected_bulan ?>&tahun=<?= $selected_tahun ?>" class="btn btn-outline-success shadow-sm px-3 py-2"><i class="bi bi-file-earmark-excel me-2"></i>Excel</a>
+            <a href="export/maintenance_pdf.php?id_cabang=<?= $selected_cabang ?>&bulan=<?= $selected_bulan ?>&tahun=<?= $selected_tahun ?>" id="btn-export-pdf" data-base-url="export/maintenance_pdf.php?id_cabang=<?= $selected_cabang ?>&bulan=<?= $selected_bulan ?>&tahun=<?= $selected_tahun ?>" class="btn btn-danger shadow-sm px-3 py-2"><i class="bi bi-file-earmark-pdf me-2"></i>Generate PDF</a>
         </div>
         <?php endif; ?>
     </div>
@@ -537,6 +538,82 @@ $months = [
             </div>
         </div>
     </div>
+
+    <!-- Configuration Card for Signature (Dibuat Oleh, Mengetahui, Menyetujui) -->
+    <div class="card border-0 shadow-sm mb-4 rounded-4 ttd-config-card">
+        <div class="card-header bg-white border-bottom-0 pt-4 px-4 fw-bold text-dark d-flex align-items-center">
+            <i class="bi bi-pencil-square text-primary me-2"></i> Konfigurasi Penandatangan Laporan (Tulis Manual)
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-4">
+                <!-- Dibuat Oleh -->
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded-4 border h-100">
+                        <h6 class="fw-bold text-dark small mb-3">✍️ Pembuat Laporan</h6>
+                        <div class="mb-2">
+                            <label class="form-label text-muted mb-1" style="font-size: 0.72rem;">Nama Pembuat</label>
+                            <input type="text" id="ttd_dibuat_nama" class="form-control form-control-sm bg-white border" value="<?= htmlspecialchars($default_teknisi) ?>" oninput="updateExportLinks()">
+                        </div>
+                        <div>
+                            <label class="form-label text-muted mb-1" style="font-size: 0.72rem;">Jabatan Pembuat</label>
+                            <input type="text" id="ttd_dibuat_jabatan" class="form-control form-control-sm bg-white border" value="Staff MIS & IT" oninput="updateExportLinks()">
+                        </div>
+                    </div>
+                </div>
+                <!-- Mengetahui -->
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded-4 border h-100">
+                        <h6 class="fw-bold text-dark small mb-3">👁️ Mengetahui</h6>
+                        <div class="mb-2">
+                            <label class="form-label text-muted mb-1" style="font-size: 0.72rem;">Nama Mengetahui</label>
+                            <input type="text" id="ttd_mengetahui_nama" class="form-control form-control-sm bg-white border" value="" placeholder="Tulis nama disini..." oninput="updateExportLinks()">
+                        </div>
+                        <div>
+                            <label class="form-label text-muted mb-1" style="font-size: 0.72rem;">Jabatan Mengetahui</label>
+                            <input type="text" id="ttd_mengetahui_jabatan" class="form-control form-control-sm bg-white border" value="Kepala Cabang" oninput="updateExportLinks()">
+                        </div>
+                    </div>
+                </div>
+                <!-- Menyetujui -->
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded-4 border h-100">
+                        <h6 class="fw-bold text-dark small mb-3">✅ Menyetujui</h6>
+                        <div class="mb-2">
+                            <label class="form-label text-muted mb-1" style="font-size: 0.72rem;">Nama Menyetujui</label>
+                            <input type="text" id="ttd_menyetujui_nama" class="form-control form-control-sm bg-white border" value="" placeholder="Tulis nama disini..." oninput="updateExportLinks()">
+                        </div>
+                        <div>
+                            <label class="form-label text-muted mb-1" style="font-size: 0.72rem;">Jabatan Menyetujui</label>
+                            <input type="text" id="ttd_menyetujui_jabatan" class="form-control form-control-sm bg-white border" value="Direktur Operasional" oninput="updateExportLinks()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tanda Tangan Section (Hidden by default, shown during print or at the bottom of page) -->
+    <div class="row mt-5 pt-4 ttd-print-section">
+        <div class="col-12 text-center mb-4">
+            <h6 class="fw-bold text-dark">PT BPR Mitratama Arthabuana</h6>
+            <small class="text-muted">Dibuat pada tanggal: <?= date('d ') . ($months[$selected_bulan] ?? '') . date(' Y') ?></small>
+        </div>
+        <div class="col-4 text-center">
+            <p class="mb-5 small text-muted">Dibuat Oleh,</p>
+            <h6 class="fw-bold mb-1 text-dark" id="print_dibuat_nama"><?= htmlspecialchars($default_teknisi) ?></h6>
+            <small class="text-secondary" id="print_dibuat_jabatan">Staff MIS & IT</small>
+        </div>
+        <div class="col-4 text-center">
+            <p class="mb-5 small text-muted">Mengetahui,</p>
+            <h6 class="fw-bold mb-1 text-dark" id="print_mengetahui_nama">-</h6>
+            <small class="text-secondary" id="print_mengetahui_jabatan">Kepala Cabang</small>
+        </div>
+        <div class="col-4 text-center">
+            <p class="mb-5 small text-muted">Menyetujui,</p>
+            <h6 class="fw-bold mb-1 text-dark" id="print_menyetujui_nama">-</h6>
+            <small class="text-secondary" id="print_menyetujui_jabatan">Direktur Operasional</small>
+        </div>
+    </div>
     <?php else: ?>
     <div class="card border-0 shadow-sm rounded-4 py-5 my-4">
         <div class="card-body text-center py-5">
@@ -887,6 +964,47 @@ $months = [
         var myModal = new bootstrap.Modal(document.getElementById('modalDetailAset'));
         myModal.show();
     }
+
+    function updateExportLinks() {
+        const dibuatNama = encodeURIComponent(document.getElementById('ttd_dibuat_nama')?.value || '');
+        const dibuatJabatan = encodeURIComponent(document.getElementById('ttd_dibuat_jabatan')?.value || '');
+        const mengetahuiNama = encodeURIComponent(document.getElementById('ttd_mengetahui_nama')?.value || '');
+        const mengetahuiJabatan = encodeURIComponent(document.getElementById('ttd_mengetahui_jabatan')?.value || '');
+        const menyetujuiNama = encodeURIComponent(document.getElementById('ttd_menyetujui_nama')?.value || '');
+        const menyetujuiJabatan = encodeURIComponent(document.getElementById('ttd_menyetujui_jabatan')?.value || '');
+
+        const pdfBtn = document.getElementById('btn-export-pdf');
+        const excelBtn = document.getElementById('btn-export-excel');
+
+        if (pdfBtn) {
+            const baseUrl = pdfBtn.getAttribute('data-base-url');
+            pdfBtn.href = `${baseUrl}&dibuat_nama=${dibuatNama}&dibuat_jabatan=${dibuatJabatan}&mengetahui_nama=${mengetahuiNama}&mengetahui_jabatan=${mengetahuiJabatan}&menyetujui_nama=${menyetujuiNama}&menyetujui_jabatan=${menyetujuiJabatan}`;
+        }
+        if (excelBtn) {
+            const baseUrl = excelBtn.getAttribute('data-base-url');
+            excelBtn.href = `${baseUrl}&dibuat_nama=${dibuatNama}&dibuat_jabatan=${dibuatJabatan}&mengetahui_nama=${mengetahuiNama}&mengetahui_jabatan=${mengetahuiJabatan}&menyetujui_nama=${menyetujuiNama}&menyetujui_jabatan=${menyetujuiJabatan}`;
+        }
+
+        // Live update print signature values
+        const printDibuatNama = document.getElementById('print_dibuat_nama');
+        const printDibuatJabatan = document.getElementById('print_dibuat_jabatan');
+        const printMengetahuiNama = document.getElementById('print_mengetahui_nama');
+        const printMengetahuiJabatan = document.getElementById('print_mengetahui_jabatan');
+        const printMenyetujuiNama = document.getElementById('print_menyetujui_nama');
+        const printMenyetujuiJabatan = document.getElementById('print_menyetujui_jabatan');
+
+        if (printDibuatNama) printDibuatNama.innerText = document.getElementById('ttd_dibuat_nama')?.value || '-';
+        if (printDibuatJabatan) printDibuatJabatan.innerText = document.getElementById('ttd_dibuat_jabatan')?.value || '-';
+        if (printMengetahuiNama) printMengetahuiNama.innerText = document.getElementById('ttd_mengetahui_nama')?.value || '-';
+        if (printMengetahuiJabatan) printMengetahuiJabatan.innerText = document.getElementById('ttd_mengetahui_jabatan')?.value || '-';
+        if (printMenyetujuiNama) printMenyetujuiNama.innerText = document.getElementById('ttd_menyetujui_nama')?.value || '-';
+        if (printMenyetujuiJabatan) printMenyetujuiJabatan.innerText = document.getElementById('ttd_menyetujui_jabatan')?.value || '-';
+    }
+
+    // Trigger update on load to set defaults
+    document.addEventListener("DOMContentLoaded", function() {
+        updateExportLinks();
+    });
 </script>
 
 <style>
@@ -903,12 +1021,16 @@ $months = [
         box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.12);
     }
     .fw-800 { font-weight: 800; }
-
+    
+    .ttd-print-section {
+        display: none;
+    }
 
     @media print {
-        .btn-group, form, .card-header, .sidebar, header, .navbar, .btn { display: none !important; }
+        .btn-group, form, .card-header, .sidebar, header, .navbar, .btn, .ttd-config-card, .btn-light { display: none !important; }
         .card { border: none !important; box-shadow: none !important; }
         .container-fluid { width: 100% !important; padding: 0 !important; }
         body { background: white !important; padding-top: 0 !important; }
+        .ttd-print-section { display: flex !important; }
     }
 </style>

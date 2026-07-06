@@ -385,10 +385,27 @@ $pdf->Cell(60, 6, 'Mengetahui,', 0, 0, 'C');
 $pdf->Cell(60, 6, 'Menyetujui,', 0, 1, 'C');
 $pdf->Ln(18);
 
+// Read dynamic signature values from query parameters
+$dibuat_nama = isset($_GET['dibuat_nama']) ? trim($_GET['dibuat_nama']) : '';
+$dibuat_jabatan = isset($_GET['dibuat_jabatan']) ? trim($_GET['dibuat_jabatan']) : 'Staff MIS & IT';
+$mengetahui_nama = isset($_GET['mengetahui_nama']) ? trim($_GET['mengetahui_nama']) : '';
+$mengetahui_jabatan = isset($_GET['mengetahui_jabatan']) ? trim($_GET['mengetahui_jabatan']) : 'Kepala Cabang';
+$menyetujui_nama = isset($_GET['menyetujui_nama']) ? trim($_GET['menyetujui_nama']) : '';
+$menyetujui_jabatan = isset($_GET['menyetujui_jabatan']) ? trim($_GET['menyetujui_jabatan']) : 'Direktur Operasional';
+
 $teknisi = $data[0]['teknisi'] ?? 'Staff MIS & IT';
+if (empty($dibuat_nama)) {
+    $dibuat_nama = $teknisi;
+}
+
 $pdf->SetFont('Arial', 'B', 9.5);
-$pdf->Cell(60, 6, $teknisi, 0, 0, 'C');
-$pdf->Cell(60, 6, 'Kepala Cabang', 0, 0, 'C');
-$pdf->Cell(60, 6, 'Direktur Operasional', 0, 1, 'C');
+$pdf->Cell(60, 5, $dibuat_nama, 0, 0, 'C');
+$pdf->Cell(60, 5, $mengetahui_nama ?: '-', 0, 0, 'C');
+$pdf->Cell(60, 5, $menyetujui_nama ?: '-', 0, 1, 'C');
+
+$pdf->SetFont('Arial', '', 8.5);
+$pdf->Cell(60, 5, $dibuat_jabatan, 0, 0, 'C');
+$pdf->Cell(60, 5, $mengetahui_jabatan, 0, 0, 'C');
+$pdf->Cell(60, 5, $menyetujui_jabatan, 0, 1, 'C');
 
 $pdf->Output();
