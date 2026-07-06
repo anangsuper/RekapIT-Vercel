@@ -32,13 +32,14 @@ class PDF extends FPDF
     // Header
     function Header()
     {
-        if ($this->tipe == '2') {
-            // ================== HEADER TIPE 2 (KOP SURAT DENGAN BACKGROUND) ==================
-            $bgPath = __DIR__ . '/../logo.jpg';
-            if (file_exists($bgPath)) {
-                $this->Image($bgPath, 0, 0, 210, 297);
-            }
+        // Draw background letterhead template image (logo.jpg) for both Tipe 1 and Tipe 2
+        $bgPath = __DIR__ . '/../logo.jpg';
+        if (file_exists($bgPath)) {
+            $this->Image($bgPath, 0, 0, 210, 297);
+        }
 
+        if ($this->tipe == '2') {
+            // ================== HEADER TIPE 2 ==================
             // Teks Judul Kop (Indentasi ke kanan menghindari logo di kiri atas)
             $this->SetY(15);
             $this->SetFont('Arial', 'B', 12);
@@ -64,30 +65,30 @@ class PDF extends FPDF
             
             $this->SetY(48); // Jarak awal konten
         } else {
-            // ================== HEADER TIPE 1 (ORIGINAL PUTIH DENGAN LOGO KECIL) ==================
-            $logoPath = __DIR__ . '/../assets/logo_bank_mitra.png';
-            if (file_exists($logoPath)) {
-                $this->Image($logoPath, 15, 10, 30);
-                $this->SetY(12);
-            }
-
-            $this->SetFont('Arial', 'B', 14);
-            $this->SetTextColor(30, 50, 80);
-            $this->Cell(0, 8, 'LAPORAN KEGIATAN MAINTENANCE IT', 0, 1, 'C');
+            // ================== HEADER TIPE 1 ==================
+            $this->SetY(15);
             
             $this->SetFont('Arial', 'B', 12);
+            $this->SetTextColor(30, 50, 80);
+            $this->Cell(38); // Geser kanan
+            $this->Cell(0, 6, 'LAPORAN KEGIATAN MAINTENANCE IT', 0, 1, 'C');
+            
+            $this->SetFont('Arial', 'B', 11);
             $this->SetTextColor(70, 80, 95);
+            $this->Cell(38); // Geser kanan
             $this->Cell(0, 6, 'KANTOR CABANG ' . strtoupper($this->cabangName), 0, 1, 'C');
 
             $this->SetFont('Arial', 'B', 10);
             $this->SetTextColor(100, 110, 120);
+            $this->Cell(38); // Geser kanan
             $this->Cell(0, 6, 'PERIODE: ' . strtoupper($this->namaBulan) . ' ' . $this->tahun, 0, 1, 'C');
             $this->Ln(4);
             
             $this->SetDrawColor(210, 220, 235);
             $this->SetLineWidth(0.6);
             $this->Line(15, $this->GetY(), 195, $this->GetY());
-            $this->Ln(6);
+            
+            $this->SetY(48); // Jarak awal konten
         }
     }
 
@@ -297,11 +298,7 @@ $pdf = new PDF('P', 'mm', 'A4');
 $pdf->setInfo($nama_cabang, $tahun, $namaBulan, $bulan, $tipe);
 $pdf->SetMargins(15, 15, 15);
 
-if ($tipe == '2') {
-    $pdf->SetAutoPageBreak(true, 28); // Margin bawah khusus Tipe 2 agar tidak menimpa kop footer
-} else {
-    $pdf->SetAutoPageBreak(true, 25);
-}
+    $pdf->SetAutoPageBreak(true, 28); // Margin bawah 28mm agar tidak menimpa kop footer pada semua tipe
 
 $pdf->AliasNbPages();
 $pdf->AddPage();
