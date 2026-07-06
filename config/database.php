@@ -129,7 +129,8 @@ class GoogleSheetsSync {
             $needsSync = true;
         } else {
             $meta = json_decode(file_get_contents($metaFile), true);
-            if (!$meta || (time() - $meta['last_sync'] > $this->cacheDuration)) {
+            $diff = time() - ($meta['last_sync'] ?? 0);
+            if (!$meta || ($diff > $this->cacheDuration) || ($diff < 0)) {
                 $needsSync = true;
             }
         }
