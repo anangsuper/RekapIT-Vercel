@@ -707,6 +707,13 @@ $notifCount = count($notifications);
             border-color: rgba(59, 130, 246, 0.25) !important;
             color: #93c5fd !important;
         }
+        body:not(.light-theme) .table-light,
+        body:not(.light-theme) .table-light th,
+        body:not(.light-theme) .table-light td {
+            background-color: var(--sidebar-hover) !important;
+            color: var(--text-main) !important;
+            border-color: var(--card-border) !important;
+        }
     </style>
 </head>
 <body>
