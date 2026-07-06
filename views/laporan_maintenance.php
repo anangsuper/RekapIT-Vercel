@@ -124,7 +124,7 @@ $months = [
         <div class="d-flex gap-2">
             <button onclick="window.print()" class="btn btn-outline-secondary shadow-sm px-3 py-2"><i class="bi bi-printer me-2"></i>Print</button>
             <a href="export/maintenance_excel.php?id_cabang=<?= $selected_cabang ?>&bulan=<?= $selected_bulan ?>&tahun=<?= $selected_tahun ?>" id="btn-export-excel" data-base-url="export/maintenance_excel.php?id_cabang=<?= $selected_cabang ?>&bulan=<?= $selected_bulan ?>&tahun=<?= $selected_tahun ?>" class="btn btn-outline-success shadow-sm px-3 py-2"><i class="bi bi-file-earmark-excel me-2"></i>Excel</a>
-            <a href="export/maintenance_pdf.php?id_cabang=<?= $selected_cabang ?>&bulan=<?= $selected_bulan ?>&tahun=<?= $selected_tahun ?>" id="btn-export-pdf" data-base-url="export/maintenance_pdf.php?id_cabang=<?= $selected_cabang ?>&bulan=<?= $selected_bulan ?>&tahun=<?= $selected_tahun ?>" class="btn btn-danger shadow-sm px-3 py-2"><i class="bi bi-file-earmark-pdf me-2"></i>Generate PDF</a>
+            <button type="button" class="btn btn-danger shadow-sm px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalPdfSignature"><i class="bi bi-file-earmark-pdf me-2"></i>Generate PDF</button>
         </div>
         <?php endif; ?>
     </div>
@@ -539,58 +539,6 @@ $months = [
         </div>
     </div>
 
-    <!-- Configuration Card for Signature (Dibuat Oleh, Mengetahui, Menyetujui) -->
-    <div class="card border-0 shadow-sm mb-4 rounded-4 ttd-config-card">
-        <div class="card-header bg-white border-bottom-0 pt-4 px-4 fw-bold text-dark d-flex align-items-center">
-            <i class="bi bi-pencil-square text-primary me-2"></i> Konfigurasi Penandatangan Laporan (Tulis Manual)
-        </div>
-        <div class="card-body p-4">
-            <div class="row g-4">
-                <!-- Dibuat Oleh -->
-                <div class="col-md-4">
-                    <div class="p-3 bg-light rounded-4 border h-100">
-                        <h6 class="fw-bold text-dark small mb-3">✍️ Pembuat Laporan</h6>
-                        <div class="mb-2">
-                            <label class="form-label text-muted mb-1" style="font-size: 0.72rem;">Nama Pembuat</label>
-                            <input type="text" id="ttd_dibuat_nama" class="form-control form-control-sm bg-white border" value="<?= htmlspecialchars($default_teknisi) ?>" oninput="updateExportLinks()">
-                        </div>
-                        <div>
-                            <label class="form-label text-muted mb-1" style="font-size: 0.72rem;">Jabatan Pembuat</label>
-                            <input type="text" id="ttd_dibuat_jabatan" class="form-control form-control-sm bg-white border" value="Staff MIS & IT" oninput="updateExportLinks()">
-                        </div>
-                    </div>
-                </div>
-                <!-- Mengetahui -->
-                <div class="col-md-4">
-                    <div class="p-3 bg-light rounded-4 border h-100">
-                        <h6 class="fw-bold text-dark small mb-3">👁️ Mengetahui</h6>
-                        <div class="mb-2">
-                            <label class="form-label text-muted mb-1" style="font-size: 0.72rem;">Nama Mengetahui</label>
-                            <input type="text" id="ttd_mengetahui_nama" class="form-control form-control-sm bg-white border" value="" placeholder="Tulis nama disini..." oninput="updateExportLinks()">
-                        </div>
-                        <div>
-                            <label class="form-label text-muted mb-1" style="font-size: 0.72rem;">Jabatan Mengetahui</label>
-                            <input type="text" id="ttd_mengetahui_jabatan" class="form-control form-control-sm bg-white border" value="Kepala Cabang" oninput="updateExportLinks()">
-                        </div>
-                    </div>
-                </div>
-                <!-- Menyetujui -->
-                <div class="col-md-4">
-                    <div class="p-3 bg-light rounded-4 border h-100">
-                        <h6 class="fw-bold text-dark small mb-3">✅ Menyetujui</h6>
-                        <div class="mb-2">
-                            <label class="form-label text-muted mb-1" style="font-size: 0.72rem;">Nama Menyetujui</label>
-                            <input type="text" id="ttd_menyetujui_nama" class="form-control form-control-sm bg-white border" value="" placeholder="Tulis nama disini..." oninput="updateExportLinks()">
-                        </div>
-                        <div>
-                            <label class="form-label text-muted mb-1" style="font-size: 0.72rem;">Jabatan Menyetujui</label>
-                            <input type="text" id="ttd_menyetujui_jabatan" class="form-control form-control-sm bg-white border" value="Direktur Operasional" oninput="updateExportLinks()">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Tanda Tangan Section (Hidden by default, shown during print or at the bottom of page) -->
     <div class="row mt-5 pt-4 ttd-print-section">
@@ -625,6 +573,69 @@ $months = [
         </div>
     </div>
     <?php endif; ?>
+</div>
+
+<!-- Modal Pengaturan Tanda Tangan PDF -->
+<div class="modal fade" id="modalPdfSignature" tabindex="-1" aria-labelledby="modalPdfSignatureLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 28px;">
+            <div class="modal-header border-0 p-4 pb-0">
+                <h5 class="fw-800 m-0 text-dark"><i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i> Pengaturan Tanda Tangan PDF</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-muted small mb-4">Silakan lengkapi nama dan jabatan penandatangan laporan sebelum mencetak PDF.</p>
+                <div class="row g-4">
+                    <!-- Dibuat Oleh -->
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-4 border h-100">
+                            <h6 class="fw-bold text-dark small mb-3">✍️ Pembuat Laporan</h6>
+                            <div class="mb-2">
+                                <label class="form-label text-muted mb-1" style="font-size: 0.72rem;">Nama Pembuat</label>
+                                <input type="text" id="ttd_dibuat_nama" class="form-control form-control-sm bg-white border" value="<?= htmlspecialchars($default_teknisi ?? 'Staff MIS & IT') ?>" oninput="updateExportLinks()">
+                            </div>
+                            <div>
+                                <label class="form-label text-muted mb-1" style="font-size: 0.72rem;">Jabatan Pembuat</label>
+                                <input type="text" id="ttd_dibuat_jabatan" class="form-control form-control-sm bg-white border" value="Staff MIS & IT" oninput="updateExportLinks()">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Mengetahui -->
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-4 border h-100">
+                            <h6 class="fw-bold text-dark small mb-3">👁️ Mengetahui</h6>
+                            <div class="mb-2">
+                                <label class="form-label text-muted mb-1" style="font-size: 0.72rem;">Nama Mengetahui</label>
+                                <input type="text" id="ttd_mengetahui_nama" class="form-control form-control-sm bg-white border" value="" placeholder="Tulis nama disini..." oninput="updateExportLinks()">
+                            </div>
+                            <div>
+                                <label class="form-label text-muted mb-1" style="font-size: 0.72rem;">Jabatan Mengetahui</label>
+                                <input type="text" id="ttd_mengetahui_jabatan" class="form-control form-control-sm bg-white border" value="Kepala Cabang" oninput="updateExportLinks()">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Menyetujui -->
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-4 border h-100">
+                            <h6 class="fw-bold text-dark small mb-3">✅ Menyetujui</h6>
+                            <div class="mb-2">
+                                <label class="form-label text-muted mb-1" style="font-size: 0.72rem;">Nama Menyetujui</label>
+                                <input type="text" id="ttd_menyetujui_nama" class="form-control form-control-sm bg-white border" value="" placeholder="Tulis nama disini..." oninput="updateExportLinks()">
+                            </div>
+                            <div>
+                                <label class="form-label text-muted mb-1" style="font-size: 0.72rem;">Jabatan Menyetujui</label>
+                                <input type="text" id="ttd_menyetujui_jabatan" class="form-control form-control-sm bg-white border" value="Direktur Operasional" oninput="updateExportLinks()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button type="button" class="btn btn-secondary px-4 shadow-sm rounded-pill fw-bold" data-bs-dismiss="modal">Batal</button>
+                <a href="" id="btn-modal-download-pdf" target="_blank" class="btn btn-danger px-5 shadow-sm rounded-pill fw-bold"><i class="bi bi-file-earmark-pdf me-2"></i>Cetak PDF</a>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Modal Detail Aset -->
@@ -973,12 +984,12 @@ $months = [
         const menyetujuiNama = encodeURIComponent(document.getElementById('ttd_menyetujui_nama')?.value || '');
         const menyetujuiJabatan = encodeURIComponent(document.getElementById('ttd_menyetujui_jabatan')?.value || '');
 
-        const pdfBtn = document.getElementById('btn-export-pdf');
+        const modalPdfBtn = document.getElementById('btn-modal-download-pdf');
         const excelBtn = document.getElementById('btn-export-excel');
 
-        if (pdfBtn) {
-            const baseUrl = pdfBtn.getAttribute('data-base-url');
-            pdfBtn.href = `${baseUrl}&dibuat_nama=${dibuatNama}&dibuat_jabatan=${dibuatJabatan}&mengetahui_nama=${mengetahuiNama}&mengetahui_jabatan=${mengetahuiJabatan}&menyetujui_nama=${menyetujuiNama}&menyetujui_jabatan=${menyetujuiJabatan}`;
+        if (modalPdfBtn) {
+            const baseUrl = `export/maintenance_pdf.php?id_cabang=<?= $selected_cabang ?>&bulan=<?= $selected_bulan ?>&tahun=<?= $selected_tahun ?>`;
+            modalPdfBtn.href = `${baseUrl}&dibuat_nama=${dibuatNama}&dibuat_jabatan=${dibuatJabatan}&mengetahui_nama=${mengetahuiNama}&mengetahui_jabatan=${mengetahuiJabatan}&menyetujui_nama=${menyetujuiNama}&menyetujui_jabatan=${menyetujuiJabatan}`;
         }
         if (excelBtn) {
             const baseUrl = excelBtn.getAttribute('data-base-url');
