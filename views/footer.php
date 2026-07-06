@@ -172,6 +172,33 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(err => console.error("Keep alive ping error", err));
     };
     <?php endif; ?>
+
+    // Theme Toggle Handler
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const themeToggleIcon = document.getElementById('theme-toggle-icon');
+    
+    if (themeToggleBtn && themeToggleIcon) {
+        // Set initial icon on load
+        const currentTheme = localStorage.getItem('theme-pref') || 'dark';
+        if (currentTheme === 'light') {
+            themeToggleIcon.className = 'bi bi-sun';
+        } else {
+            themeToggleIcon.className = 'bi bi-moon-stars';
+        }
+        
+        themeToggleBtn.addEventListener('click', function() {
+            document.body.classList.toggle('light-theme');
+            const theme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+            localStorage.setItem('theme-pref', theme);
+            
+            // Update icon
+            if (theme === 'light') {
+                themeToggleIcon.className = 'bi bi-sun';
+            } else {
+                themeToggleIcon.className = 'bi bi-moon-stars';
+            }
+        });
+    }
 });
 </script>
 
