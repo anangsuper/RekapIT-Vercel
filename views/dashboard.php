@@ -639,13 +639,25 @@ document.addEventListener("DOMContentLoaded", function() {
                     </div>
                 <?php else: ?>
                     <?php foreach ($recentLogs as $log): ?>
+                        <?php
+                        $action = strtoupper($log['action']);
+                        // Set semantic colors for tech badges based on the log action
+                        $badgeStyle = "background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.25);"; // Default (Indigo)
+                        if (strpos($action, 'LOGIN') !== false || strpos($action, 'MASUK') !== false) {
+                            $badgeStyle = "background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.25);"; // Green
+                        } elseif (strpos($action, 'LOGOUT') !== false || strpos($action, 'KELUAR') !== false || strpos($action, 'DELETE') !== false || strpos($action, 'HAPUS') !== false) {
+                            $badgeStyle = "background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.25);"; // Red
+                        } elseif (strpos($action, 'UPDATE') !== false || strpos($action, 'UBAH') !== false || strpos($action, 'EDIT') !== false) {
+                            $badgeStyle = "background: rgba(245, 158, 11, 0.15); color: #fde047; border: 1px solid rgba(245, 158, 11, 0.25);"; // Yellow
+                        }
+                        ?>
                         <div class="list-group-item px-0 border-0 mb-2.5 d-flex align-items-start">
-                            <div class="bg-light p-1.5 rounded-circle me-2.5 mt-1 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
-                                <i class="bi bi-person-fill text-secondary" style="font-size: 0.8rem;"></i>
+                            <div class="bg-primary bg-opacity-10 p-1.5 rounded-circle me-2.5 mt-1 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; border: 1px solid var(--sidebar-border);">
+                                <i class="bi bi-person-fill text-primary" style="font-size: 0.8rem;"></i>
                             </div>
                             <div class="flex-grow-1 min-width-0">
                                 <div class="d-flex justify-content-between align-items-center gap-2">
-                                    <span class="badge bg-secondary-subtle text-dark border-0 fw-bold px-2 py-0.5 text-truncate" style="font-size: 0.65rem; max-width: 100px;"><?= htmlspecialchars($log['action']) ?></span>
+                                    <span class="badge fw-bold px-2 py-0.5 text-truncate" style="font-size: 0.65rem; max-width: 100px; <?= $badgeStyle ?>"><?= htmlspecialchars($log['action']) ?></span>
                                     <span class="text-muted small text-truncate" style="font-size: 0.68rem;" title="<?= date('d M Y, H:i:s', strtotime($log['created_at'])) ?>">
                                         <?= htmlspecialchars($log['user_nama'] ?: 'Sistem') ?> &bull; <?= date('d M, H:i', strtotime($log['created_at'])) ?>
                                     </span>
