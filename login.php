@@ -593,9 +593,9 @@ if (isset($_POST['login'])) {
         </form>
 
         <div class="hint-box">
-            <div class="hint-title">Informasi Akses Default</div>
+            <div class="hint-title">Lupa Password?</div>
             <p class="hint-text">
-                Username: <code>admin</code> &bull; Password: <code>password</code>
+                Silakan hubungi <strong style="color: #ffffff; text-shadow: 0 0 10px rgba(255,255,255,0.3);">Administrator IT</strong> untuk melakukan reset kata sandi Anda melalui database Google Sheets.
             </p>
         </div>
     </div>
