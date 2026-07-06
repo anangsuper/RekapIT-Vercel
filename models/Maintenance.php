@@ -76,7 +76,7 @@ class Maintenance {
                     $commonData['temuan'],
                     $commonData['tindakan'],
                     $commonData['rekomendasi'],
-                    $commonData['status']
+                    $commonData['status'] ?? 'Baik'
                 ]);
 
                 // Map maintenance status to asset kondisi
