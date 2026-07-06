@@ -845,7 +845,27 @@ if (!file_exists($google_sheet_credentials_path)) {
 }
 
 $sync = new GoogleSheetsSync($sqlite_db_path, $google_spreadsheet_id, $google_sheet_credentials_path);
-$sync->ensureInitialized();
+
+// Check if manual sync is requested via GET parameter to bypass serverless container isolation
+if (isset($_GET['sync_now']) && $_GET['sync_now'] === '1') {
+    try {
+        $sync->ensureInitialized(true, true);
+        
+        // Redirect back to clean the URL
+        $cleanUrl = strtok($_SERVER['REQUEST_URI'], '?');
+        $params = $_GET;
+        unset($params['sync_now']);
+        $params['sync_status'] = 'success';
+        $queryString = http_build_query($params);
+        
+        header('Location: ' . $cleanUrl . ($queryString ? '?' . $queryString : ''));
+        exit();
+    } catch (Exception $e) {
+        die("Sinkronisasi gagal: " . htmlspecialchars($e->getMessage()));
+    }
+} else {
+    $sync->ensureInitialized();
+}
 
 try {
     $conn = new GoogleSheetsPDO("sqlite:" . $sqlite_db_path, $sync);

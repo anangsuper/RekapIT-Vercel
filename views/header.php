@@ -829,36 +829,10 @@ $notifCount = count($notifications);
             icon.classList.add('spin-animation');
             text.innerText = 'Syncing...';
             
-            fetch('api/sync.php')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        text.innerText = 'Synced!';
-                        btn.classList.remove('btn-outline-primary');
-                        btn.classList.add('btn-success', 'text-white');
-                        setTimeout(() => {
-                            btn.classList.remove('btn-success', 'text-white');
-                            btn.classList.add('btn-outline-primary');
-                            text.innerText = 'Sync';
-                            btn.disabled = false;
-                            icon.classList.remove('spin-animation');
-                            window.location.reload();
-                        }, 1000);
-                    } else {
-                        alert('Sinkronisasi gagal: ' + (data.error || 'Terjadi kesalahan'));
-                        resetBtn();
-                    }
-                })
-                .catch(err => {
-                    alert('Koneksi gagal: ' + err.message);
-                    resetBtn();
-                });
-                
-            function resetBtn() {
-                btn.disabled = false;
-                icon.classList.remove('spin-animation');
-                text.innerText = 'Sync';
-            }
+            // Redirect to the same page with sync_now=1 to run sync in the active container
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('sync_now', '1');
+            window.location.href = currentUrl.toString();
         }
         </script>
 
