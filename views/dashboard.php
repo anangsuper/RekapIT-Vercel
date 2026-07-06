@@ -74,11 +74,11 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
 
 <style>
     .lux-card {
-        background: #ffffff !important;
-        border: 1px solid #e5e7eb;
+        background: var(--card-bg) !important;
+        border: 1px solid var(--card-border);
         border-radius: 18px;
         transition: all 0.2s ease;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        box-shadow: var(--card-shadow);
         position: relative;
         overflow: hidden;
         z-index: 1;
@@ -95,20 +95,20 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
     .row > .col-md-3:nth-child(4) .lux-card::before { background: #fdba74; }
     .lux-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        box-shadow: var(--card-shadow-hover);
     }
     .fw-800 { font-weight: 800; }
     .fw-700 { font-weight: 700; }
     .transition-hover {
         transition: all 0.2s ease;
-        border: 1px solid #e5e7eb !important;
-        background: #f9fafb !important;
+        border: 1px solid var(--card-border) !important;
+        background: var(--table-tr-bg) !important;
     }
     .transition-hover:hover {
-        background-color: #ffffff !important;
-        border-color: #d1d5db !important;
+        background-color: var(--table-tr-hover) !important;
+        border-color: var(--primary-color) !important;
         transform: translateY(-2px);
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+        box-shadow: var(--card-shadow-hover);
     }
 
     @keyframes pulse {
@@ -122,31 +122,31 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
 
     /* Progress Bars & Custom badges */
     .progress {
-        background-color: #e2e8f0;
+        background-color: var(--sidebar-hover) !important;
         height: 8px;
         border-radius: 99px;
         overflow: hidden;
     }
     .progress-bar {
-        background: #111827 !important;
+        background: var(--primary-color) !important;
         border-radius: 99px;
     }
 
     .list-group-item {
         background: transparent !important;
-        border-bottom: 1px solid rgba(226, 232, 240, 0.5) !important;
+        border-bottom: 1px solid var(--card-border) !important;
     }
     .list-group-item:last-child {
         border-bottom: none !important;
     }
     .stat-label {
-        color: #6b7280 !important;
+        color: var(--text-soft) !important;
         letter-spacing: 0.04em !important;
     }
     .stat-chip {
-        background: #f3f4f6 !important;
-        border: 1px solid #e5e7eb !important;
-        color: #111827 !important;
+        background: var(--input-bg) !important;
+        border: 1px solid var(--card-border) !important;
+        color: var(--text-main) !important;
     }
 </style>
 
