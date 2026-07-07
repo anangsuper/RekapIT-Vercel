@@ -563,7 +563,7 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted">Kode Aset <span class="text-danger">*</span></label>
-                            <input type="text" name="kode_aset" class="form-control bg-light border-0" placeholder="Contoh: LPT-001" required>
+                            <input type="text" name="kode_aset" id="add_kode_aset" class="form-control bg-light border-0" placeholder="Contoh: LPT-001" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted">Serial Number (SN)</label>
@@ -575,7 +575,7 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                         </div>
                         <div class="col-md-4">
                             <label class="form-label small fw-bold text-muted">Kategori</label>
-                            <select name="id_kategori" class="form-select bg-light border-0">
+                            <select name="id_kategori" id="add_id_kategori" class="form-select bg-light border-0" onchange="autoGenerateAssetCode(this.value)">
                                 <?php foreach ($kategoris as $k): ?>
                                     <option value="<?= $k['id'] ?>"><?= htmlspecialchars($k['nama_kategori']) ?></option>
                                 <?php endforeach; ?>
@@ -738,6 +738,31 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
 </div>
 
 <script>
+function autoGenerateAssetCode(categoryId) {
+    if (!categoryId) return;
+    fetch(`api/generate_asset_code.php?kategori_id=${categoryId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.code) {
+                document.getElementById('add_kode_aset').value = data.code;
+            }
+        })
+        .catch(err => console.error('Error generating code:', err));
+}
+
+// Trigger auto-code generation when modal opens
+document.addEventListener('DOMContentLoaded', function() {
+    const btnTambah = document.querySelector('[data-bs-target="#modalTambah"]');
+    if (btnTambah) {
+        btnTambah.addEventListener('click', function() {
+            const catSelect = document.getElementById('add_id_kategori');
+            if (catSelect) {
+                autoGenerateAssetCode(catSelect.value);
+            }
+        });
+    }
+});
+
 function filterKaryawan(cabangSelectId, karyawanSelectId) {
     const selectedCabangId = document.getElementById(cabangSelectId).value;
     const selectKaryawan = document.getElementById(karyawanSelectId);
