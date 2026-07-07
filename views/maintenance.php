@@ -152,6 +152,9 @@ $assets = $id_cabang ? $assetModel->getAll($id_cabang) : [];
     </div>
     <?php if ($sub === 'history'): ?>
     <div class="d-flex gap-2">
+        <button onclick="broadcastScheduleToTelegram(this)" class="btn btn-outline-info shadow-sm d-flex align-items-center gap-2" style="border-radius: 12px;">
+            <i class="bi bi-telegram" id="tg-sched-icon"></i> <span id="tg-sched-text">Kirim Jadwal ke Telegram</span>
+        </button>
         <a href="index.php?page=maintenance&sub=massal" class="btn btn-success shadow-sm">
             <i class="bi bi-layers-half me-2"></i> Maintenance Massal
         </a>
@@ -932,6 +935,37 @@ $selected_ids = array_unique($_POST['asset_ids'] ?? []);
         // Show modal
         var myModal = new bootstrap.Modal(document.getElementById('modalDetailAset'));
         myModal.show();
+    }
+
+    function broadcastScheduleToTelegram(btn) {
+        const icon = document.getElementById('tg-sched-icon');
+        const text = document.getElementById('tg-sched-text');
+        
+        if (btn.disabled) return;
+        btn.disabled = true;
+        const originalIconClass = icon.className;
+        const originalText = text.innerText;
+        
+        icon.className = 'spinner-border spinner-border-sm me-2';
+        text.innerText = 'Mengirim...';
+        
+        fetch('api/broadcast_maintenance_schedule.php')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Jadwal maintenance berhasil dikirim ke grup Telegram!');
+                } else {
+                    alert('Gagal mengirim jadwal: ' + data.error);
+                }
+            })
+            .catch(err => {
+                alert('Terjadi kesalahan koneksi: ' + err.message);
+            })
+            .finally(() => {
+                btn.disabled = false;
+                icon.className = originalIconClass;
+                text.innerText = originalText;
+            });
     }
 </script>
 
