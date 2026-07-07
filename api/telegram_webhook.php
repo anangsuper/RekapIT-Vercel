@@ -2,22 +2,8 @@
 // Set headers
 header('Content-Type: application/json');
 
-// Load database connection
-if (getenv('VERCEL') || DIRECTORY_SEPARATOR === '/') {
-    $dbPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'rekapit_cache.sqlite';
-} else {
-    $dbPath = __DIR__ . '/../database/rekapit_cache.sqlite';
-}
-
-try {
-    $conn = new PDO("sqlite:" . $dbPath);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    error_log("Webhook DB Error: " . $e->getMessage());
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-    exit();
-}
+// Load central database config (Auto-initializes Vercel SQLite tables and schema)
+require_once __DIR__ . '/../config/database.php';
 
 // Get POST request body from Telegram
 $content = file_get_contents("php://input");
