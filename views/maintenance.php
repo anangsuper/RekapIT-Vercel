@@ -31,7 +31,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $conn->beginTransaction();
         try {
             require_once 'models/Maintenance.php';
+            require_once 'models/Asset.php';
             $maintModel = new Maintenance($conn);
+            $assetModel = new Asset($conn);
+            
+            $summaryLines = [];
+            $generalTeknisi = '';
+
             foreach ($asset_ids as $id) {
                 // Ambil checklist terpilih dan format sebagai teks
                 $chkList = $_POST['checklist'][$id] ?? [];
@@ -55,8 +61,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     'id_detail_jadwal' => null
                 ];
                 $maintModel->create($data);
+
+                // Kumpulkan info aset untuk ringkasan Telegram
+                $asset = $assetModel->getById($id);
+                $kodeAset = $asset ? $asset['kode_aset'] : "Aset ID: $id";
+                $namaAset = $asset ? $asset['nama_aset'] : "Tidak Diketahui";
+                $statusAset = $_POST['status'][$id] ?? 'Selesai';
+                $temuanAset = $_POST['temuan'][$id] ?? 'Baik';
+                
+                $summaryLines[] = "• *{$kodeAset}* ({$namaAset}): {$temuanAset} (Status: {$statusAset})";
+                
+                if (empty($generalTeknisi)) {
+                    $generalTeknisi = $_POST['teknisi'][$id] ?? '';
+                }
             }
             $conn->commit();
+
+            // Kirim satu rangkuman Telegram
+            require_once 'helpers/notification.php';
+            $tanggal = date('d M Y');
+            $totalAset = count($asset_ids);
+            
+            $msg = "📦 *MAINTENANCE MASSAL SELESAI*\n\n"
+                 . "*• Tanggal:* {$tanggal}\n"
+                 . "*• Total Aset:* {$totalAset} Aset\n"
+                 . "*• Teknisi:* " . ($generalTeknisi ?: ($_SESSION['nama'] ?? 'Sistem')) . "\n\n"
+                 . "*Rincian Pemeriksaan:*\n"
+                 . implode("\n", $summaryLines);
+            
+            sendTelegramNotification($msg);
+
             header("Location: index.php?page=maintenance&sub=history&status=mass_success");
             exit();
         } catch (Exception $e) {
