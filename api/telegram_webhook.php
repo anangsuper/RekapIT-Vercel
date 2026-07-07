@@ -133,6 +133,157 @@ if (isset($update["inline_query"])) {
     exit();
 }
 
+// Handle Callback Queries (Klik-klik menu Tambah Aset)
+if (isset($update["callback_query"])) {
+    $callbackQuery = $update["callback_query"];
+    $callbackId = $callbackQuery["id"];
+    $data = $callbackQuery["data"];
+    $message = $callbackQuery["message"];
+    $chatId = $message["chat"]["id"];
+    $messageId = $message["message_id"];
+    
+    $token = getenv('TELEGRAM_BOT_TOKEN') ?: ($_ENV['TELEGRAM_BOT_TOKEN'] ?? ($_SERVER['TELEGRAM_BOT_TOKEN'] ?? ''));
+    
+    if (strpos($data, 'new_cat:') === 0) {
+        $catId = intval(substr($data, 8));
+        
+        // Fetch category
+        $cStmt = $conn->prepare("SELECT nama_kategori FROM kategori WHERE id = ?");
+        $cStmt->execute([$catId]);
+        $kategori = $cStmt->fetch();
+        
+        if ($kategori) {
+            // Fetch branches
+            $bStmt = $conn->query("SELECT id, nama_cabang FROM cabang ORDER BY nama_cabang ASC");
+            $branches = $bStmt->fetchAll();
+            
+            $inlineButtons = [];
+            foreach ($branches as $br) {
+                $inlineButtons[] = [['text' => $br['nama_cabang'], 'callback_data' => "new_br:{$catId}:{$br['id']}"]];
+            }
+            
+            $keyboard = [
+                'inline_keyboard' => $inlineButtons
+            ];
+            
+            $text = "➕ *TAMBAH ASET BARU*\n"
+                  . "*• Kategori:* " . htmlspecialchars($kategori['nama_kategori']) . "\n\n"
+                  . "Sekarang silakan klik *Kantor Cabang* penugasan aset:";
+                  
+            if (!empty($token)) {
+                $url = "https://api.telegram.org/bot" . $token . "/editMessageText";
+                $postData = [
+                    'chat_id' => $chatId,
+                    'message_id' => $messageId,
+                    'text' => $text,
+                    'parse_mode' => 'Markdown',
+                    'reply_markup' => json_encode($keyboard)
+                ];
+                $options = [
+                    'http' => [
+                        'method'  => 'POST',
+                        'header'  => "Content-Type: application/x-www-form-urlencoded\r\n",
+                        'content' => http_build_query($postData),
+                        'timeout' => 5
+                    ],
+                    'ssl' => ['verify_peer' => false, 'verify_peer_name' => false]
+                ];
+                @file_get_contents($url, false, stream_context_create($options));
+            }
+        }
+    } elseif (strpos($data, 'new_br:') === 0) {
+        $parts = explode(':', $data);
+        $catId = intval($parts[1]);
+        $brId = intval($parts[2]);
+        
+        // Fetch category and branch details
+        $catStmt = $conn->prepare("SELECT nama_kategori FROM kategori WHERE id = ?");
+        $catStmt->execute([$catId]);
+        $kategori = $catStmt->fetch();
+        
+        $brStmt = $conn->prepare("SELECT nama_cabang FROM cabang WHERE id = ?");
+        $brStmt->execute([$brId]);
+        $cabang = $brStmt->fetch();
+        
+        if ($kategori && $cabang) {
+            // Generate Asset Code prefix
+            $cleanName = preg_replace('/[^a-zA-Z]/', '', $kategori['nama_kategori']);
+            $prefix = strtoupper(substr($cleanName, 0, 3));
+            if (strlen($prefix) < 3) {
+                $prefix = str_pad($prefix, 3, 'X');
+            }
+            
+            // Find next incremental code
+            $stmt = $conn->prepare("SELECT kode_aset FROM assets WHERE kode_aset LIKE ? ORDER BY id DESC LIMIT 1");
+            $stmt->execute([$prefix . '-%']);
+            $lastAsset = $stmt->fetch();
+            
+            $nextNum = 1;
+            if ($lastAsset) {
+                $codeParts = explode('-', $lastAsset['kode_aset']);
+                if (count($codeParts) >= 2) {
+                    $lastNum = intval($codeParts[1]);
+                    $nextNum = $lastNum + 1;
+                }
+            }
+            $newCode = $prefix . '-' . str_pad($nextNum, 3, '0', STR_PAD_LEFT);
+            $namaAset = $kategori['nama_kategori'] . " Baru " . $newCode;
+            
+            // Insert into Database
+            $conn->beginTransaction();
+            try {
+                $insertStmt = $conn->prepare("INSERT INTO assets (kode_aset, nama_aset, id_kategori, id_cabang, kondisi, created_at) VALUES (?, ?, ?, ?, 'Baik', datetime('now', 'localtime'))");
+                $insertStmt->execute([$newCode, $namaAset, $catId, $brId]);
+                $conn->commit();
+                
+                $text = "✅ *ASET BARU BERHASIL DITAMBAHKAN*\n\n"
+                      . "*• Kode Aset:* `{$newCode}`\n"
+                      . "*• Nama Aset:* {$namaAset}\n"
+                      . "*• Kategori:* {$kategori['nama_kategori']}\n"
+                      . "*• Cabang:* {$cabang['nama_cabang']}\n"
+                      . "*• Kondisi:* 🟢 Baik\n\n"
+                      . "Aset baru telah didaftarkan secara real-time ke dalam database RekapIT. Anda dapat melengkapi serial number, spesifikasi, dan divisi melalui panel website.";
+            } catch (Exception $e) {
+                $conn->rollBack();
+                $text = "❌ *Gagal menyimpan aset:* " . $e->getMessage();
+            }
+            
+            if (!empty($token)) {
+                $url = "https://api.telegram.org/bot" . $token . "/editMessageText";
+                $postData = [
+                    'chat_id' => $chatId,
+                    'message_id' => $messageId,
+                    'text' => $text,
+                    'parse_mode' => 'Markdown'
+                ];
+                $options = [
+                    'http' => [
+                        'method'  => 'POST',
+                        'header'  => "Content-Type: application/x-www-form-urlencoded\r\n",
+                        'content' => http_build_query($postData),
+                        'timeout' => 5
+                    ],
+                    'ssl' => ['verify_peer' => false, 'verify_peer_name' => false]
+                ];
+                @file_get_contents($url, false, stream_context_create($options));
+            }
+        }
+    }
+    
+    // Answer callback query
+    if (!empty($token)) {
+        $url = "https://api.telegram.org/bot" . $token . "/answerCallbackQuery?callback_query_id=" . $callbackId;
+        $options = [
+            'http' => ['timeout' => 3],
+            'ssl' => ['verify_peer' => false, 'verify_peer_name' => false]
+        ];
+        @file_get_contents($url, false, stream_context_create($options));
+    }
+    
+    echo json_encode(['success' => true]);
+    exit();
+}
+
 if (!isset($update["message"])) {
     echo json_encode(['success' => false, 'message' => 'No message found']);
     exit();
@@ -166,10 +317,11 @@ if ($command === '/start' || $command === '/help') {
                   . "Halo! Anda dapat berinteraksi dengan database RekapIT langsung melalui chat Telegram ini.\n\n"
                   . "*Daftar Perintah:*\n"
                   . "🔍 `/cari [kode/nama_aset]` - Mencari detail aset berdasarkan kode/nama\n"
+                  . "➕ `/tambah` - Tambah aset baru (Tinggal klik-klik saja tanpa ribet!)\n"
                   . "📝 `/maintenance` atau `/m` - Catat laporan maintenance massal via Telegram\n"
                   . "❓ `/help` - Menampilkan daftar perintah bantuan\n\n"
                   . "_Contoh pencarian: `/cari LAP-001`_\n"
-                  . "_Ketik `/m` untuk melihat panduan pengisian maintenance massal._";
+                  . "_Ketik `/tambah` untuk mencoba wizard pendaftaran aset._";
 } elseif ($command === '/cari') {
     if (empty($argument)) {
         $responseText = "⚠️ *Format Salah.*\nSilakan masukkan kode atau nama aset yang ingin dicari.\nContoh: `/cari LAP-001`";
@@ -331,6 +483,25 @@ if ($command === '/start' || $command === '/help') {
             }
         }
     }
+} elseif ($command === '/tambah') {
+    // Fetch categories from database to present to the user
+    $catStmt = $conn->query("SELECT id, nama_kategori FROM kategori ORDER BY nama_kategori ASC");
+    $categories = $catStmt->fetchAll();
+    
+    if (empty($categories)) {
+        $responseText = "⚠️ *Gagal:* Belum ada data Kategori Aset terdaftar di database RekapIT.";
+    } else {
+        $inlineButtons = [];
+        foreach ($categories as $cat) {
+            $inlineButtons[] = [['text' => $cat['nama_kategori'], 'callback_data' => "new_cat:{$cat['id']}"]];
+        }
+        
+        $keyboard = [
+            'inline_keyboard' => $inlineButtons
+        ];
+        
+        $responseText = "➕ *TAMBAH ASET BARU*\n\nSilakan pilih *Kategori Aset* yang ingin Anda daftarkan:";
+    }
 }
 
 if (!empty($responseText)) {
@@ -350,11 +521,16 @@ if (!empty($responseText)) {
             $keyboard = [
                 'keyboard' => [
                     [['text' => '/help']],
-                    [['text' => '/m']]
+                    [['text' => '/m'], ['text' => '/tambah']]
                 ],
                 'resize_keyboard' => true,
                 'one_time_keyboard' => false
             ];
+            $data['reply_markup'] = json_encode($keyboard);
+        }
+        
+        // Attach Inline Keyboard markup for the /tambah command wizard
+        if ($command === '/tambah' && isset($keyboard)) {
             $data['reply_markup'] = json_encode($keyboard);
         }
         
