@@ -1,3 +1,4 @@
+<?php
 // Load session and database configuration
 require_once __DIR__ . '/../config/database.php';
 
