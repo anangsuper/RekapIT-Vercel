@@ -23,7 +23,117 @@ try {
 $content = file_get_contents("php://input");
 $update = json_decode($content, true);
 
-if (!$update || !isset($update["message"])) {
+if (!$update) {
+    echo json_encode(['success' => false, 'message' => 'Invalid update JSON']);
+    exit();
+}
+
+// Handle Inline Queries (Cari Aset tinggal klik, tanpa comment/ketik perintah)
+if (isset($update["inline_query"])) {
+    $inlineQuery = $update["inline_query"];
+    $queryId = $inlineQuery["id"];
+    $queryString = trim($inlineQuery["query"]);
+    
+    $results = [];
+    
+    if (!empty($queryString)) {
+        // Query database for matching assets
+        $q = "%$queryString%";
+        $query = "SELECT a.*, c.nama_cabang, d.nama_divisi, k.nama_karyawan 
+                  FROM assets a
+                  LEFT JOIN cabang c ON a.id_cabang = c.id
+                  LEFT JOIN divisi d ON a.id_divisi = d.id
+                  LEFT JOIN karyawan k ON a.id_karyawan = k.id
+                  WHERE a.kode_aset LIKE :q OR a.nama_aset LIKE :q LIMIT 5";
+                  
+        $stmt = $conn->prepare($query);
+        $stmt->execute([':q' => $q]);
+        $assets = $stmt->fetchAll();
+        
+        foreach ($assets as $asset) {
+            $statusEmoji = ($asset['kondisi'] === 'Baik') ? '🟢' : (($asset['kondisi'] === 'Rusak Ringan') ? '🟡' : '🔴');
+            
+            // Get last maintenance activity
+            $maintQuery = "SELECT * FROM maintenance WHERE asset_id = ? ORDER BY tanggal DESC LIMIT 1";
+            $maintStmt = $conn->prepare($maintQuery);
+            $maintStmt->execute([$asset['id']]);
+            $lastMaint = $maintStmt->fetch();
+            
+            $maintText = "-";
+            if ($lastMaint) {
+                $maintDate = date('d M Y', strtotime($lastMaint['tanggal']));
+                $maintText = "{$maintDate} (Hasil: {$lastMaint['temuan']})";
+            }
+            
+            $responseText = "🔍 *DETAIL INFORMASI ASET*\n\n"
+                          . "*• Kode Aset:* `{$asset['kode_aset']}`\n"
+                          . "*• Nama Aset:* {$asset['nama_aset']}\n"
+                          . "*• Merk/Model:* " . ($asset['merk'] ? "{$asset['merk']} " : "") . "{$asset['model']}\n"
+                          . "*• Kondisi:* {$statusEmoji} *{$asset['kondisi']}*\n"
+                          . "*• Cabang:* {$asset['nama_cabang']}\n"
+                          . "*• Divisi:* {$asset['nama_divisi']}\n"
+                          . "*• Pengguna:* " . ($asset['nama_karyawan'] ?: '-') . "\n"
+                          . "*• Serial Number:* `" . ($asset['serial_number'] ?: '-') . "`\n"
+                          . "*• Cek Terakhir:* {$maintText}";
+                          
+            $results[] = [
+                'type' => 'article',
+                'id' => uniqid(),
+                'title' => "[{$asset['kode_aset']}] {$asset['nama_aset']}",
+                'description' => "Kondisi: {$asset['kondisi']} | Cabang: {$asset['nama_cabang']}",
+                'input_message_content' => [
+                    'message_text' => $responseText,
+                    'parse_mode' => 'Markdown'
+                ]
+            ];
+        }
+    }
+    
+    // Default placeholder suggestion list
+    if (empty($results)) {
+        $results[] = [
+            'type' => 'article',
+            'id' => 'prompt_search',
+            'title' => 'Cari Aset IT...',
+            'description' => 'Ketik kode/nama aset, contoh: LAP-001',
+            'input_message_content' => [
+                'message_text' => "Ketik nama bot diikuti kode aset untuk mencari secara instan.\nContoh: `@RekapItBot LAP-001` lalu klik pop-up hasil yang muncul.",
+                'parse_mode' => 'Markdown'
+            ]
+        ];
+    }
+    
+    // Respond to Telegram Inline Query API
+    $token = getenv('TELEGRAM_BOT_TOKEN') ?: ($_ENV['TELEGRAM_BOT_TOKEN'] ?? ($_SERVER['TELEGRAM_BOT_TOKEN'] ?? ''));
+    if (!empty($token)) {
+        $url = "https://api.telegram.org/bot" . $token . "/answerInlineQuery";
+        $data = [
+            'inline_query_id' => $queryId,
+            'results' => json_encode($results),
+            'cache_time' => 0
+        ];
+        
+        $options = [
+            'http' => [
+                'method'  => 'POST',
+                'header'  => "Content-Type: application/x-www-form-urlencoded\r\n",
+                'content' => http_build_query($data),
+                'timeout' => 5
+            ],
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false
+            ]
+        ];
+        $context  = stream_context_create($options);
+        @file_get_contents($url, false, $context);
+    }
+    
+    echo json_encode(['success' => true]);
+    exit();
+}
+
+if (!isset($update["message"])) {
     echo json_encode(['success' => false, 'message' => 'No message found']);
     exit();
 }
@@ -234,6 +344,19 @@ if (!empty($responseText)) {
             'parse_mode' => 'Markdown',
             'reply_to_message_id' => $messageId
         ];
+        
+        // Attach Clickable Command Buttons for /start or /help
+        if ($command === '/start' || $command === '/help') {
+            $keyboard = [
+                'keyboard' => [
+                    [['text' => '/help']],
+                    [['text' => '/m']]
+                ],
+                'resize_keyboard' => true,
+                'one_time_keyboard' => false
+            ];
+            $data['reply_markup'] = json_encode($keyboard);
+        }
         
         $options = [
             'http' => [
