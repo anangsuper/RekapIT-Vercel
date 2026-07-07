@@ -716,6 +716,13 @@ $notifCount = count($notifications);
                 width: 100% !important;
             }
 
+            /* Surgical mobile column stacking for form/grid layout fields */
+            .row.g-3 > [class*="col-md-"], 
+            .row.g-3 > [class*="col-lg-"], 
+            .row.g-3 > [class*="col-xl-"] {
+                width: 100% !important;
+            }
+
             /* Make modal content scrollable to prevent bottom button cutoff */
             .modal-body {
                 max-height: 70vh !important;
