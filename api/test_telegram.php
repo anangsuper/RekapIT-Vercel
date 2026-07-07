@@ -95,8 +95,10 @@ if (isset($_GET['set_webhook'])) {
             echo "</div>";
         }
     } else {
+        $error = error_get_last();
         echo "<div style='background-color:#f8d7da; color:#721c24; padding:12px; border-radius:8px; border:1px solid #f5c6cb; margin-bottom:15px;'>";
-        echo "<b>Gagal:</b> Tidak dapat menghubungi API Telegram untuk mengatur webhook.";
+        echo "<b>Gagal:</b> Tidak dapat menghubungi API Telegram untuk mengatur webhook.<br>";
+        echo "Detail Error: " . htmlspecialchars($error['message'] ?? 'Koneksi Timeout atau DNS gagal.');
         echo "</div>";
     }
 }
