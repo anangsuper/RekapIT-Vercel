@@ -15,7 +15,7 @@ if ($kategori_id <= 0) {
 
 try {
     // Get category name
-    $catStmt = $conn->prepare("SELECT nama_kategori FROM kategori WHERE id = ?");
+    $catStmt = $conn->prepare("SELECT nama_kategori FROM kategori_aset WHERE id = ?");
     $catStmt->execute([$kategori_id]);
     $kategori = $catStmt->fetch();
     

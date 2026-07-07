@@ -134,7 +134,7 @@ if (isset($update["callback_query"])) {
         $catId = intval(substr($data, 8));
         
         // Fetch category
-        $cStmt = $conn->prepare("SELECT nama_kategori FROM kategori WHERE id = ?");
+        $cStmt = $conn->prepare("SELECT nama_kategori FROM kategori_aset WHERE id = ?");
         $cStmt->execute([$catId]);
         $kategori = $cStmt->fetch();
         
@@ -183,7 +183,7 @@ if (isset($update["callback_query"])) {
         $brId = intval($parts[2]);
         
         // Fetch category and branch details
-        $catStmt = $conn->prepare("SELECT nama_kategori FROM kategori WHERE id = ?");
+        $catStmt = $conn->prepare("SELECT nama_kategori FROM kategori_aset WHERE id = ?");
         $catStmt->execute([$catId]);
         $kategori = $catStmt->fetch();
         
@@ -471,7 +471,7 @@ if ($command === '/start' || $command === '/help') {
     }
 } elseif ($command === '/tambah') {
     // Fetch categories from database to present to the user
-    $catStmt = $conn->query("SELECT id, nama_kategori FROM kategori ORDER BY nama_kategori ASC");
+    $catStmt = $conn->query("SELECT id, nama_kategori FROM kategori_aset ORDER BY nama_kategori ASC");
     $categories = $catStmt->fetchAll();
     
     if (empty($categories)) {
