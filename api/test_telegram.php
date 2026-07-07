@@ -65,3 +65,42 @@ if ($result === false) {
     echo "Telegram Server Response:<br>";
     echo "<pre>" . htmlspecialchars(json_encode(json_decode($result), JSON_PRETTY_PRINT)) . "</pre>";
 }
+
+// Webhook Registration Handler
+echo "<hr style='margin: 25px 0;'>";
+echo "<h4>🔌 Integrasi Fitur Cari Aset Lewat Telegram Bot</h4>";
+echo "Anda dapat mendaftarkan Webhook agar bot dapat langsung membalas perintah pencarian aset (seperti <code>/cari LAP-001</code>) di grup Telegram Anda.<br><br>";
+
+$webhookUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . ($_SERVER['HTTP_HOST'] ?? '') . "/api/telegram_webhook.php";
+
+if (isset($_GET['set_webhook'])) {
+    $setUrl = "https://api.telegram.org/bot" . $token . "/setWebhook?url=" . urlencode($webhookUrl);
+    
+    // Use the same SSL options context
+    $webContext = stream_context_create([
+        'http' => ['timeout' => 5],
+        'ssl' => ['verify_peer' => false, 'verify_peer_name' => false]
+    ]);
+    
+    $webhookRes = @file_get_contents($setUrl, false, $webContext);
+    if ($webhookRes !== false) {
+        $resJson = json_decode($webhookRes, true);
+        if ($resJson && $resJson['ok']) {
+            echo "<div style='background-color:#d4edda; color:#155724; padding:12px; border-radius:8px; border:1px solid #c3e6cb; margin-bottom:15px;'>";
+            echo "<b>Berhasil!</b> Webhook Telegram aktif terhubung ke:<br><code>$webhookUrl</code>";
+            echo "</div>";
+        } else {
+            echo "<div style='background-color:#f8d7da; color:#721c24; padding:12px; border-radius:8px; border:1px solid #f5c6cb; margin-bottom:15px;'>";
+            echo "<b>Gagal Mendaftarkan:</b> " . htmlspecialchars($resJson['description'] ?? 'Respon error tidak diketahui.');
+            echo "</div>";
+        }
+    } else {
+        echo "<div style='background-color:#f8d7da; color:#721c24; padding:12px; border-radius:8px; border:1px solid #f5c6cb; margin-bottom:15px;'>";
+        echo "<b>Gagal:</b> Tidak dapat menghubungi API Telegram untuk mengatur webhook.";
+        echo "</div>";
+    }
+}
+
+echo "<a href='?cb=" . time() . "&set_webhook=1' style='display:inline-block; background-color:#0088cc; color:white; padding:10px 20px; text-decoration:none; border-radius:8px; font-weight:bold; font-family:sans-serif; font-size:14px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s;'>⚡ Aktifkan Fitur Pencarian Bot</a>";
+echo "<br><br><small style='color:#666;'>Tautan Webhook Anda: <code>$webhookUrl</code></small>";
+
