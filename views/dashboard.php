@@ -152,7 +152,7 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
 
 <div class="row g-4 mb-5 animate-fade-in">
     <!-- Stat Card 1 -->
-    <div class="col-md-3">
+    <div class="col-12 col-sm-6 col-lg-3">
         <div class="card border-0 h-100 shadow-sm" style="border-radius: 18px;">
             <div class="card-body p-4 d-flex align-items-center justify-content-between">
                 <div>
@@ -168,7 +168,7 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
     </div>
 
     <!-- Stat Card 2 -->
-    <div class="col-md-3">
+    <div class="col-12 col-sm-6 col-lg-3">
         <div class="card border-0 h-100 shadow-sm" style="border-radius: 18px;">
             <div class="card-body p-4 d-flex align-items-center justify-content-between">
                 <div>
@@ -184,7 +184,7 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
     </div>
 
     <!-- Stat Card 3 -->
-    <div class="col-md-3">
+    <div class="col-12 col-sm-6 col-lg-3">
         <a href="index.php?page=inventaris&filter_kondisi=rusak" class="text-decoration-none d-block h-100">
             <div class="card border-0 h-100 shadow-sm" style="border-radius: 18px;">
                 <div class="card-body p-4 d-flex align-items-center justify-content-between">
@@ -202,7 +202,7 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
     </div>
 
     <!-- Stat Card 4 -->
-    <div class="col-md-3">
+    <div class="col-12 col-sm-6 col-lg-3">
         <div class="card border-0 h-100 shadow-sm" style="border-radius: 18px;">
             <div class="card-body p-4 d-flex align-items-center justify-content-between">
                 <div>
