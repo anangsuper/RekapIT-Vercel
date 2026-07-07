@@ -130,7 +130,36 @@ if (isset($update["callback_query"])) {
     
     $token = getenv('TELEGRAM_BOT_TOKEN') ?: ($_ENV['TELEGRAM_BOT_TOKEN'] ?? ($_SERVER['TELEGRAM_BOT_TOKEN'] ?? ''));
     
-    if (strpos($data, 'new_cat:') === 0) {
+    if ($data === 'new_wizard_start') {
+        $cStmt = $conn->query("SELECT id, nama_kategori FROM kategori_aset ORDER BY nama_kategori ASC");
+        $categories = $cStmt->fetchAll();
+        $inlineButtons = [];
+        foreach ($categories as $cat) {
+            $inlineButtons[] = [['text' => $cat['nama_kategori'], 'callback_data' => "new_cat:{$cat['id']}"]];
+        }
+        $keyboard = ['inline_keyboard' => $inlineButtons];
+        $text = "➕ *WIZARD TAMBAH ASET*\n\nSilakan pilih *Kategori Aset* yang ingin Anda daftarkan:";
+        if (!empty($token)) {
+            $url = "https://api.telegram.org/bot" . $token . "/editMessageText";
+            $postData = [
+                'chat_id' => $chatId,
+                'message_id' => $messageId,
+                'text' => $text,
+                'parse_mode' => 'Markdown',
+                'reply_markup' => json_encode($keyboard)
+            ];
+            $options = [
+                'http' => [
+                    'method'  => 'POST',
+                    'header'  => "Content-Type: application/x-www-form-urlencoded\r\n",
+                    'content' => http_build_query($postData),
+                    'timeout' => 5
+                ],
+                'ssl' => ['verify_peer' => false, 'verify_peer_name' => false]
+            ];
+            @file_get_contents($url, false, stream_context_create($options));
+        }
+    } elseif (strpos($data, 'new_cat:') === 0) {
         $catId = intval(substr($data, 8));
         
         // Fetch category
@@ -470,23 +499,34 @@ if ($command === '/start' || $command === '/help') {
         }
     }
 } elseif ($command === '/tambah') {
-    // Fetch categories from database to present to the user
+    // Fetch categories from database to check if they exist
     $catStmt = $conn->query("SELECT id, nama_kategori FROM kategori_aset ORDER BY nama_kategori ASC");
     $categories = $catStmt->fetchAll();
     
     if (empty($categories)) {
         $responseText = "⚠️ *Gagal:* Belum ada data Kategori Aset terdaftar di database RekapIT.";
     } else {
-        $inlineButtons = [];
-        foreach ($categories as $cat) {
-            $inlineButtons[] = [['text' => $cat['nama_kategori'], 'callback_data' => "new_cat:{$cat['id']}"]];
-        }
-        
         $keyboard = [
-            'inline_keyboard' => $inlineButtons
+            'inline_keyboard' => [
+                [
+                    [
+                        'text' => '📱 Buka Formulir Web (Rekomendasi)', 
+                        'web_app' => ['url' => "https://rekap-it-vercel-txjt.vercel.app/api/telegram_add_asset.php"]
+                    ]
+                ],
+                [
+                    [
+                        'text' => '🤖 Tambah dengan Klik Wizard', 
+                        'callback_data' => 'new_wizard_start'
+                    ]
+                ]
+            ]
         ];
         
-        $responseText = "➕ *TAMBAH ASET BARU*\n\nSilakan pilih *Kategori Aset* yang ingin Anda daftarkan:";
+        $responseText = "➕ *TAMBAH ASET BARU*\n\n"
+                      . "Silakan pilih metode penginputan aset di bawah ini:\n\n"
+                      . "1. *📱 Formulir Web:* Buka form lengkap interaktif langsung di dalam Telegram (tinggal klik-klik pilihan, tanpa mengetik manual!).\n"
+                      . "2. *🤖 Klik Wizard:* Mendaftarkan aset cepat lewat rangkaian tanya-jawab bot.";
     }
 } elseif ($command === '/tambah_manual' || $command === '/tm') {
     if (empty($argument)) {
