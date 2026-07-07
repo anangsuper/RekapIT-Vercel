@@ -638,10 +638,64 @@ $notifCount = count($notifications);
                 padding: 20px 16px;
                 padding-top: 88px;
             }
-            body {
-                padding-top: 0;
+        }
+        
+        /* Mobile Screen Layout Optimization */
+        @media (max-width: 767.98px) {
+            /* Enable card scroll fallback for wide tables to prevent overflow */
+            .card-body {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            /* Compact table sizes on mobile */
+            table {
+                font-size: 0.82rem !important;
+            }
+            th, td {
+                padding: 10px 12px !important;
+                white-space: nowrap;
+            }
+            
+            /* Responsive layout for flex dashboard headers */
+            .main-content .d-flex.justify-content-between.align-items-center.mb-4 {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 12px !important;
+            }
+            .main-content .d-flex.justify-content-between.align-items-center.mb-4 > div {
+                width: 100% !important;
+            }
+            .main-content .d-flex.justify-content-between.align-items-center.mb-4 > .d-flex {
+                width: 100% !important;
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+            .main-content .d-flex.justify-content-between.align-items-center.mb-4 > .d-flex > a,
+            .main-content .d-flex.justify-content-between.align-items-center.mb-4 > .d-flex > button {
+                width: 100% !important;
+                justify-content: center !important;
+                display: flex !important;
+                align-items: center !important;
+            }
+            
+            /* Optimize inputs and buttons for mobile tap targets */
+            .form-control, .form-select, .btn {
+                padding: 10px 14px !important;
+                font-size: 0.88rem !important;
+                border-radius: 12px !important;
+            }
+            
+            /* Search filter form alignment on mobile */
+            .row.g-3.align-items-end {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+            .row.g-3.align-items-end > [class*="col-"] {
+                width: 100% !important;
             }
         }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
