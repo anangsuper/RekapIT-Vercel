@@ -358,10 +358,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
                         <!-- Custom Searchable Dropdown with colored condition badges -->
                         <div class="dropdown custom-select-dropdown position-relative" id="assetDropdownContainer">
                             <input type="hidden" name="asset_id" id="selectedAssetId" required>
-                            <button class="form-select text-start w-100 shadow-sm d-flex justify-content-between align-items-center" type="button" id="assetDropdownTrigger" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 16px; min-height: 46px;">
+                            <button class="form-select text-start w-100 shadow-sm d-flex justify-content-between align-items-center" type="button" id="assetDropdownTrigger" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-main); border-radius: 12px; padding: 10px 16px; min-height: 46px;">
                                 <span class="text-muted" id="selectedAssetLabel">Pilih Aset Bermasalah...</span>
                             </button>
-                            <div class="dropdown-menu w-100 p-3 shadow-lg border-0" aria-labelledby="assetDropdownTrigger" style="border-radius: 16px; max-height: 350px; overflow-y: auto; z-index: 1100; background: #fff;">
+                            <div class="dropdown-menu w-100 p-3 shadow-lg border-0" aria-labelledby="assetDropdownTrigger" style="border-radius: 16px; max-height: 350px; overflow-y: auto; z-index: 1100; background: var(--dropdown-bg); border: 1px solid var(--card-border); color: var(--text-main);">
                                 <div class="mb-3">
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
@@ -389,7 +389,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
                                                 onclick="selectCustomAsset(this)"
                                                 style="border-radius: 8px; border: none; background: transparent; width: 100%; transition: background-color 0.2s;">
                                             <div>
-                                                <div class="fw-bold text-dark mb-0" style="font-size: 0.85rem;">
+                                                <div class="fw-bold text-main mb-0" style="font-size: 0.85rem;">
                                                     <span class="badge bg-primary bg-opacity-10 text-primary me-1" style="font-size: 0.7rem; padding: 2px 6px;"><?= $a['kode_aset'] ?></span>
                                                     <?= htmlspecialchars($a['nama_aset']) ?>
                                                 </div>
@@ -407,7 +407,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
                             </div>
                         </div>
                     </div>
-                    <div id="selectedAssetDetails" class="mt-3 mb-3 p-3 rounded-4" style="display:none; background-color: #f8fafc; border: 1px dashed #cbd5e1;"></div>
+                    <div id="selectedAssetDetails" class="mt-3 mb-3 p-3 rounded-4" style="display:none; background-color: var(--sidebar-hover); border: 1px dashed var(--card-border); color: var(--text-main);"></div>
                     <div class="mb-0">
                         <label class="form-label small fw-bold">Keluhan Pengguna / Info Kerusakan</label>
                         <textarea name="keluhan" class="form-control shadow-sm" rows="4" placeholder="Jelaskan kerusakan sedetail mungkin..." required></textarea>
@@ -446,7 +446,7 @@ function selectCustomAsset(element) {
     if (kondisi === 'Rusak Berat') condColor = 'danger';
     
     var detailsHtml = `
-        <div class="row g-2 text-dark" style="font-size: 0.8rem;">
+        <div class="row g-2 text-main" style="font-size: 0.8rem;">
             <div class="col-6"><strong>Kode Aset:</strong> ${kode}</div>
             <div class="col-6"><strong>Kondisi:</strong> <span class="badge bg-${condColor} bg-opacity-10 text-${condColor} rounded-pill">${kondisi}</span></div>
             <div class="col-6"><strong>Spesifikasi:</strong> ${spek}</div>
@@ -539,12 +539,12 @@ document.addEventListener("DOMContentLoaded", function() {
     .fw-500 { font-weight: 500; }
     
     .custom-asset-item {
-        border-bottom: 1px solid #f1f5f9 !important;
+        border-bottom: 1px solid var(--card-border) !important;
     }
     .custom-asset-item:last-child {
         border-bottom: none !important;
     }
     .custom-asset-item:hover {
-        background-color: #f8fafc !important;
+        background-color: var(--table-tr-hover) !important;
     }
 </style>
