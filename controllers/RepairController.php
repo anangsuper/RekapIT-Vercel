@@ -33,10 +33,21 @@ class RepairController {
             $namaAset = $asset ? $asset['nama_aset'] : "Aset ID: " . $data['asset_id'];
             $kodeAset = $asset ? $asset['kode_aset'] : "-";
             
-            $msg = "🚨 *TIKET PERBAIKAN BARU*\n\n"
+            // Set priority classification tag
+            $priorityEmoji = "🚨";
+            if ($asset && strcasecmp($asset['kondisi'], 'Rusak Berat') === 0) {
+                $priorityEmoji = "🔴 *[KRITIS]*";
+            } elseif ($asset && strcasecmp($asset['kondisi'], 'Rusak Ringan') === 0) {
+                $priorityEmoji = "🟡 *[WARNING]*";
+            }
+            
+            $appUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+            
+            $msg = "{$priorityEmoji} *TIKET PERBAIKAN BARU*\n\n"
                  . "*• Aset:* " . $namaAset . " (" . $kodeAset . ")\n"
                  . "*• Masalah:* " . ($data['keluhan'] ?? '-') . "\n"
-                 . "*• Pelapor:* " . ($_SESSION['nama'] ?? 'Sistem');
+                 . "*• Pelapor:* " . ($_SESSION['nama'] ?? 'Sistem') . "\n\n"
+                 . "🔗 [Buka Tiket Perbaikan]({$appUrl}/index.php?page=perbaikan)";
             sendTelegramNotification($msg);
         }
         return $result;
@@ -69,11 +80,14 @@ class RepairController {
             $namaAset = $asset ? $asset['nama_aset'] : "Aset ID: " . $assetId;
             $kodeAset = $asset ? $asset['kode_aset'] : "-";
             
+            $appUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+            
             $msg = "🛠 *UPDATE TIKET PERBAIKAN*\n\n"
                  . "*• Aset:* " . $namaAset . " (" . $kodeAset . ")\n"
                  . "*• Status Baru:* " . ($data['status'] ?? '-') . "\n"
                  . "*• Solusi/Tindakan:* " . ($data['tindakan'] ?? '-') . "\n"
-                 . "*• Diperbarui Oleh:* " . ($_SESSION['nama'] ?? 'Sistem');
+                 . "*• Diperbarui Oleh:* " . ($_SESSION['nama'] ?? 'Sistem') . "\n\n"
+                 . "🔗 [Buka Tiket Perbaikan]({$appUrl}/index.php?page=perbaikan)";
             sendTelegramNotification($msg);
         }
         return $result;

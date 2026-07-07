@@ -21,11 +21,14 @@ class ActivityLog {
             
             // Send telegram alert
             require_once __DIR__ . '/../helpers/notification.php';
+            $appUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+            
             $msg = "📝 *LOG AKTIVITAS SISTEM*\n\n"
                  . "*• Aktor:* {$actor}\n"
                  . "*• Aksi:* {$action}\n"
                  . "*• Keterangan:* {$description}\n"
-                 . "*• Waktu:* " . date('d M Y, H:i:s');
+                 . "*• Waktu:* " . date('d M Y, H:i:s') . "\n\n"
+                 . "🔗 [Buka Dasbor RekapIT]({$appUrl}/index.php?page=dashboard)";
             sendTelegramNotification($msg);
         }
         return $result;

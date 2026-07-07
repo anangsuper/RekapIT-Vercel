@@ -69,6 +69,19 @@ if (isset($_POST['login'])) {
             exit();
         } else {
             $error = 'Username atau password salah!';
+            
+            // Log Failed Login to Telegram
+            require_once __DIR__ . '/helpers/notification.php';
+            $device = getDeviceDetails();
+            $ip = getClientIP();
+            
+            $msg = "⚠️ *LOGIN ATTEMPT FAILED*\n\n"
+                 . "*• Username Dicoba:* " . htmlspecialchars($username) . "\n"
+                 . "*• Device:* {$device}\n"
+                 . "*• IP Address:* {$ip}\n"
+                 . "*• Status:* Password / Username Salah\n"
+                 . "*• Waktu:* " . date('d M Y, H:i:s');
+            sendTelegramNotification($msg);
         }
     } else {
         $error = 'Harap isi semua field!';
