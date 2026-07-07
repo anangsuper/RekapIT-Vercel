@@ -12,6 +12,18 @@ echo "<h3>Telegram Diagnostics Tool</h3>";
 echo "• Token: " . ($token ? htmlspecialchars(substr($token, 0, 12)) . "*******************" : "<span style='color:red;'>MISSING</span>") . "<br>";
 echo "• Chat ID: " . ($chatId ? htmlspecialchars($chatId) : "<span style='color:red;'>MISSING</span>") . "<br><br>";
 
+echo "<b>Detected Env Keys:</b><br>";
+$envKeys = [];
+foreach ($_SERVER as $k => $v) {
+    if (strpos($k, 'TELEGRAM_') === 0) $envKeys[] = "$k (in \$_SERVER)";
+}
+foreach ($_ENV as $k => $v) {
+    if (strpos($k, 'TELEGRAM_') === 0) $envKeys[] = "$k (in \$_ENV)";
+}
+if (getenv('TELEGRAM_BOT_TOKEN') !== false) $envKeys[] = "TELEGRAM_BOT_TOKEN (in getenv)";
+if (getenv('TELEGRAM_CHAT_ID') !== false) $envKeys[] = "TELEGRAM_CHAT_ID (in getenv)";
+echo (implode('<br>', array_unique($envKeys)) ?: "None detected") . "<br><br>";
+
 if (empty($token) || empty($chatId)) {
     echo "<span style='color:red;'>Error: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is not configured in Vercel.</span>";
     exit();
