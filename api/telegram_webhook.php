@@ -53,11 +53,13 @@ $responseText = '';
 
 if ($command === '/start' || $command === '/help') {
     $responseText = "🤖 *REKAP IT TELEGRAM BOT*\n\n"
-                  . "Halo! Anda dapat mencari informasi aset langsung melalui chat Telegram ini.\n\n"
+                  . "Halo! Anda dapat berinteraksi dengan database RekapIT langsung melalui chat Telegram ini.\n\n"
                   . "*Daftar Perintah:*\n"
                   . "🔍 `/cari [kode/nama_aset]` - Mencari detail aset berdasarkan kode/nama\n"
+                  . "📝 `/maintenance` atau `/m` - Catat laporan maintenance massal via Telegram\n"
                   . "❓ `/help` - Menampilkan daftar perintah bantuan\n\n"
-                  . "_Contoh penggunaan: `/cari LAP-001`_";
+                  . "_Contoh pencarian: `/cari LAP-001`_\n"
+                  . "_Ketik `/m` untuk melihat panduan pengisian maintenance massal._";
 } elseif ($command === '/cari') {
     if (empty($argument)) {
         $responseText = "⚠️ *Format Salah.*\nSilakan masukkan kode atau nama aset yang ingin dicari.\nContoh: `/cari LAP-001`";
@@ -101,6 +103,122 @@ if ($command === '/start' || $command === '/help') {
                           . "*• Cek Terakhir:* {$maintText}";
         } else {
             $responseText = "❌ Aset dengan kata kunci *\"{$argument}\"* tidak ditemukan di database.";
+        }
+    }
+} elseif ($command === '/maintenance' || $command === '/m') {
+    if (empty($argument)) {
+        $responseText = "📝 *PANDUAN MAINTENANCE MASSAL VIA BOT*\n\n"
+                      . "Kirim laporan pemeriksaan beberapa aset sekaligus dengan format formulir berikut:\n\n"
+                      . "`/m`\n"
+                      . "Teknisi: [Nama Anda]\n"
+                      . "Tanggal: [YYYY-MM-DD (Opsional)]\n"
+                      . "[KODE ASET 1] | [STATUS] | [TEMUAN]\n"
+                      . "[KODE ASET 2] | [STATUS] | [TEMUAN]\n\n"
+                      . "*Pilihan Status:* Baik / Perlu Tindakan / Rusak\n\n"
+                      . "*Contoh Laporan:*\n"
+                      . "`/m`\n"
+                      . "Teknisi: Rian Hidayat\n"
+                      . "LAP-001 | Baik | Pembersihan debu & ganti thermal paste\n"
+                      . "PRN-002 | Perlu Tindakan | Kertas sering tersangkut\n"
+                      . "MON-003 | Rusak | Panel pecah";
+    } else {
+        // Parse lines
+        $lines = explode("\n", $argument);
+        
+        $teknisi = 'Teknisi Telegram';
+        $tanggal = date('Y-m-d');
+        $assetChecks = [];
+        
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (empty($line)) continue;
+            
+            // Check headers
+            if (stripos($line, 'Teknisi:') === 0) {
+                $teknisi = trim(substr($line, 8));
+                continue;
+            }
+            if (stripos($line, 'Tanggal:') === 0) {
+                $tanggal = trim(substr($line, 8));
+                continue;
+            }
+            
+            // Parse row format: KODE | STATUS | TEMUAN
+            $rowParts = explode('|', $line);
+            if (count($rowParts) >= 2) {
+                $kode = trim($rowParts[0]);
+                $statusInput = strtolower(trim($rowParts[1]));
+                $temuan = isset($rowParts[2]) ? trim($rowParts[2]) : 'Pengecekan Rutin';
+                
+                // Map status
+                $statusDb = 'Baik';
+                if (strpos($statusInput, 'tindakan') !== false || strpos($statusInput, 'perlu') !== false || strpos($statusInput, 'ringan') !== false) {
+                    $statusDb = 'Perlu Perbaikan';
+                } elseif (strpos($statusInput, 'rusak') !== false || strpos($statusInput, 'berat') !== false) {
+                    $statusDb = 'Rusak';
+                }
+                
+                $assetChecks[] = [
+                    'kode' => $kode,
+                    'status' => $statusDb,
+                    'temuan' => $temuan
+                ];
+            }
+        }
+        
+        if (empty($assetChecks)) {
+            $responseText = "⚠️ *Laporan Gagal Dibuat.*\nFormat pengisian tidak valid. Pastikan menggunakan pemisah garis tegak `|`.\n\nContoh:\n`LAP-001 | Baik | Pembersihan debu`";
+        } else {
+            // Start transaction
+            $conn->beginTransaction();
+            try {
+                $successList = [];
+                $failList = [];
+                
+                foreach ($assetChecks as $check) {
+                    // Find asset
+                    $aStmt = $conn->prepare("SELECT id, nama_aset FROM assets WHERE kode_aset = ?");
+                    $aStmt->execute([$check['kode']]);
+                    $asset = $aStmt->fetch();
+                    
+                    if ($asset) {
+                        // Insert maintenance
+                        $mStmt = $conn->prepare("INSERT INTO maintenance (asset_id, tanggal, teknisi, temuan, tindakan, status) VALUES (?, ?, ?, ?, ?, ?)");
+                        $mStmt->execute([
+                            $asset['id'],
+                            $tanggal,
+                            $teknisi,
+                            $check['temuan'],
+                            'Pengecekan massal diinput via Telegram Bot',
+                            $check['status']
+                        ]);
+                        
+                        // Update asset status
+                        $uStmt = $conn->prepare("UPDATE assets SET kondisi = ? WHERE id = ?");
+                        $uStmt->execute([$check['status'], $asset['id']]);
+                        
+                        $statusEmoji = ($check['status'] === 'Baik') ? '🟢' : (($check['status'] === 'Perlu Perbaikan') ? '🟡' : '🔴');
+                        $successList[] = "• `{$check['kode']}` - {$asset['nama_aset']}: {$statusEmoji} *{$check['status']}*";
+                    } else {
+                        $failList[] = "• `{$check['kode']}`: Aset tidak terdaftar";
+                    }
+                }
+                
+                $conn->commit();
+                
+                $responseText = "✅ *MAINTENANCE MASSAL BERHASIL DICATAT*\n\n"
+                              . "*• Tanggal:* " . date('d M Y', strtotime($tanggal)) . "\n"
+                              . "*• Teknisi:* {$teknisi}\n\n"
+                              . "*Aset Berhasil Diperiksa:*\n"
+                              . (implode("\n", $successList) ?: "Tidak ada\n");
+                              
+                if (!empty($failList)) {
+                    $responseText .= "\n\n*Aset Gagal Diperiksa:*\n" . implode("\n", $failList);
+                }
+            } catch (Exception $e) {
+                $conn->rollBack();
+                $responseText = "❌ *Gagal menyimpan ke database:* " . $e->getMessage();
+            }
         }
     }
 }
