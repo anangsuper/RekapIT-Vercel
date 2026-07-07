@@ -480,7 +480,7 @@ class GoogleSheetsSync {
                         $colList = implode(', ', array_map(fn($c) => "`$c`", $cols));
                         $paramList = implode(', ', array_map(fn($c) => ":$c", $cols));
 
-                        $stmt = $db->prepare("INSERT INTO `$table` ($colList) VALUES ($paramList)");
+                        $stmt = $db->prepare("INSERT OR REPLACE INTO `$table` ($colList) VALUES ($paramList)");
                         foreach ($rows as $row) {
                             $stmt->execute($row);
                         }
