@@ -47,7 +47,20 @@ if (isset($_POST['login'])) {
             // Log Login
             require_once __DIR__ . '/models/ActivityLog.php';
             $logModel = new ActivityLog($conn);
-            $logModel->add($user['id'], 'LOGIN', 'User berhasil login ke sistem.');
+            
+            require_once __DIR__ . '/helpers/notification.php';
+            $device = getDeviceDetails();
+            $ip = getClientIP();
+            
+            $logModel->add($user['id'], 'LOGIN', "User berhasil login ke sistem dari {$device} (IP: {$ip}).");
+            
+            $msg = "🔐 *LOGIN DETECTED*\n\n"
+                 . "*• User:* " . htmlspecialchars($user['nama']) . " (@" . htmlspecialchars($user['username']) . ")\n"
+                 . "*• Role:* " . ucfirst($user['role']) . "\n"
+                 . "*• Device:* {$device}\n"
+                 . "*• IP Address:* {$ip}\n"
+                 . "*• Waktu:* " . date('d M Y, H:i:s');
+            sendTelegramNotification($msg);
 
             if (function_exists('save_session_to_cookie')) {
                 save_session_to_cookie();

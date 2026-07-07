@@ -40,3 +40,42 @@ function sendTelegramNotification($message) {
     
     return $result !== false;
 }
+
+function getDeviceDetails() {
+    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+    $os = 'Unknown OS';
+    if (preg_match('/windows|win32/i', $userAgent)) {
+        $os = 'Windows';
+    } elseif (preg_match('/macintosh|mac os x/i', $userAgent)) {
+        $os = 'macOS';
+    } elseif (preg_match('/android/i', $userAgent)) {
+        $os = 'Android';
+    } elseif (preg_match('/iphone|ipad|ipod/i', $userAgent)) {
+        $os = 'iOS';
+    } elseif (preg_match('/linux/i', $userAgent)) {
+        $os = 'Linux';
+    }
+
+    $browser = 'Unknown Browser';
+    if (preg_match('/edge/i', $userAgent)) {
+        $browser = 'Microsoft Edge';
+    } elseif (preg_match('/chrome/i', $userAgent)) {
+        $browser = 'Google Chrome';
+    } elseif (preg_match('/firefox/i', $userAgent)) {
+        $browser = 'Mozilla Firefox';
+    } elseif (preg_match('/safari/i', $userAgent)) {
+        $browser = 'Apple Safari';
+    } elseif (preg_match('/opera/i', $userAgent)) {
+        $browser = 'Opera';
+    }
+    
+    return "$browser ($os)";
+}
+
+function getClientIP() {
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+    if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ip = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
+    }
+    return trim($ip);
+}

@@ -5,7 +5,30 @@ class ActivityLog {
 
     public function add($userId, $action, $description) {
         $sql = "INSERT INTO activity_logs (user_id, action, description) VALUES (?, ?, ?)";
-        return $this->db->prepare($sql)->execute([$userId, $action, $description]);
+        $result = $this->db->prepare($sql)->execute([$userId, $action, $description]);
+        
+        if ($result && $action !== 'LOGIN') {
+            // Get Actor Name
+            $actor = 'Sistem';
+            if ($userId) {
+                $stmt = $this->db->prepare("SELECT nama FROM users WHERE id = ?");
+                $stmt->execute([$userId]);
+                $user = $stmt->fetch();
+                if ($user) {
+                    $actor = $user['nama'];
+                }
+            }
+            
+            // Send telegram alert
+            require_once __DIR__ . '/../helpers/notification.php';
+            $msg = "📝 *LOG AKTIVITAS SISTEM*\n\n"
+                 . "*• Aktor:* {$actor}\n"
+                 . "*• Aksi:* {$action}\n"
+                 . "*• Keterangan:* {$description}\n"
+                 . "*• Waktu:* " . date('d M Y, H:i:s');
+            sendTelegramNotification($msg);
+        }
+        return $result;
     }
 
     public function getRecent($limit = 10) {
