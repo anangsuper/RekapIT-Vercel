@@ -303,11 +303,11 @@ if ($command === '/start' || $command === '/help') {
                   . "Halo! Anda dapat berinteraksi dengan database RekapIT langsung melalui chat Telegram ini.\n\n"
                   . "*Daftar Perintah:*\n"
                   . "🔍 `/cari [kode/nama_aset]` - Mencari detail aset berdasarkan kode/nama\n"
-                  . "➕ `/tambah` - Tambah aset baru (Tinggal klik-klik saja tanpa ribet!)\n"
+                  . "➕ `/tambah` - Tambah aset baru (Wizard klik-klik saja)\n"
+                  . "📝 `/tambah_manual` atau `/tm` - Tambah aset lengkap via formulir teks\n"
                   . "📝 `/maintenance` atau `/m` - Catat laporan maintenance massal via Telegram\n"
                   . "❓ `/help` - Menampilkan daftar perintah bantuan\n\n"
-                  . "_Contoh pencarian: `/cari LAP-001`_\n"
-                  . "_Ketik `/tambah` untuk mencoba wizard pendaftaran aset._";
+                  . "_Ketik `/tm` untuk melihat format formulir teks tambah aset manual._";
 } elseif ($command === '/cari') {
     if (empty($argument)) {
         $responseText = "⚠️ *Format Salah.*\nSilakan masukkan kode atau nama aset yang ingin dicari.\nContoh: `/cari LAP-001`";
@@ -488,6 +488,152 @@ if ($command === '/start' || $command === '/help') {
         
         $responseText = "➕ *TAMBAH ASET BARU*\n\nSilakan pilih *Kategori Aset* yang ingin Anda daftarkan:";
     }
+} elseif ($command === '/tambah_manual' || $command === '/tm') {
+    if (empty($argument)) {
+        $responseText = "➕ *FORMULIR TAMBAH ASET MANUAL*\n\n"
+                      . "Salin template teks berikut, lengkapi datanya, lalu kirim kembali:\n\n"
+                      . "`/tm`\n"
+                      . "Kode: LAP-020\n"
+                      . "Nama: MacBook Air M2\n"
+                      . "SN: C02XYZ1234\n"
+                      . "Kategori: Laptop\n"
+                      . "Merk: Apple\n"
+                      . "Model: A2681\n"
+                      . "Cabang: Cabang Jakarta\n"
+                      . "Divisi: IT Support\n"
+                      . "Karyawan: Ahmad Hafizh\n"
+                      . "Spesifikasi: RAM 16GB, SSD 512GB\n\n"
+                      . "*Tips:* Cukup ganti nilai di kanan tanda titik dua (`:`) sesuai kebutuhan.";
+    } else {
+        // Parse lines
+        $lines = explode("\n", $argument);
+        
+        $fields = [
+            'kode' => '',
+            'nama' => '',
+            'sn' => '',
+            'kategori' => '',
+            'merk' => '',
+            'model' => '',
+            'cabang' => '',
+            'divisi' => '',
+            'karyawan' => '',
+            'spesifikasi' => ''
+        ];
+        
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (empty($line)) continue;
+            
+            if (preg_match('/^(Kode|Nama|SN|Kategori|Merk|Model|Cabang|Divisi|Karyawan|Spesifikasi)\s*:\s*(.*)$/i', $line, $matches)) {
+                $key = strtolower($matches[1]);
+                $fields[$key] = trim($matches[2]);
+            }
+        }
+        
+        // Validate required fields
+        if (empty($fields['kode'])) {
+            $responseText = "⚠️ *Gagal:* Baris `Kode:` tidak boleh kosong.";
+        } elseif (empty($fields['nama'])) {
+            $responseText = "⚠️ *Gagal:* Baris `Nama:` tidak boleh kosong.";
+        } elseif (empty($fields['cabang'])) {
+            $responseText = "⚠️ *Gagal:* Baris `Cabang:` tidak boleh kosong.";
+        } else {
+            // Resolve Kategori
+            $idKategori = null;
+            if (!empty($fields['kategori'])) {
+                $cStmt = $conn->prepare("SELECT id FROM kategori_aset WHERE nama_kategori LIKE ? LIMIT 1");
+                $cStmt->execute(['%' . $fields['kategori'] . '%']);
+                $cat = $cStmt->fetch();
+                if ($cat) {
+                    $idKategori = $cat['id'];
+                } else {
+                    $cInsert = $conn->prepare("INSERT INTO kategori_aset (nama_kategori, created_at) VALUES (?, datetime('now', 'localtime'))");
+                    $cInsert->execute([$fields['kategori']]);
+                    $idKategori = $conn->lastInsertId();
+                }
+            }
+            
+            // Resolve Cabang
+            $idCabang = null;
+            $cbrStmt = $conn->prepare("SELECT id, nama_cabang FROM cabang WHERE nama_cabang LIKE ? LIMIT 1");
+            $cbrStmt->execute(['%' . $fields['cabang'] . '%']);
+            $cab = $cbrStmt->fetch();
+            if ($cab) {
+                $idCabang = $cab['id'];
+                $fields['cabang'] = $cab['nama_cabang'];
+            } else {
+                $cbrInsert = $conn->prepare("INSERT INTO cabang (nama_cabang, created_at) VALUES (?, datetime('now', 'localtime'))");
+                $cbrInsert->execute([$fields['cabang']]);
+                $idCabang = $conn->lastInsertId();
+            }
+            
+            // Resolve Divisi
+            $idDivisi = null;
+            if (!empty($fields['divisi'])) {
+                $dStmt = $conn->prepare("SELECT id, nama_divisi FROM divisi WHERE nama_divisi LIKE ? LIMIT 1");
+                $dStmt->execute(['%' . $fields['divisi'] . '%']);
+                $div = $dStmt->fetch();
+                if ($div) {
+                    $idDivisi = $div['id'];
+                    $fields['divisi'] = $div['nama_divisi'];
+                } else {
+                    $dInsert = $conn->prepare("INSERT INTO divisi (nama_divisi, created_at) VALUES (?, datetime('now', 'localtime'))");
+                    $dInsert->execute([$fields['divisi']]);
+                    $idDivisi = $conn->lastInsertId();
+                }
+            }
+            
+            // Resolve Karyawan
+            $idKaryawan = null;
+            if (!empty($fields['karyawan'])) {
+                $kStmt = $conn->prepare("SELECT id, nama_karyawan FROM karyawan WHERE nama_karyawan LIKE ? LIMIT 1");
+                $kStmt->execute(['%' . $fields['karyawan'] . '%']);
+                $kary = $kStmt->fetch();
+                if ($kary) {
+                    $idKaryawan = $kary['id'];
+                    $fields['karyawan'] = $kary['nama_karyawan'];
+                } else {
+                    $kInsert = $conn->prepare("INSERT INTO karyawan (nama_karyawan, id_cabang, id_divisi, created_at) VALUES (?, ?, ?, datetime('now', 'localtime'))");
+                    $kInsert->execute([$fields['karyawan'], $idCabang, $idDivisi]);
+                    $idKaryawan = $conn->lastInsertId();
+                }
+            }
+            
+            // Check if code already exists
+            $dupStmt = $conn->prepare("SELECT id FROM assets WHERE kode_aset = ?");
+            $dupStmt->execute([$fields['kode']]);
+            if ($dupStmt->fetch()) {
+                $responseText = "⚠️ *Gagal:* Kode Aset `{$fields['kode']}` sudah terdaftar di database.";
+            } else {
+                // Insert Asset
+                $insertStmt = $conn->prepare("INSERT INTO assets (kode_aset, nama_aset, serial_number, id_kategori, merk, model, id_cabang, id_divisi, id_karyawan, spesifikasi, kondisi, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Baik', datetime('now', 'localtime'))");
+                $insertStmt->execute([
+                    $fields['kode'],
+                    $fields['nama'],
+                    $fields['sn'],
+                    $idKategori,
+                    $fields['merk'],
+                    $fields['model'],
+                    $idCabang,
+                    $idDivisi,
+                    $idKaryawan,
+                    $fields['spesifikasi']
+                ]);
+                
+                $responseText = "✅ *ASET BERHASIL DITAMBAHKAN*\n\n"
+                              . "*• Kode Aset:* `{$fields['kode']}`\n"
+                              . "*• Nama Aset:* {$fields['nama']}\n"
+                              . "*• Serial Number:* `" . ($fields['sn'] ?: '-') . "`\n"
+                              . "*• Kategori:* " . ($fields['kategori'] ?: '-') . "\n"
+                              . "*• Merk/Model:* " . ($fields['merk'] ?: '-') . " / " . ($fields['model'] ?: '-') . "\n"
+                              . "*• Cabang:* {$fields['cabang']}\n"
+                              . "*• Divisi:* " . ($fields['divisi'] ?: '-') . "\n"
+                              . "*• Pengguna:* " . ($fields['karyawan'] ?: '-') . "\n"
+                              . "*• Spesifikasi:* " . ($fields['spesifikasi'] ?: '-');
+            }
+        }
+    }
 }
 
 if (!empty($responseText)) {
@@ -507,7 +653,7 @@ if (!empty($responseText)) {
             $keyboard = [
                 'keyboard' => [
                     [['text' => '/help']],
-                    [['text' => '/m'], ['text' => '/tambah']]
+                    [['text' => '/m'], ['text' => '/tm'], ['text' => '/tambah']]
                 ],
                 'resize_keyboard' => true,
                 'one_time_keyboard' => false
