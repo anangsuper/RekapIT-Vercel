@@ -120,13 +120,34 @@ class GoogleSheetsSync {
         $metaFile = $this->dbPath . '.json';
         $needsSync = false;
 
-        // Coba salin database cache bawaan dari folder repository jika di temp Vercel belum ada
-        if (!file_exists($this->dbPath)) {
+        // Check if database cache is valid and has the required kategori table
+        $isValidDb = false;
+        if (file_exists($this->dbPath) && filesize($this->dbPath) > 0) {
+            try {
+                $checkDb = new PDO("sqlite:" . $this->dbPath);
+                $checkStmt = $checkDb->query("SELECT name FROM sqlite_master WHERE type='table' AND name='kategori'");
+                if ($checkStmt && $checkStmt->fetch()) {
+                    $isValidDb = true;
+                }
+            } catch (Exception $e) {
+                $isValidDb = false;
+            }
+        }
+
+        // Coba salin database cache bawaan dari folder repository jika di temp Vercel belum ada, kosong, atau rusak
+        if (!$isValidDb) {
             $repoDbPath = dirname(__DIR__) . '/database/rekapit_cache.sqlite';
             if (file_exists($repoDbPath)) {
+                if (file_exists($this->dbPath)) {
+                    @unlink($this->dbPath);
+                }
                 copy($repoDbPath, $this->dbPath);
+                
                 $repoMetaPath = $repoDbPath . '.json';
                 if (file_exists($repoMetaPath)) {
+                    if (file_exists($metaFile)) {
+                        @unlink($metaFile);
+                    }
                     copy($repoMetaPath, $metaFile);
                 }
             }
