@@ -1,6 +1,10 @@
 <?php
 ob_start();
-session_start();
+
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/helpers/auth.php';
+require_once __DIR__ . '/helpers/pagination.php'; // Include pagination helper
+require_once __DIR__ . '/helpers/ui.php'; // Include UI helper
 
 // Inactivity timeout: 24 hours (86400 seconds)
 if (isset($_SESSION['user_id'])) {
@@ -12,11 +16,6 @@ if (isset($_SESSION['user_id'])) {
     }
     $_SESSION['last_activity'] = $now;
 }
-
-require_once __DIR__ . '/config/database.php';
-require_once __DIR__ . '/helpers/auth.php';
-require_once __DIR__ . '/helpers/pagination.php'; // Include pagination helper
-require_once __DIR__ . '/helpers/ui.php'; // Include UI helper
 
 if (!isset($_SESSION['user_id'])) {
     $currentPage = basename($_SERVER['PHP_SELF']);
