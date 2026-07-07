@@ -1,26 +1,11 @@
-<?php
-session_start();
+// Load session and database configuration
+require_once __DIR__ . '/../config/database.php';
+
 header('Content-Type: application/json');
 
 // Check authentication
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
-    exit();
-}
-
-// Load database connection
-if (getenv('VERCEL') || DIRECTORY_SEPARATOR === '/') {
-    $dbPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'rekapit_cache.sqlite';
-} else {
-    $dbPath = __DIR__ . '/../database/rekapit_cache.sqlite';
-}
-
-try {
-    $conn = new PDO("sqlite:" . $dbPath);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    echo json_encode(['success' => false, 'error' => 'Database connection failed: ' . $e->getMessage()]);
     exit();
 }
 
