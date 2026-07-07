@@ -24,6 +24,20 @@ class RepairController {
         $result = $this->model->create($data); 
         if ($result) {
             $this->logModel->add($_SESSION['user_id'], 'LAPOR_RUSAK', "Melaporkan kerusakan aset ID: " . $data['asset_id']);
+            
+            // Telegram Alert
+            require_once __DIR__ . '/../helpers/notification.php';
+            require_once __DIR__ . '/../models/Asset.php';
+            $assetModel = new Asset($this->db);
+            $asset = $assetModel->getById($data['asset_id']);
+            $namaAset = $asset ? $asset['nama_aset'] : "Aset ID: " . $data['asset_id'];
+            $kodeAset = $asset ? $asset['kode_aset'] : "-";
+            
+            $msg = "🚨 *TIKET PERBAIKAN BARU*\n\n"
+                 . "*• Aset:* " . $namaAset . " (" . $kodeAset . ")\n"
+                 . "*• Masalah:* " . ($data['keluhan'] ?? '-') . "\n"
+                 . "*• Pelapor:* " . ($_SESSION['nama'] ?? 'Sistem');
+            sendTelegramNotification($msg);
         }
         return $result;
     }
@@ -45,6 +59,22 @@ class RepairController {
         
         if ($result) {
             $this->logModel->add($_SESSION['user_id'], 'UPDATE_PERBAIKAN', "Update perbaikan ID: $id (" . $data['status'] . ")");
+            
+            // Telegram Alert
+            require_once __DIR__ . '/../helpers/notification.php';
+            require_once __DIR__ . '/../models/Asset.php';
+            $assetModel = new Asset($this->db);
+            $assetId = $repairDetails ? $repairDetails['asset_id'] : null;
+            $asset = $assetId ? $assetModel->getById($assetId) : null;
+            $namaAset = $asset ? $asset['nama_aset'] : "Aset ID: " . $assetId;
+            $kodeAset = $asset ? $asset['kode_aset'] : "-";
+            
+            $msg = "🛠 *UPDATE TIKET PERBAIKAN*\n\n"
+                 . "*• Aset:* " . $namaAset . " (" . $kodeAset . ")\n"
+                 . "*• Status Baru:* " . ($data['status'] ?? '-') . "\n"
+                 . "*• Solusi/Tindakan:* " . ($data['tindakan'] ?? '-') . "\n"
+                 . "*• Diperbarui Oleh:* " . ($_SESSION['nama'] ?? 'Sistem');
+            sendTelegramNotification($msg);
         }
         return $result;
     }
