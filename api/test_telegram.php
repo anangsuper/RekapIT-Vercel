@@ -107,6 +107,55 @@ if (isset($_GET['set_webhook'])) {
     }
 }
 
-echo "<a href='?cb=" . time() . "&set_webhook=1' style='display:inline-block; background-color:#0088cc; color:white; padding:10px 20px; text-decoration:none; border-radius:8px; font-weight:bold; font-family:sans-serif; font-size:14px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s;'>⚡ Aktifkan Fitur Pencarian Bot</a>";
-echo "<br><br><small style='color:#666;'>Tautan Webhook Anda: <code>$webhookUrl</code></small>";
+if (isset($_GET['set_menu_button'])) {
+    $webAppUrl = "https://" . ($_SERVER['HTTP_HOST'] ?? 'rekap-it-vercel-txjt.vercel.app') . "/api/telegram_add_asset.php";
+    
+    // For setChatMenuButton
+    $menuUrl = "https://api.telegram.org/bot" . $token . "/setChatMenuButton";
+    $menuData = [
+        'menu_button' => json_encode([
+            'type' => 'web_app',
+            'text' => '➕ Tambah Aset',
+            'web_app' => [
+                'url' => $webAppUrl
+            ]
+        ])
+    ];
+    
+    $menuContext = stream_context_create([
+        'http' => [
+            'method'  => 'POST',
+            'header'  => "Content-Type: application/x-www-form-urlencoded\r\n",
+            'content' => http_build_query($menuData),
+            'timeout' => 5
+        ],
+        'ssl' => ['verify_peer' => false, 'verify_peer_name' => false]
+    ]);
+    
+    $menuRes = @file_get_contents($menuUrl, false, $menuContext);
+    if ($menuRes !== false) {
+        $resJson = json_decode($menuRes, true);
+        if ($resJson && $resJson['ok']) {
+            echo "<div style='background-color:#d4edda; color:#155724; padding:12px; border-radius:8px; border:1px solid #c3e6cb; margin-bottom:15px;'>";
+            echo "<b>Berhasil!</b> Tombol Menu WebApp telah diaktifkan ke:<br><code>$webAppUrl</code>";
+            echo "</div>";
+        } else {
+            echo "<div style='background-color:#f8d7da; color:#721c24; padding:12px; border-radius:8px; border:1px solid #f5c6cb; margin-bottom:15px;'>";
+            echo "<b>Gagal Mengatur Tombol Menu:</b> " . htmlspecialchars($resJson['description'] ?? 'Respon error tidak diketahui.');
+            echo "</div>";
+        }
+    } else {
+        $error = error_get_last();
+        echo "<div style='background-color:#f8d7da; color:#721c24; padding:12px; border-radius:8px; border:1px solid #f5c6cb; margin-bottom:15px;'>";
+        echo "<b>Gagal:</b> Tidak dapat menghubungi API Telegram untuk mengatur tombol menu.<br>";
+        echo "Detail Error: " . htmlspecialchars($error['message'] ?? 'Koneksi Timeout.');
+        echo "</div>";
+    }
+}
+
+echo "<div style='margin-top: 15px;'>";
+echo "<a href='?cb=" . time() . "&set_webhook=1' style='display:inline-block; background-color:#0088cc; color:white; padding:10px 20px; text-decoration:none; border-radius:8px; font-weight:bold; font-family:sans-serif; font-size:14px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s; margin-right: 10px;'>⚡ Aktifkan Fitur Pencarian Bot</a>";
+echo "<a href='?cb=" . time() . "&set_menu_button=1' style='display:inline-block; background-color:#10b981; color:white; padding:10px 20px; text-decoration:none; border-radius:8px; font-weight:bold; font-family:sans-serif; font-size:14px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s;'>📱 Aktifkan Tombol Menu WebApp</a>";
+echo "</div>";
+echo "<br><small style='color:#666;'>Tautan Webhook/WebApp Anda: <code>$webhookUrl</code></small>";
 
