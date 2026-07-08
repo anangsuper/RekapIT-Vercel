@@ -949,6 +949,25 @@ $notifCount = count($notifications);
             </a>
         </li>
     </ul>
+
+    <div class="sidebar-heading">INTEGRASI / API</div>
+    <ul class="sidebar-nav">
+        <li>
+            <a href="api/test_telegram.php" target="_blank" class="sidebar-link">
+                <i class="bi bi-telegram text-info"></i> Telegram Diagnostics
+            </a>
+        </li>
+        <li>
+            <a href="api/telegram_add_asset.php" target="_blank" class="sidebar-link">
+                <i class="bi bi-phone text-success"></i> WebApp Telegram Form
+            </a>
+        </li>
+        <li>
+            <a href="test_db.php" target="_blank" class="sidebar-link">
+                <i class="bi bi-database-check text-warning"></i> Test Database Sync
+            </a>
+        </li>
+    </ul>
     <?php endif; ?>
 
     <!-- Panduan & Instruksi Penggunaan Sistem -->
