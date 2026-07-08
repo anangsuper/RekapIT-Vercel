@@ -506,12 +506,18 @@ if ($command === '/start' || $command === '/help') {
     if (empty($categories)) {
         $responseText = "⚠️ *Gagal:* Belum ada data Kategori Aset terdaftar di database RekapIT.";
     } else {
+        $isHttps = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || 
+                   (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
+                   (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], '.vercel.app') !== false);
+        $protocol = $isHttps ? "https" : "http";
+        $appUrl = $protocol . "://" . ($_SERVER['HTTP_HOST'] ?? 'rekap-it-vercel-txjt.vercel.app');
+
         $keyboard = [
             'inline_keyboard' => [
                 [
                     [
                         'text' => '📱 Buka Formulir Web (Rekomendasi)', 
-                        'web_app' => ['url' => "https://rekap-it-vercel-txjt.vercel.app/api/telegram_add_asset.php"]
+                        'web_app' => ['url' => $appUrl . "/api/telegram_add_asset.php"]
                     ]
                 ],
                 [

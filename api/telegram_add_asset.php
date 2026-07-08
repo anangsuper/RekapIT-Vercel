@@ -5,7 +5,7 @@ require_once __DIR__ . '/../config/database.php';
 $categories = $conn->query("SELECT id, nama_kategori FROM kategori_aset ORDER BY nama_kategori ASC")->fetchAll();
 $branches = $conn->query("SELECT id, nama_cabang FROM cabang ORDER BY nama_cabang ASC")->fetchAll();
 $divisions = $conn->query("SELECT id, nama_divisi FROM divisi ORDER BY nama_divisi ASC")->fetchAll();
-$employees = $conn->query("SELECT id, nama_karyawan, id_cabang FROM karyawan ORDER BY nama_karyawan ASC")->fetchAll();
+$employees = $conn->query("SELECT id, nama_karyawan, id_cabang, id_divisi FROM karyawan ORDER BY nama_karyawan ASC")->fetchAll();
 
 $success = false;
 $error = '';
@@ -235,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="mb-3">
                         <label class="form-label small">Kantor Cabang <span class="text-danger">*</span></label>
-                        <select name="id_cabang" id="id_cabang" class="form-select" required onchange="filterKaryawan(this.value)">
+                        <select name="id_cabang" id="id_cabang" class="form-select" required onchange="filterKaryawan()">
                             <option value="">-- Pilih Cabang --</option>
                             <?php foreach ($branches as $br): ?>
                                 <option value="<?= $br['id'] ?>"><?= htmlspecialchars($br['nama_cabang']) ?></option>
@@ -245,7 +245,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="mb-3">
                         <label class="form-label small">Divisi</label>
-                        <select name="id_divisi" class="form-select">
+                        <select name="id_divisi" id="id_divisi" class="form-select" onchange="filterKaryawan()">
                             <option value="">-- Pilih Divisi --</option>
                             <?php foreach ($divisions as $div): ?>
                                 <option value="<?= $div['id'] ?>"><?= htmlspecialchars($div['nama_divisi']) ?></option>
@@ -258,7 +258,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <select name="id_karyawan" id="id_karyawan" class="form-select">
                             <option value="">-- Pilih Karyawan --</option>
                             <?php foreach ($employees as $emp): ?>
-                                <option value="<?= $emp['id'] ?>" data-cabang="<?= $emp['id_cabang'] ?>"><?= htmlspecialchars($emp['nama_karyawan']) ?></option>
+                                <option value="<?= $emp['id'] ?>" data-cabang="<?= $emp['id_cabang'] ?>" data-divisi="<?= $emp['id_divisi'] ?>"><?= htmlspecialchars($emp['nama_karyawan']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -297,16 +297,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Dropdown dynamic employee filtering
-        function filterKaryawan(cabangId) {
-            const selectEl = document.getElementById('id_karyawan');
-            const options = selectEl.querySelectorAll('option');
-            selectEl.value = "";
-            options.forEach(opt => {
-                const optCabang = opt.getAttribute('data-cabang');
-                if (!optCabang) {
-                    opt.style.display = 'block';
+        function filterKaryawan() {
+            const selectedCabangId = document.getElementById('id_cabang').value;
+            const selectedDivisiId = document.getElementById('id_divisi').value;
+            const selectKaryawan = document.getElementById('id_karyawan');
+            const options = selectKaryawan.querySelectorAll('option');
+            
+            selectKaryawan.value = "";
+            
+            options.forEach(option => {
+                const cabangId = option.getAttribute('data-cabang');
+                const divisiId = option.getAttribute('data-divisi');
+                
+                if (!option.value) {
+                    option.style.display = 'block';
+                    return;
+                }
+
+                let showCabang = true;
+                let showDivisi = true;
+
+                if (selectedCabangId && cabangId && cabangId !== selectedCabangId) {
+                    showCabang = false;
+                }
+                if (selectedDivisiId && divisiId && divisiId !== selectedDivisiId) {
+                    showDivisi = false;
+                }
+
+                if (showCabang && showDivisi) {
+                    option.style.display = 'block';
                 } else {
-                    opt.style.display = (optCabang == cabangId) ? 'block' : 'none';
+                    option.style.display = 'none';
                 }
             });
         }
