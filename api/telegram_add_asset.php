@@ -65,37 +65,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $newCode = $kode;
 
                 // Send security notification to Telegram
-                $token = getenv('TELEGRAM_BOT_TOKEN') ?: ($_ENV['TELEGRAM_BOT_TOKEN'] ?? ($_SERVER['TELEGRAM_BOT_TOKEN'] ?? ''));
-                $chatId = getenv('TELEGRAM_CHAT_ID') ?: ($_ENV['TELEGRAM_CHAT_ID'] ?? ($_SERVER['TELEGRAM_CHAT_ID'] ?? ''));
-                if (!empty($token) && !empty($chatId)) {
-                    $url = "https://api.telegram.org/bot" . $token . "/sendMessage";
-                    $messageText = "➕ *ASET BARU DITAMBAHKAN VIA TELEGRAM WEBAPP*\n\n"
-                                 . "*• Kode Aset:* `{$kode}`\n"
-                                 . "*• Nama Aset:* {$nama}\n"
-                                 . "*• Serial Number:* `{$sn}`\n"
-                                 . "*• Kategori:* {$catName}\n"
-                                 . "*• Merk/Model:* {$merk} / {$model}\n"
-                                 . "*• Cabang:* {$brName}\n"
-                                 . "*• Divisi:* {$divName}\n"
-                                 . "*• Pengguna:* {$usrName}\n"
-                                 . "*• Kondisi:* 🟢 Baik";
-                                 
-                    $postData = [
-                        'chat_id' => $chatId,
-                        'text' => $messageText,
-                        'parse_mode' => 'Markdown'
-                    ];
-                    $options = [
-                        'http' => [
-                            'method'  => 'POST',
-                            'header'  => "Content-Type: application/x-www-form-urlencoded\r\n",
-                            'content' => http_build_query($postData),
-                            'timeout' => 5
-                        ],
-                        'ssl' => ['verify_peer' => false, 'verify_peer_name' => false]
-                    ];
-                    @file_get_contents($url, false, stream_context_create($options));
-                }
+                require_once __DIR__ . '/../helpers/notification.php';
+                $messageText = "➕ *ASET BARU DITAMBAHKAN VIA TELEGRAM WEBAPP*\n\n"
+                             . "*• Kode Aset:* `{$kode}`\n"
+                             . "*• Nama Aset:* {$nama}\n"
+                             . "*• Serial Number:* " . ($sn ? "`{$sn}`" : "-") . "\n"
+                             . "*• Kategori:* " . ($catName ?: '-') . "\n"
+                             . "*• Merk/Model:* " . ($merk || $model ? "{$merk} / {$model}" : "-") . "\n"
+                             . "*• Cabang:* " . ($brName ?: '-') . "\n"
+                             . "*• Divisi:* " . ($divName ?: '-') . "\n"
+                             . "*• Pengguna:* " . ($usrName ?: '-') . "\n"
+                             . "*• Kondisi:* 🟢 Baik";
+                sendTelegramNotification($messageText);
             } catch (Exception $e) {
                 $conn->rollBack();
                 $error = "Gagal database: " . $e->getMessage();
