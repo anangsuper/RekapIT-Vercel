@@ -329,14 +329,17 @@ $responseText = '';
 
 if ($command === '/start' || $command === '/help') {
     $responseText = "🤖 *REKAP IT TELEGRAM BOT*\n\n"
-                  . "Halo! Anda dapat berinteraksi dengan database RekapIT langsung melalui chat Telegram ini.\n\n"
-                  . "*Daftar Perintah:*\n"
+                  . "Halo! Anda dapat mengelola dan memantau database RekapIT langsung melalui chat Telegram ini.\n\n"
+                  . "*Daftar Perintah (Commands):*\n"
                   . "🔍 `/cari [kode/nama_aset]` - Mencari detail aset berdasarkan kode/nama\n"
-                  . "➕ `/tambah` - Tambah aset baru (Wizard klik-klik saja)\n"
-                  . "📝 `/tambah_manual` atau `/tm` - Tambah aset lengkap via formulir teks\n"
-                  . "📝 `/maintenance` atau `/m` - Catat laporan maintenance massal via Telegram\n"
-                  . "❓ `/help` - Menampilkan daftar perintah bantuan\n\n"
-                  . "_Ketik `/tm` untuk melihat format formulir teks tambah aset manual._";
+                  . "➕ `/tambah` - Tambah aset baru (Wizard interaktif / Formulir Web)\n"
+                  . "📝 `/tambah_manual` atau `/tm` - Tambah aset lengkap via formulir teks manual\n"
+                  . "🛠 `/maintenance` atau `/m` - Catat laporan pemeriksaan maintenance massal\n"
+                  . "❓ `/help` - Menampilkan daftar perintah bantuan ini\n\n"
+                  . "*Fitur Pencarian Instan (Inline Query):*\n"
+                  . "🔍 Cukup ketik `@RekapItBot [kode/nama]` di kolom obrolan mana saja (bahkan di grup atau chat pribadi lain) untuk mencari aset secara instan tanpa mengirim pesan.\n\n"
+                  . "_Ketik `/tm` untuk melihat format template tambah manual._\n"
+                  . "_Ketik `/m` untuk melihat format template maintenance._";
 } elseif ($command === '/cari') {
     if (empty($argument)) {
         $responseText = "⚠️ *Format Salah.*\nSilakan masukkan kode atau nama aset yang ingin dicari.\nContoh: `/cari LAP-001`";
