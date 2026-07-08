@@ -71,11 +71,7 @@ echo "<hr style='margin: 25px 0;'>";
 echo "<h4>🔌 Integrasi Fitur Cari Aset Lewat Telegram Bot</h4>";
 echo "Anda dapat mendaftarkan Webhook agar bot dapat langsung membalas perintah pencarian aset (seperti <code>/cari LAP-001</code>) di grup Telegram Anda.<br><br>";
 
-$isHttps = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || 
-           (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
-           (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], '.vercel.app') !== false);
-$protocol = $isHttps ? "https" : "http";
-$webhookUrl = $protocol . "://" . ($_SERVER['HTTP_HOST'] ?? '') . "/api/telegram_webhook.php";
+$webhookUrl = "https://" . ($_SERVER['HTTP_HOST'] ?? '') . "/api/telegram_webhook.php";
 
 if (isset($_GET['set_webhook'])) {
     $setUrl = "https://api.telegram.org/bot" . $token . "/setWebhook?url=" . urlencode($webhookUrl);
