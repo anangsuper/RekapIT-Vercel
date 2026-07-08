@@ -5,6 +5,7 @@ require_once 'models/Cabang.php';
 require_once 'models/Divisi.php';
 require_once 'models/Karyawan.php';
 require_once 'models/ActivityLog.php';
+require_once 'helpers/notification.php';
 
 $assetModel = new Asset($conn);
 $kategoriModel = new KategoriAset($conn);
@@ -18,7 +19,19 @@ if (isset($_POST['hapus'])) {
     $id = $_POST['id'];
     $currentAsset = $assetModel->getById($id);
     if ($assetModel->delete($id)) {
-        if($currentAsset) $logModel->add($_SESSION['user_id'], 'Hapus Aset', "Menghapus aset: " . $currentAsset['nama_aset'] . " (" . $currentAsset['kode_aset'] . ")");
+        if($currentAsset) {
+            $logModel->add($_SESSION['user_id'], 'Hapus Aset', "Menghapus aset: " . $currentAsset['nama_aset'] . " (" . $currentAsset['kode_aset'] . ")");
+            
+            // Telegram Notification
+            $namaUser = $_SESSION['nama'] ?? 'Admin';
+            $msg = "❌ *ASET DIHAPUS PERMANEN*\n\n"
+                 . "*• Kode Aset:* `{$currentAsset['kode_aset']}`\n"
+                 . "*• Nama Aset:* {$currentAsset['nama_aset']}\n"
+                 . "*• Cabang:* " . ($currentAsset['nama_cabang'] ?? '-') . "\n"
+                 . "*• Oleh:* {$namaUser}\n"
+                 . "*• Waktu:* " . date('d M Y, H:i:s');
+            sendTelegramNotification($msg);
+        }
         header("Location: index.php?page=inventaris&status=deleted");
         exit();
     }
@@ -60,6 +73,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
     ];
     if ($assetModel->create($data)) {
         $logModel->add($_SESSION['user_id'], 'Tambah Aset', "Menambahkan aset baru: " . $data['nama_aset'] . " (" . $data['kode_aset'] . ")");
+        
+        // Telegram Notification
+        $namaUser = $_SESSION['nama'] ?? 'Admin';
+        $msg = "➕ *ASET BARU DIDAFTARKAN*\n\n"
+             . "*• Kode Aset:* `{$data['kode_aset']}`\n"
+             . "*• Nama Aset:* {$data['nama_aset']}\n"
+             . "*• Serial Number:* `" . ($data['serial_number'] ?: '-') . "`\n"
+             . "*• Kondisi:* 🟢 {$data['kondisi']}\n"
+             . "*• Oleh:* {$namaUser}\n"
+             . "*• Waktu:* " . date('d M Y, H:i:s');
+        sendTelegramNotification($msg);
+        
         header("Location: index.php?page=inventaris&status=success");
         exit();
     }
@@ -84,6 +109,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
     ];
     if ($assetModel->update($id, $data, $_SESSION['user_id'])) {
         $logModel->add($_SESSION['user_id'], 'Update Aset', "Memperbarui aset: " . $data['nama_aset'] . " (" . $data['kode_aset'] . ")");
+        
+        // Telegram Notification
+        $namaUser = $_SESSION['nama'] ?? 'Admin';
+        $msg = "📝 *ASET DIPERBARUI*\n\n"
+             . "*• Kode Aset:* `{$data['kode_aset']}`\n"
+             . "*• Nama Aset:* {$data['nama_aset']}\n"
+             . "*• Kondisi:* " . ($data['kondisi'] === 'Baik' ? '🟢' : ($data['kondisi'] === 'Rusak Ringan' ? '🟡' : '🔴')) . " {$data['kondisi']}\n"
+             . "*• Oleh:* {$namaUser}\n"
+             . "*• Waktu:* " . date('d M Y, H:i:s');
+        sendTelegramNotification($msg);
+        
         header("Location: index.php?page=inventaris&status=updated");
         exit();
     }
