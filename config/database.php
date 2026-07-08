@@ -895,7 +895,7 @@ if (isset($_GET['sync_now']) && $_GET['sync_now'] === '1') {
         die("Sinkronisasi gagal: " . htmlspecialchars($e->getMessage()));
     }
 } else {
-    $sync->ensureInitialized(false, true);
+    $sync->ensureInitialized(false, false);
 }
 
 try {
