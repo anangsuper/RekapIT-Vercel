@@ -58,34 +58,43 @@ $karyawans = $karyawanModel->getAll();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
     $data = [
-        'kode_aset' => $_POST['kode_aset'],
-        'nama_aset' => $_POST['nama_aset'],
-        'serial_number' => $_POST['serial_number'],
-        'id_kategori' => $_POST['id_kategori'],
-        'merk' => $_POST['merk'],
-        'model' => $_POST['model'],
-        'id_cabang' => $_POST['id_cabang'],
-        'id_divisi' => $_POST['id_divisi'],
-        'id_karyawan' => $_POST['id_karyawan'],
+        'kode_aset' => trim($_POST['kode_aset']),
+        'nama_aset' => trim($_POST['nama_aset']),
+        'serial_number' => trim($_POST['serial_number']),
+        'id_kategori' => !empty($_POST['id_kategori']) ? intval($_POST['id_kategori']) : null,
+        'merk' => trim($_POST['merk']),
+        'model' => trim($_POST['model']),
+        'id_cabang' => !empty($_POST['id_cabang']) ? intval($_POST['id_cabang']) : null,
+        'id_divisi' => !empty($_POST['id_divisi']) ? intval($_POST['id_divisi']) : null,
+        'id_karyawan' => !empty($_POST['id_karyawan']) ? intval($_POST['id_karyawan']) : null,
         'kondisi' => $_POST['kondisi'],
         'tanggal_kadaluarsa_garansi' => $_POST['tanggal_kadaluarsa_garansi'] ?: null,
         'spesifikasi' => $_POST['spesifikasi'] ?? null
     ];
-    if ($assetModel->create($data)) {
-        $logModel->add($_SESSION['user_id'], 'Tambah Aset', "Menambahkan aset baru: " . $data['nama_aset'] . " (" . $data['kode_aset'] . ")");
-        
-        // Telegram Notification
-        $namaUser = $_SESSION['nama'] ?? 'Admin';
-        $msg = "➕ *ASET BARU DIDAFTARKAN*\n\n"
-             . "*• Kode Aset:* `{$data['kode_aset']}`\n"
-             . "*• Nama Aset:* {$data['nama_aset']}\n"
-             . "*• Serial Number:* `" . ($data['serial_number'] ?: '-') . "`\n"
-             . "*• Kondisi:* 🟢 {$data['kondisi']}\n"
-             . "*• Oleh:* {$namaUser}\n"
-             . "*• Waktu:* " . date('d M Y, H:i:s');
-        sendTelegramNotification($msg);
-        
-        header("Location: index.php?page=inventaris&status=success");
+    try {
+        if ($assetModel->create($data)) {
+            $logModel->add($_SESSION['user_id'], 'Tambah Aset', "Menambahkan aset baru: " . $data['nama_aset'] . " (" . $data['kode_aset'] . ")");
+            
+            // Telegram Notification
+            $namaUser = $_SESSION['nama'] ?? 'Admin';
+            $msg = "➕ *ASET BARU DIDAFTARKAN*\n\n"
+                 . "*• Kode Aset:* `{$data['kode_aset']}`\n"
+                 . "*• Nama Aset:* {$data['nama_aset']}\n"
+                 . "*• Serial Number:* `" . ($data['serial_number'] ?: '-') . "`\n"
+                 . "*• Kondisi:* 🟢 {$data['kondisi']}\n"
+                 . "*• Oleh:* {$namaUser}\n"
+                 . "*• Waktu:* " . date('d M Y, H:i:s');
+            sendTelegramNotification($msg);
+            
+            header("Location: index.php?page=inventaris&status=success");
+            exit();
+        }
+    } catch (PDOException $e) {
+        if (strpos($e->getMessage(), 'UNIQUE') !== false || $e->getCode() == 23000) {
+            header("Location: index.php?page=inventaris&error=duplicate_code");
+        } else {
+            header("Location: index.php?page=inventaris&error=db_error&msg=" . urlencode($e->getMessage()));
+        }
         exit();
     }
 }
@@ -94,33 +103,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
     $id = $_POST['id'];
     $data = [
-        'kode_aset' => $_POST['kode_aset'],
-        'nama_aset' => $_POST['nama_aset'],
-        'serial_number' => $_POST['serial_number'],
-        'id_kategori' => $_POST['id_kategori'],
-        'merk' => $_POST['merk'],
-        'model' => $_POST['model'],
-        'id_cabang' => $_POST['id_cabang'],
-        'id_divisi' => $_POST['id_divisi'],
-        'id_karyawan' => $_POST['id_karyawan'],
+        'kode_aset' => trim($_POST['kode_aset']),
+        'nama_aset' => trim($_POST['nama_aset']),
+        'serial_number' => trim($_POST['serial_number']),
+        'id_kategori' => !empty($_POST['id_kategori']) ? intval($_POST['id_kategori']) : null,
+        'merk' => trim($_POST['merk']),
+        'model' => trim($_POST['model']),
+        'id_cabang' => !empty($_POST['id_cabang']) ? intval($_POST['id_cabang']) : null,
+        'id_divisi' => !empty($_POST['id_divisi']) ? intval($_POST['id_divisi']) : null,
+        'id_karyawan' => !empty($_POST['id_karyawan']) ? intval($_POST['id_karyawan']) : null,
         'kondisi' => $_POST['kondisi'],
         'tanggal_kadaluarsa_garansi' => $_POST['tanggal_kadaluarsa_garansi'] ?: null,
         'spesifikasi' => $_POST['spesifikasi'] ?? null
     ];
-    if ($assetModel->update($id, $data, $_SESSION['user_id'])) {
-        $logModel->add($_SESSION['user_id'], 'Update Aset', "Memperbarui aset: " . $data['nama_aset'] . " (" . $data['kode_aset'] . ")");
-        
-        // Telegram Notification
-        $namaUser = $_SESSION['nama'] ?? 'Admin';
-        $msg = "📝 *ASET DIPERBARUI*\n\n"
-             . "*• Kode Aset:* `{$data['kode_aset']}`\n"
-             . "*• Nama Aset:* {$data['nama_aset']}\n"
-             . "*• Kondisi:* " . ($data['kondisi'] === 'Baik' ? '🟢' : ($data['kondisi'] === 'Rusak Ringan' ? '🟡' : '🔴')) . " {$data['kondisi']}\n"
-             . "*• Oleh:* {$namaUser}\n"
-             . "*• Waktu:* " . date('d M Y, H:i:s');
-        sendTelegramNotification($msg);
-        
-        header("Location: index.php?page=inventaris&status=updated");
+    try {
+        if ($assetModel->update($id, $data, $_SESSION['user_id'])) {
+            $logModel->add($_SESSION['user_id'], 'Update Aset', "Memperbarui aset: " . $data['nama_aset'] . " (" . $data['kode_aset'] . ")");
+            
+            // Telegram Notification
+            $namaUser = $_SESSION['nama'] ?? 'Admin';
+            $msg = "📝 *ASET DIPERBARUI*\n\n"
+                 . "*• Kode Aset:* `{$data['kode_aset']}`\n"
+                 . "*• Nama Aset:* {$data['nama_aset']}\n"
+                 . "*• Kondisi:* " . ($data['kondisi'] === 'Baik' ? '🟢' : ($data['kondisi'] === 'Rusak Ringan' ? '🟡' : '🔴')) . " {$data['kondisi']}\n"
+                 . "*• Oleh:* {$namaUser}\n"
+                 . "*• Waktu:* " . date('d M Y, H:i:s');
+            sendTelegramNotification($msg);
+            
+            header("Location: index.php?page=inventaris&status=updated");
+            exit();
+        }
+    } catch (PDOException $e) {
+        if (strpos($e->getMessage(), 'UNIQUE') !== false || $e->getCode() == 23000) {
+            header("Location: index.php?page=inventaris&error=duplicate_code");
+        } else {
+            header("Location: index.php?page=inventaris&error=db_error&msg=" . urlencode($e->getMessage()));
+        }
         exit();
     }
 }
@@ -165,6 +183,20 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
         <?php elseif ($_GET['status'] == 'deleted'): ?>
             <div class="alert alert-warning alert-dismissible fade show mb-4 border-0 shadow-sm rounded-4 animate-fade-in" role="alert">
                 <i class="bi bi-trash-fill me-2"></i> Aset telah berhasil dihapus secara permanen!
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <?php if (isset($_GET['error'])): ?>
+        <?php if ($_GET['error'] == 'duplicate_code'): ?>
+            <div class="alert alert-danger alert-dismissible fade show mb-4 border-0 shadow-sm rounded-4 animate-fade-in" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> Gagal! Kode Aset sudah digunakan oleh perangkat lain. Silakan gunakan kode unik.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php elseif ($_GET['error'] == 'db_error'): ?>
+            <div class="alert alert-danger alert-dismissible fade show mb-4 border-0 shadow-sm rounded-4 animate-fade-in" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> Gagal memproses data! Detail: <?= htmlspecialchars($_GET['msg'] ?? 'Kesalahan Database') ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
