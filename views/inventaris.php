@@ -612,7 +612,7 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                             <select name="id_karyawan" id="select_karyawan" class="form-select bg-light border-0">
                                 <option value="">-- Belum Ditugaskan (Unassigned) --</option>
                                 <?php foreach ($karyawans as $kr): ?>
-                                    <option value="<?= $kr['id'] ?>" data-cabang="<?= $kr['id_cabang'] ?>"><?= htmlspecialchars($kr['nama_karyawan']) ?></option>
+                                    <option value="<?= $kr['id'] ?>" data-cabang="<?= $kr['id_cabang'] ?>" data-divisi="<?= $kr['id_divisi'] ?>"><?= htmlspecialchars($kr['nama_karyawan']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -706,7 +706,7 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                             <select name="id_karyawan" id="edit_select_karyawan" class="form-select bg-light border-0">
                                 <option value="">-- Belum Ditugaskan (Unassigned) --</option>
                                 <?php foreach ($karyawans as $kr): ?>
-                                    <option value="<?= $kr['id'] ?>" data-cabang="<?= $kr['id_cabang'] ?>"><?= htmlspecialchars($kr['nama_karyawan']) ?></option>
+                                    <option value="<?= $kr['id'] ?>" data-cabang="<?= $kr['id_cabang'] ?>" data-divisi="<?= $kr['id_divisi'] ?>"><?= htmlspecialchars($kr['nama_karyawan']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -763,28 +763,57 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function filterKaryawan(cabangSelectId, karyawanSelectId) {
+function filterKaryawan(cabangSelectId, divisiSelectId, karyawanSelectId) {
     const selectedCabangId = document.getElementById(cabangSelectId).value;
+    const selectedDivisiId = document.getElementById(divisiSelectId).value;
     const selectKaryawan = document.getElementById(karyawanSelectId);
     const options = selectKaryawan.querySelectorAll('option');
 
     options.forEach(option => {
         const cabangId = option.getAttribute('data-cabang');
-        if (!cabangId) {
+        const divisiId = option.getAttribute('data-divisi');
+        
+        // Option "Belum Ditugaskan"
+        if (!option.value) {
+            option.style.display = 'block';
+            return;
+        }
+
+        let showCabang = true;
+        let showDivisi = true;
+
+        if (selectedCabangId && cabangId && cabangId !== selectedCabangId) {
+            showCabang = false;
+        }
+        if (selectedDivisiId && divisiId && divisiId !== selectedDivisiId) {
+            showDivisi = false;
+        }
+
+        if (showCabang && showDivisi) {
             option.style.display = 'block';
         } else {
-            option.style.display = (cabangId === selectedCabangId) ? 'block' : 'none';
+            option.style.display = 'none';
         }
     });
 }
 
 document.getElementById('select_cabang').addEventListener('change', function() {
-    filterKaryawan('select_cabang', 'select_karyawan');
+    filterKaryawan('select_cabang', 'select_divisi', 'select_karyawan');
+    document.getElementById('select_karyawan').value = "";
+});
+
+document.getElementById('select_divisi').addEventListener('change', function() {
+    filterKaryawan('select_cabang', 'select_divisi', 'select_karyawan');
     document.getElementById('select_karyawan').value = "";
 });
 
 document.getElementById('edit_select_cabang').addEventListener('change', function() {
-    filterKaryawan('edit_select_cabang', 'edit_select_karyawan');
+    filterKaryawan('edit_select_cabang', 'edit_select_divisi', 'edit_select_karyawan');
+    document.getElementById('edit_select_karyawan').value = "";
+});
+
+document.getElementById('edit_select_divisi').addEventListener('change', function() {
+    filterKaryawan('edit_select_cabang', 'edit_select_divisi', 'edit_select_karyawan');
     document.getElementById('edit_select_karyawan').value = "";
 });
 
@@ -818,7 +847,7 @@ document.querySelectorAll('.btn-edit').forEach(btn => {
         document.getElementById('edit_select_cabang').value = cabang;
         document.getElementById('edit_select_divisi').value = divisi;
         
-        filterKaryawan('edit_select_cabang', 'edit_select_karyawan');
+        filterKaryawan('edit_select_cabang', 'edit_select_divisi', 'edit_select_karyawan');
         document.getElementById('edit_select_karyawan').value = karyawan || "";
         document.getElementById('edit_kondisi').value = kondisi;
         document.getElementById('edit_garansi').value = garansi || "";
