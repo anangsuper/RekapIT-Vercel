@@ -506,32 +506,36 @@ if ($command === '/start' || $command === '/help') {
     $catStmt = $conn->query("SELECT id, nama_kategori FROM kategori_aset ORDER BY nama_kategori ASC");
     $categories = $catStmt->fetchAll();
     
-    if (empty($categories)) {
-        $responseText = "⚠️ *Gagal:* Belum ada data Kategori Aset terdaftar di database RekapIT.";
-    } else {
-        $appUrl = "https://" . ($_SERVER['HTTP_HOST'] ?? 'rekap-it-vercel-txjt.vercel.app');
+    $appUrl = "https://" . ($_SERVER['HTTP_HOST'] ?? 'rekap-it-vercel-txjt.vercel.app');
 
-        $keyboard = [
-            'inline_keyboard' => [
+    $keyboard = [
+        'inline_keyboard' => [
+            [
                 [
-                    [
-                        'text' => '📱 Buka Formulir Web (Rekomendasi)', 
-                        'web_app' => ['url' => $appUrl . "/api/telegram_add_asset.php"]
-                    ]
-                ],
-                [
-                    [
-                        'text' => '🤖 Tambah dengan Klik Wizard', 
-                        'callback_data' => 'new_wizard_start'
-                    ]
+                    'text' => '📱 Buka Formulir Web (Rekomendasi)', 
+                    'web_app' => ['url' => $appUrl . "/api/telegram_add_asset.php"]
                 ]
             ]
+        ]
+    ];
+    
+    if (!empty($categories)) {
+        $keyboard['inline_keyboard'][] = [
+            [
+                'text' => '🤖 Tambah dengan Klik Wizard', 
+                'callback_data' => 'new_wizard_start'
+            ]
         ];
-        
-        $responseText = "➕ *TAMBAH ASET BARU*\n\n"
-                      . "Silakan pilih metode penginputan aset di bawah ini:\n\n"
-                      . "1. *📱 Formulir Web:* Buka form lengkap interaktif langsung di dalam Telegram (tinggal klik-klik pilihan, tanpa mengetik manual!).\n"
-                      . "2. *🤖 Klik Wizard:* Mendaftarkan aset cepat lewat rangkaian tanya-jawab bot.";
+    }
+    
+    $responseText = "➕ *TAMBAH ASET BARU*\n\n"
+                  . "Silakan pilih metode penginputan aset di bawah ini:\n\n"
+                  . "1. *📱 Formulir Web:* Buka form lengkap interaktif langsung di dalam Telegram (tinggal klik-klik pilihan, tanpa mengetik manual!).\n";
+                  
+    if (!empty($categories)) {
+        $responseText .= "2. *🤖 Klik Wizard:* Mendaftarkan aset cepat lewat rangkaian tanya-jawab bot.";
+    } else {
+        $responseText .= "\n⚠️ *Catatan:* Pilihan 'Klik Wizard' dinonaktifkan sementara karena belum ada kategori aset terdaftar di database. Silakan tambahkan kategori di website terlebih dahulu.";
     }
 } elseif ($command === '/tambah_manual' || $command === '/tm') {
     if (empty($argument)) {
