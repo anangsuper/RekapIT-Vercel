@@ -382,6 +382,22 @@ class GoogleSheetsSync {
         if (!$this->spreadsheetId) {
             if (!file_exists($this->dbPath)) {
                 $this->initializeOfflineDatabase();
+            } else {
+                // Seeding fallback if database is empty of categories when running offline
+                try {
+                    $db = $this->getSQLiteConnection();
+                    $chk = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='kategori_aset'")->fetchColumn();
+                    if ($chk) {
+                        $cnt = $db->query("SELECT COUNT(*) FROM kategori_aset")->fetchColumn();
+                        if ($cnt == 0) {
+                            $this->seedDefaultData($db);
+                        }
+                    } else {
+                        $this->initializeOfflineDatabase();
+                    }
+                } catch (Exception $e) {
+                    error_log("Gagal melakukan pengecekan seeding: " . $e->getMessage());
+                }
             }
             if ($throwOnError) {
                 throw new Exception("GOOGLE_SPREADSHEET_ID tidak terkonfigurasi di env variable.");
@@ -547,7 +563,45 @@ class GoogleSheetsSync {
         if ($userCount == 0) {
             $db->exec("INSERT INTO users (nama, username, password, role) VALUES ('Administrator', 'admin', '$2y$10\$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin')");
         }
+        $this->seedDefaultData($db);
         file_put_contents($this->dbPath . '.json', json_encode(['last_sync' => time()]));
+    }
+
+    private function seedDefaultData($db) {
+        try {
+            // Seed default categories
+            $catCount = $db->query("SELECT COUNT(*) FROM kategori_aset")->fetchColumn();
+            if ($catCount == 0) {
+                $db->exec("INSERT INTO kategori_aset (nama_kategori) VALUES ('Laptop')");
+                $db->exec("INSERT INTO kategori_aset (nama_kategori) VALUES ('PC Desktop')");
+                $db->exec("INSERT INTO kategori_aset (nama_kategori) VALUES ('Printer')");
+                $db->exec("INSERT INTO kategori_aset (nama_kategori) VALUES ('Monitor')");
+                $db->exec("INSERT INTO kategori_aset (nama_kategori) VALUES ('Router')");
+            }
+
+            // Seed default branches
+            $brCount = $db->query("SELECT COUNT(*) FROM cabang")->fetchColumn();
+            if ($brCount == 0) {
+                $db->exec("INSERT INTO cabang (nama_cabang) VALUES ('Kantor Pusat')");
+                $db->exec("INSERT INTO cabang (nama_cabang) VALUES ('Cabang Jakarta')");
+            }
+
+            // Seed default divisions
+            $divCount = $db->query("SELECT COUNT(*) FROM divisi")->fetchColumn();
+            if ($divCount == 0) {
+                $db->exec("INSERT INTO divisi (nama_divisi) VALUES ('IT Support')");
+                $db->exec("INSERT INTO divisi (nama_divisi) VALUES ('HRD')");
+                $db->exec("INSERT INTO divisi (nama_divisi) VALUES ('Finance')");
+            }
+
+            // Seed default employees
+            $empCount = $db->query("SELECT COUNT(*) FROM karyawan")->fetchColumn();
+            if ($empCount == 0) {
+                $db->exec("INSERT INTO karyawan (nama_karyawan, id_cabang, id_divisi) VALUES ('Admin IT', 1, 1)");
+            }
+        } catch (Exception $e) {
+            error_log("Gagal melakukan seeding default data: " . $e->getMessage());
+        }
     }
 
     private function getSheetHeaders($table, $accessToken) {
