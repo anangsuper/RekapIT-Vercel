@@ -946,7 +946,16 @@ if (isset($_GET['sync_now']) && $_GET['sync_now'] === '1') {
         header('Location: ' . $cleanUrl . ($queryString ? '?' . $queryString : ''));
         exit();
     } catch (Exception $e) {
-        die("Sinkronisasi gagal: " . htmlspecialchars($e->getMessage()));
+        // Redirect back with error status instead of raw die()
+        $cleanUrl = strtok($_SERVER['REQUEST_URI'], '?');
+        $params = $_GET;
+        unset($params['sync_now']);
+        $params['sync_status'] = 'error';
+        $params['sync_error_msg'] = $e->getMessage();
+        $queryString = http_build_query($params);
+        
+        header('Location: ' . $cleanUrl . ($queryString ? '?' . $queryString : ''));
+        exit();
     }
 } else {
     $sync->ensureInitialized(false, false);

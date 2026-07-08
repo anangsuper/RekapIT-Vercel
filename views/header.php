@@ -1131,3 +1131,18 @@ $notifCount = count($notifications);
 <div class="main-content">
     <div class="content-body">
         <div class="animate-fade-in">
+            <!-- Global Sync Alert -->
+            <?php if (isset($_GET['sync_status'])): ?>
+                <?php if ($_GET['sync_status'] === 'success'): ?>
+                    <div class="alert alert-success alert-dismissible fade show mb-4 border-0 shadow-sm rounded-4 animate-fade-in" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i> Database berhasil disinkronkan dengan Google Sheets secara real-time!
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <?php elseif ($_GET['sync_status'] === 'error'): ?>
+                    <div class="alert alert-warning alert-dismissible fade show mb-4 border-0 shadow-sm rounded-4 animate-fade-in" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> <strong>Sinkronisasi Google Sheets Offline:</strong> <?= htmlspecialchars($_GET['sync_error_msg'] ?? 'Kesalahan tidak diketahui.') ?>.
+                        <br><span class="small opacity-75">Sistem saat ini otomatis berjalan menggunakan basis data lokal cache (Offline Mode). Anda tetap dapat menggunakan website seperti biasa.</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <?php endif; ?>
+            <?php endif; ?>
