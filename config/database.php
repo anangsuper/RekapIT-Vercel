@@ -72,7 +72,7 @@ register_shutdown_function('save_session_to_cookie');
 
 // Silakan masukkan URL Web App Google Apps Script Anda di sini atau lewat env variable GOOGLE_SHEET_WEBAPP_URL
 $google_sheet_webapp_url = getenv('GOOGLE_SHEET_WEBAPP_URL') ?: 'https://script.google.com/macros/s/AKfycbx48lncJM_fCh6jwGBClxL57Ee09_WSj7KBEoHfS3AoKM1F98NpT6HkjQGjdWZvwlY/exec';
-$imgbb_api_key = getenv('IMGBB_API_KEY') ?: '';
+$imgbb_api_key = getenv('IMGBB_API_KEY') ?: 'dc79b1d332476264d460740dce94a7a2';
 class GoogleSheetsSync {
     private $dbPath;
     private $spreadsheetId;
