@@ -7,6 +7,22 @@ $branches = $conn->query("SELECT id, nama_cabang FROM cabang ORDER BY nama_caban
 $divisions = $conn->query("SELECT id, nama_divisi FROM divisi ORDER BY nama_divisi ASC")->fetchAll();
 $employees = $conn->query("SELECT id, nama_karyawan, id_cabang, id_divisi FROM karyawan ORDER BY nama_karyawan ASC")->fetchAll();
 
+// Check if accessing from Telegram WebApp with a user query
+$tgUser = isset($_GET['tg_user']) ? trim($_GET['tg_user']) : '';
+$userFolderId = '';
+$userCabangId = null;
+
+if (!empty($tgUser)) {
+    // Try to find the user in the users table matching their telegram username
+    $userQuery = $conn->prepare("SELECT google_drive_folder_id, id_cabang FROM users WHERE username = ?");
+    $userQuery->execute([$tgUser]);
+    $userData = $userQuery->fetch(PDO::FETCH_ASSOC);
+    if ($userData) {
+        $userFolderId = $userData['google_drive_folder_id'] ?? '';
+        $userCabangId = $userData['id_cabang'] ?? null;
+    }
+}
+
 $success = false;
 $error = '';
 $newCode = '';
@@ -82,50 +98,52 @@ function getDriveAccessToken() {
 /**
  * Upload local file directly to Google Drive via cURL multipart API
  */
-function uploadFileToGoogleDrive($accessToken, $filePath, $mimeType, $fileName) {
+function uploadFileToGoogleDrive($accessToken, $filePath, $mimeType, $fileName, $targetFolderId = '') {
     // 1. First, search or create folder "RekapIT Assets"
-    $folderId = '';
+    $folderId = $targetFolderId;
     
-    // Find folder
-    $queryUrl = 'https://www.googleapis.com/drive/v3/files?q=' . urlencode("name='RekapIT Assets' and mimeType='application/vnd.google-apps.folder' and trashed=false") . '&fields=files(id)';
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $queryUrl);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $accessToken]);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-    $res = curl_exec($ch);
-    
-    if ($res) {
-        $findData = json_decode($res, true);
-        if (!empty($findData['files'])) {
-            $folderId = $findData['files'][0]['id'];
-        }
-    }
-    
-    // Create folder if not found
+    // Find folder if not specified
     if (empty($folderId)) {
+        $queryUrl = 'https://www.googleapis.com/drive/v3/files?q=' . urlencode("name='RekapIT Assets' and mimeType='application/vnd.google-apps.folder' and trashed=false") . '&fields=files(id)';
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'https://www.googleapis.com/drive/v3/files');
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-            'name' => 'RekapIT Assets',
-            'mimeType' => 'application/vnd.google-apps.folder'
-        ]));
+        curl_setopt($ch, CURLOPT_URL, $queryUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $accessToken,
-            'Content-Type: application/json'
-        ]);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $accessToken]);
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        $folderRes = curl_exec($ch);
+        $res = curl_exec($ch);
         
-        if ($folderRes) {
-            $folderData = json_decode($folderRes, true);
-            $folderId = $folderData['id'] ?? '';
+        if ($res) {
+            $findData = json_decode($res, true);
+            if (!empty($findData['files'])) {
+                $folderId = $findData['files'][0]['id'];
+            }
+        }
+        
+        // Create folder if not found
+        if (empty($folderId)) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'https://www.googleapis.com/drive/v3/files');
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                'name' => 'RekapIT Assets',
+                'mimeType' => 'application/vnd.google-apps.folder'
+            ]));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer ' . $accessToken,
+                'Content-Type: application/json'
+            ]);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            $folderRes = curl_exec($ch);
+            
+            if ($folderRes) {
+                $folderData = json_decode($folderRes, true);
+                $folderId = $folderData['id'] ?? '';
+            }
         }
     }
     
@@ -225,11 +243,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
                     $driveToken = getDriveAccessToken();
                     if ($driveToken) {
+                        $targetFolderId = '';
+                        $submitTgUser = isset($_POST['tg_user']) ? trim($_POST['tg_user']) : '';
+                        if (!empty($submitTgUser)) {
+                            $userQuery = $conn->prepare("SELECT google_drive_folder_id FROM users WHERE username = ?");
+                            $userQuery->execute([$submitTgUser]);
+                            $targetFolderId = $userQuery->fetchColumn() ?: '';
+                        }
+                        
                         $uploadedUrl = uploadFileToGoogleDrive(
                             $driveToken,
                             $_FILES['foto']['tmp_name'],
                             $_FILES['foto']['type'],
-                            'asset_' . $kode . '_' . time() . '_' . $_FILES['foto']['name']
+                            'asset_' . $kode . '_' . time() . '_' . $_FILES['foto']['name'],
+                            $targetFolderId
                         );
                         if ($uploadedUrl) {
                             $fotoUrl = $uploadedUrl;
@@ -429,7 +456,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <select name="id_cabang" id="id_cabang" class="form-select" required onchange="filterKaryawan()">
                             <option value="">-- Pilih Cabang --</option>
                             <?php foreach ($branches as $br): ?>
-                                <option value="<?= $br['id'] ?>"><?= htmlspecialchars($br['nama_cabang']) ?></option>
+                                <option value="<?= $br['id'] ?>" <?= (isset($userCabangId) && $userCabangId == $br['id']) ? 'selected' : '' ?>><?= htmlspecialchars($br['nama_cabang']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -472,6 +499,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
+                    <input type="hidden" name="tg_user" id="tg_user_input" value="<?= htmlspecialchars($_GET['tg_user'] ?? '') ?>">
                     <button type="submit" class="btn btn-primary w-100 mb-2">💾 Simpan Aset Baru</button>
                     <button type="button" class="btn btn-outline-secondary w-100" onclick="closeWebApp()">Batal</button>
                 </form>
@@ -483,6 +511,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Init Telegram WebApp SDK
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
+
+        // Handle Telegram User auto-detection and query string update
+        if (window.Telegram && window.Telegram.WebApp) {
+            const tgUser = window.Telegram.WebApp.initDataUnsafe?.user?.username;
+            if (tgUser) {
+                const hiddenInput = document.getElementById('tg_user_input');
+                if (hiddenInput) {
+                    hiddenInput.value = tgUser;
+                }
+                
+                // If query param is missing, append it and reload so PHP knows who the user is
+                const urlParams = new URLSearchParams(window.location.search);
+                if (!urlParams.has('tg_user')) {
+                    urlParams.set('tg_user', tgUser);
+                    window.location.search = urlParams.toString();
+                }
+            }
+        }
+
+        // Trigger employee filter on DOM load if branch is pre-selected
+        window.addEventListener('DOMContentLoaded', () => {
+            const selectCabang = document.getElementById('id_cabang');
+            if (selectCabang && selectCabang.value) {
+                filterKaryawan();
+            }
+        });
 
         function closeWebApp() {
             Telegram.WebApp.close();

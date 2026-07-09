@@ -205,6 +205,7 @@ class GoogleSheetsSync {
                 password TEXT NOT NULL,
                 role TEXT DEFAULT 'teknisi',
                 id_cabang INTEGER NULL,
+                google_drive_folder_id TEXT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );",
             "assets" => "CREATE TABLE IF NOT EXISTS assets (
@@ -964,6 +965,13 @@ if (isset($_GET['sync_now']) && $_GET['sync_now'] === '1') {
 try {
     $conn = new GoogleSheetsPDO("sqlite:" . $sqlite_db_path, $sync);
     $sync->setConnection($conn);
+    
+    // Auto-migrate schema: add google_drive_folder_id to users if not exists
+    try {
+        $conn->exec("ALTER TABLE users ADD COLUMN google_drive_folder_id TEXT NULL");
+    } catch (Exception $e) {
+        // Column already exists
+    }
 } catch (PDOException $e) {
     error_log("Koneksi SQLite Gagal: " . $e->getMessage());
     die("Koneksi database gagal: " . htmlspecialchars($e->getMessage()));

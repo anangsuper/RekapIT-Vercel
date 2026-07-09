@@ -19,8 +19,8 @@ class User {
     }
 
     public function create($data) {
-        $query = "INSERT INTO " . $this->table . " (nama, username, password, role, id_cabang) 
-                  VALUES (:nama, :username, :password, :role, :id_cabang)";
+        $query = "INSERT INTO " . $this->table . " (nama, username, password, role, id_cabang, google_drive_folder_id) 
+                  VALUES (:nama, :username, :password, :role, :id_cabang, :google_drive_folder_id)";
         $stmt = $this->conn->prepare($query);
         $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
         return $stmt->execute($data);
@@ -34,12 +34,12 @@ class User {
     public function update($id, $data) {
         if (!empty($data['password'])) {
             $query = "UPDATE " . $this->table . " 
-                      SET nama = :nama, username = :username, password = :password, role = :role, id_cabang = :id_cabang 
+                      SET nama = :nama, username = :username, password = :password, role = :role, id_cabang = :id_cabang, google_drive_folder_id = :google_drive_folder_id 
                       WHERE id = :id";
             $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
         } else {
             $query = "UPDATE " . $this->table . " 
-                      SET nama = :nama, username = :username, role = :role, id_cabang = :id_cabang 
+                      SET nama = :nama, username = :username, role = :role, id_cabang = :id_cabang, google_drive_folder_id = :google_drive_folder_id 
                       WHERE id = :id";
             unset($data['password']);
         }

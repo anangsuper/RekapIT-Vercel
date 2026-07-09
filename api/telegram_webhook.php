@@ -363,12 +363,13 @@ if ($command === '/start' || $command === '/help') {
                   . "_Ketik `/m` untuk melihat format template maintenance._";
                   
     $appUrl = "https://" . ($_SERVER['HTTP_HOST'] ?? 'rekap-it-vercel-txjt.vercel.app');
+    $fromUsername = $message['from']['username'] ?? '';
     $replyMarkupKeyboard = [
         'inline_keyboard' => [
             [
                 [
                     'text' => '📱 Tambah Aset (Formulir Web)',
-                    'web_app' => ['url' => $appUrl . "/api/telegram_add_asset.php"]
+                    'web_app' => ['url' => $appUrl . "/api/telegram_add_asset.php?tg_user=" . urlencode($fromUsername)]
                 ]
             ]
         ]
@@ -540,13 +541,13 @@ if ($command === '/start' || $command === '/help') {
 } elseif ($command === '/tambah') {
     try {
         $appUrl = "https://" . ($_SERVER['HTTP_HOST'] ?? 'rekap-it-vercel-txjt.vercel.app');
-
+        $fromUsername = $message['from']['username'] ?? '';
         $replyMarkupKeyboard = [
             'inline_keyboard' => [
                 [
                     [
                         'text' => '📱 Buka Formulir Web (Rekomendasi)', 
-                        'web_app' => ['url' => $appUrl . "/api/telegram_add_asset.php"]
+                        'web_app' => ['url' => $appUrl . "/api/telegram_add_asset.php?tg_user=" . urlencode($fromUsername)]
                     ]
                 ]
             ]

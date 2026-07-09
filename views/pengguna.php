@@ -24,7 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
         'username' => $_POST['username'],
         'password' => $_POST['password'],
         'role' => $_POST['role'],
-        'id_cabang' => !empty($_POST['id_cabang']) ? $_POST['id_cabang'] : null
+        'id_cabang' => !empty($_POST['id_cabang']) ? $_POST['id_cabang'] : null,
+        'google_drive_folder_id' => !empty($_POST['google_drive_folder_id']) ? trim($_POST['google_drive_folder_id']) : null
     ];
     if ($userModel->create($data)) {
         $logModel->add($_SESSION['user_id'], 'Tambah User', "Menambahkan user baru: " . $data['username']);
@@ -40,7 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
         'nama' => $_POST['nama'],
         'username' => $_POST['username'],
         'role' => $_POST['role'],
-        'id_cabang' => !empty($_POST['id_cabang']) ? $_POST['id_cabang'] : null
+        'id_cabang' => !empty($_POST['id_cabang']) ? $_POST['id_cabang'] : null,
+        'google_drive_folder_id' => !empty($_POST['google_drive_folder_id']) ? trim($_POST['google_drive_folder_id']) : null
     ];
     if (!empty($_POST['password'])) {
         $data['password'] = $_POST['password'];
@@ -102,6 +104,7 @@ $cabangs = $cabangModel->getAll();
                         <th>Username</th>
                         <th>Role</th>
                         <th>Cabang Ditugaskan</th>
+                        <th>Folder Google Drive</th>
                         <th class="text-end pe-4">Aksi</th>
                     </tr>
                 </thead>
@@ -123,6 +126,13 @@ $cabangs = $cabangModel->getAll();
                                 <span class="fw-500"><?= htmlspecialchars($u['nama_cabang'] ?: 'Semua Cabang') ?></span>
                             <?php endif; ?>
                         </td>
+                        <td>
+                            <?php if ($u['google_drive_folder_id']): ?>
+                                <code class="text-success" style="font-size: 0.75rem;"><?= htmlspecialchars(substr($u['google_drive_folder_id'], 0, 10)) ?>...</code>
+                            <?php else: ?>
+                                <span class="text-muted small">-</span>
+                            <?php endif; ?>
+                        </td>
                         <td class="text-end pe-4">
                             <button class="btn btn-sm btn-light text-primary btn-edit me-1" 
                                     data-id="<?= $u['id'] ?>"
@@ -130,6 +140,7 @@ $cabangs = $cabangModel->getAll();
                                     data-username="<?= htmlspecialchars($u['username']) ?>"
                                     data-role="<?= $u['role'] ?>"
                                     data-cabang="<?= $u['id_cabang'] ?>"
+                                    data-drive-folder="<?= htmlspecialchars($u['google_drive_folder_id'] ?? '') ?>"
                                     title="Edit"><i class="fas fa-edit"></i> Edit</button>
                             <form method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
                                 <input type="hidden" name="id" value="<?= $u['id'] ?>">
@@ -181,6 +192,11 @@ $cabangs = $cabangModel->getAll();
                         <?php endforeach; ?>
                     </select>
                 </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Google Drive Folder ID</label>
+                    <input type="text" name="google_drive_folder_id" class="form-control" placeholder="ID Folder Drive (contoh: 1a2b3c4d...)">
+                    <div class="form-text text-muted" style="font-size: 0.7rem;">Bagikan folder Google Drive Anda dengan email Service Account sebagai Editor, lalu salin ID foldernya ke sini.</div>
+                </div>
             </div>
             <div class="modal-footer border-0 p-4">
                 <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal" style="border-radius: 12px;">Batal</button>
@@ -228,6 +244,11 @@ $cabangs = $cabangModel->getAll();
                         <?php endforeach; ?>
                     </select>
                 </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Google Drive Folder ID</label>
+                    <input type="text" name="google_drive_folder_id" id="edit_drive_folder" class="form-control" placeholder="ID Folder Drive (contoh: 1a2b3c4d...)">
+                    <div class="form-text text-muted" style="font-size: 0.7rem;">Bagikan folder Google Drive Anda dengan email Service Account sebagai Editor, lalu salin ID foldernya ke sini.</div>
+                </div>
             </div>
             <div class="modal-footer border-0 p-4">
                 <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal" style="border-radius: 12px;">Batal</button>
@@ -263,12 +284,14 @@ document.querySelectorAll('.btn-edit').forEach(btn => {
         const username = this.getAttribute('data-username');
         const role = this.getAttribute('data-role');
         const cabang = this.getAttribute('data-cabang');
+        const driveFolder = this.getAttribute('data-drive-folder');
 
         document.getElementById('edit_id').value = id;
         document.getElementById('edit_nama').value = nama;
         document.getElementById('edit_username').value = username;
         document.getElementById('edit_role').value = role;
         document.getElementById('edit_password').value = '';
+        document.getElementById('edit_drive_folder').value = driveFolder || '';
 
         const fieldCabang = document.getElementById('fieldCabangEdit');
         const selectCabang = document.getElementById('edit_id_cabang');
