@@ -410,23 +410,97 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             });
         }
 
-        // Image upload preview logic
+        // Image upload preview and compression logic
         function previewImage(event) {
-            const file = event.target.files[0];
+            const input = event.target;
+            const file = input.files[0];
             const preview = document.getElementById('imgPreview');
             const label = document.getElementById('uploadLabel');
             const icon = document.getElementById('cameraIcon');
             
             if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.classList.remove('d-none');
-                    label.textContent = file.name;
-                    icon.classList.remove('bi-camera');
-                    icon.classList.add('bi-file-image');
+                // If it is already compressed, don't re-compress it
+                if (file.name.startsWith('compressed_')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.src = e.target.result;
+                        preview.classList.remove('d-none');
+                        label.textContent = file.name.replace('compressed_', '');
+                        icon.classList.remove('bi-camera');
+                        icon.classList.add('bi-file-image');
+                    }
+                    reader.readAsDataURL(file);
+                    return;
                 }
+
+                // Show compressing loading text
+                label.textContent = "Mengompres Gambar...";
+                const submitBtn = document.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.dataset.originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mengompres...';
+                }
+
+                const reader = new FileReader();
                 reader.readAsDataURL(file);
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 1000;
+                        const MAX_HEIGHT = 1000;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                            }
+                        } else {
+                            if (height > MAX_HEIGHT) {
+                                width *= MAX_HEIGHT / height;
+                                height = MAX_HEIGHT;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        canvas.toBlob(function(blob) {
+                            // Create a new file from blob
+                            const compressedFile = new File([blob], 'compressed_' + file.name, {
+                                type: 'image/jpeg',
+                                lastModified: Date.now()
+                            });
+
+                            // Replace files in the input element using DataTransfer
+                            const dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(compressedFile);
+                            input.files = dataTransfer.files;
+
+                            // Show preview of the compressed image
+                            const reader2 = new FileReader();
+                            reader2.onload = function(e2) {
+                                preview.src = e2.target.result;
+                                preview.classList.remove('d-none');
+                                label.textContent = file.name;
+                                icon.classList.remove('bi-camera');
+                                icon.classList.add('bi-file-image');
+                            }
+                            reader2.readAsDataURL(compressedFile);
+
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = submitBtn.dataset.originalText;
+                            }
+                        }, 'image/jpeg', 0.7); // 0.7 quality Jpeg
+                    };
+                };
             } else {
                 preview.src = "";
                 preview.classList.add('d-none');

@@ -72,49 +72,6 @@ function getDriveAccessToken() {
 function uploadFileToGoogleDrive($accessToken, $filePath, $mimeType, $fileName, $targetFolderId = '') {
     $folderId = $targetFolderId;
     
-    if (empty($folderId)) {
-        $queryUrl = 'https://www.googleapis.com/drive/v3/files?q=' . urlencode("name='RekapIT Assets' and mimeType='application/vnd.google-apps.folder' and trashed=false") . '&fields=files(id)';
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $queryUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $accessToken]);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        $res = curl_exec($ch);
-        
-        if ($res) {
-            $findData = json_decode($res, true);
-            if (!empty($findData['files'])) {
-                $folderId = $findData['files'][0]['id'];
-            }
-        }
-        
-        if (empty($folderId)) {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, 'https://www.googleapis.com/drive/v3/files');
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-                'name' => 'RekapIT Assets',
-                'mimeType' => 'application/vnd.google-apps.folder'
-            ]));
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Authorization: Bearer ' . $accessToken,
-                'Content-Type: application/json'
-            ]);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            $folderRes = curl_exec($ch);
-            
-            if ($folderRes) {
-                $folderData = json_decode($folderRes, true);
-                $folderId = $folderData['id'] ?? '';
-            }
-        }
-    }
-    
     $metadata = ['name' => $fileName];
     if (!empty($folderId)) {
         $metadata['parents'] = [$folderId];
