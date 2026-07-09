@@ -353,7 +353,7 @@ if ($command === '/start' || $command === '/help') {
                   . "Halo! Anda dapat mengelola dan memantau database RekapIT langsung melalui chat Telegram ini.\n\n"
                   . "*Daftar Perintah (Commands):*\n"
                   . "🔍 `/cari [kode/nama_aset]` - Mencari detail aset berdasarkan kode/nama\n"
-                  . "➕ `/tambah` - Tambah aset baru (Wizard interaktif / Formulir Web)\n"
+                  . "➕ `/tambah` - Tambah aset baru (Formulir Web)\n"
                   . "📝 `/tambah_manual` atau `/tm` - Tambah aset lengkap via formulir teks manual\n"
                   . "🛠 `/maintenance` atau `/m` - Catat laporan pemeriksaan maintenance massal\n"
                   . "❓ `/help` - Menampilkan daftar perintah bantuan ini\n\n"
@@ -369,12 +369,6 @@ if ($command === '/start' || $command === '/help') {
                 [
                     'text' => '📱 Tambah Aset (Formulir Web)',
                     'web_app' => ['url' => $appUrl . "/api/telegram_add_asset.php"]
-                ]
-            ],
-            [
-                [
-                    'text' => '🤖 Klik Wizard Tambah Aset',
-                    'callback_data' => 'new_wizard_start'
                 ]
             ]
         ]
@@ -545,10 +539,6 @@ if ($command === '/start' || $command === '/help') {
     
 } elseif ($command === '/tambah') {
     try {
-        // Fetch categories from database to check if they exist
-        $catStmt = $conn->query("SELECT id, nama_kategori FROM kategori_aset ORDER BY nama_kategori ASC");
-        $categories = $catStmt->fetchAll();
-        
         $appUrl = "https://" . ($_SERVER['HTTP_HOST'] ?? 'rekap-it-vercel-txjt.vercel.app');
 
         $replyMarkupKeyboard = [
@@ -562,24 +552,8 @@ if ($command === '/start' || $command === '/help') {
             ]
         ];
         
-        if (!empty($categories)) {
-            $replyMarkupKeyboard['inline_keyboard'][] = [
-                [
-                    'text' => '🤖 Tambah dengan Klik Wizard', 
-                    'callback_data' => 'new_wizard_start'
-                ]
-            ];
-        }
-        
         $responseText = "➕ *TAMBAH ASET BARU*\n\n"
-                      . "Silakan pilih metode penginputan aset di bawah ini:\n\n"
-                      . "1. *📱 Formulir Web:* Buka form lengkap interaktif langsung di dalam Telegram (tinggal klik-klik pilihan, tanpa mengetik manual!).\n";
-                      
-        if (!empty($categories)) {
-            $responseText .= "2. *🤖 Klik Wizard:* Mendaftarkan aset cepat lewat rangkaian tanya-jawab bot.";
-        } else {
-            $responseText .= "\n⚠️ *Catatan:* Pilihan 'Klik Wizard' dinonaktifkan sementara karena belum ada kategori aset terdaftar di database. Silakan tambahkan kategori di website terlebih dahulu.";
-        }
+                      . "Silakan klik tombol di bawah ini untuk membuka formulir input interaktif langsung di dalam Telegram (tinggal klik pilihan, tanpa mengetik manual!).";
     } catch (Exception $e) {
         $responseText = "❌ *Gagal memproses perintah /tambah:* " . $e->getMessage();
         error_log("Error in /tambah command: " . $e->getMessage());

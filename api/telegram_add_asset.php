@@ -277,38 +277,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 });
         }
 
+        // Store all employees in JS array for cross-platform (mobile/iOS/Android) dropdown filtering
+        const allKaryawan = [
+            <?php foreach ($employees as $emp): ?>
+            {
+                id: "<?= $emp['id'] ?>",
+                nama: <?= json_encode($emp['nama_karyawan']) ?>,
+                cabang: "<?= $emp['id_cabang'] ?>",
+                divisi: "<?= $emp['id_divisi'] ?>"
+            },
+            <?php endforeach; ?>
+        ];
+
         // Dropdown dynamic employee filtering
         function filterKaryawan() {
             const selectedCabangId = document.getElementById('id_cabang').value;
             const selectedDivisiId = document.getElementById('id_divisi').value;
             const selectKaryawan = document.getElementById('id_karyawan');
-            const options = selectKaryawan.querySelectorAll('option');
             
-            selectKaryawan.value = "";
+            // Clear existing options except placeholder
+            selectKaryawan.innerHTML = '<option value="">-- Pilih Karyawan --</option>';
             
-            options.forEach(option => {
-                const cabangId = option.getAttribute('data-cabang');
-                const divisiId = option.getAttribute('data-divisi');
-                
-                if (!option.value) {
-                    option.style.display = 'block';
-                    return;
-                }
-
+            // Filter and append matching employees
+            allKaryawan.forEach(emp => {
                 let showCabang = true;
                 let showDivisi = true;
 
-                if (selectedCabangId && cabangId && cabangId !== selectedCabangId) {
+                if (selectedCabangId && emp.cabang && emp.cabang !== selectedCabangId) {
                     showCabang = false;
                 }
-                if (selectedDivisiId && divisiId && divisiId !== selectedDivisiId) {
+                if (selectedDivisiId && emp.divisi && emp.divisi !== selectedDivisiId) {
                     showDivisi = false;
                 }
 
                 if (showCabang && showDivisi) {
-                    option.style.display = 'block';
-                } else {
-                    option.style.display = 'none';
+                    const opt = document.createElement('option');
+                    opt.value = emp.id;
+                    opt.textContent = emp.nama;
+                    selectKaryawan.appendChild(opt);
                 }
             });
         }
