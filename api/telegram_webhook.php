@@ -14,7 +14,105 @@ if (!$update) {
     exit();
 }
 
-// Handle Inline Queries (Cari Aset tinggal klik, tanpa comment/ketik perintah)
+/**
+ * -------------------------------------------------------------
+ * TELEGRAM API HELPER FUNCTIONS
+ * -------------------------------------------------------------
+ */
+
+/**
+ * Send request to Telegram API.
+ */
+function sendTelegramApi($method, $data = []) {
+    $token = getenv('TELEGRAM_BOT_TOKEN') ?: ($_ENV['TELEGRAM_BOT_TOKEN'] ?? ($_SERVER['TELEGRAM_BOT_TOKEN'] ?? ''));
+    if (empty($token)) {
+        error_log("Telegram API: Token is missing for method {$method}");
+        return false;
+    }
+    
+    $url = "https://api.telegram.org/bot" . $token . "/" . $method;
+    
+    $options = [
+        'http' => [
+            'method'  => 'POST',
+            'header'  => "Content-Type: application/x-www-form-urlencoded\r\n",
+            'content' => http_build_query($data),
+            'timeout' => 5
+        ],
+        'ssl' => [
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+        ]
+    ];
+    
+    $context = stream_context_create($options);
+    $result = @file_get_contents($url, false, $context);
+    if ($result === false) {
+        $error = error_get_last();
+        error_log("Telegram API fail: Method {$method}. Error: " . ($error['message'] ?? 'Unknown'));
+        return false;
+    }
+    
+    return json_decode($result, true);
+}
+
+/**
+ * Send standard Telegram message.
+ */
+function replyMessage($chatId, $text, $keyboard = null, $replyToMessageId = null) {
+    $data = [
+        'chat_id' => $chatId,
+        'text' => $text,
+        'parse_mode' => 'Markdown'
+    ];
+    if ($keyboard) {
+        $data['reply_markup'] = json_encode($keyboard);
+    }
+    if ($replyToMessageId) {
+        $data['reply_to_message_id'] = $replyToMessageId;
+    }
+    return sendTelegramApi('sendMessage', $data);
+}
+
+/**
+ * Edit existing Telegram message text.
+ */
+function editMessage($chatId, $messageId, $text, $keyboard = null) {
+    $data = [
+        'chat_id' => $chatId,
+        'message_id' => $messageId,
+        'text' => $text,
+        'parse_mode' => 'Markdown'
+    ];
+    if ($keyboard) {
+        $data['reply_markup'] = json_encode($keyboard);
+    }
+    return sendTelegramApi('editMessageText', $data);
+}
+
+/**
+ * Acknowledge Callback Query.
+ */
+function answerCallback($callbackId) {
+    return sendTelegramApi('answerCallbackQuery', ['callback_query_id' => $callbackId]);
+}
+
+/**
+ * Answer Inline Query search results.
+ */
+function answerInline($queryId, $results) {
+    return sendTelegramApi('answerInlineQuery', [
+        'inline_query_id' => $queryId,
+        'results' => json_encode($results),
+        'cache_time' => 0
+    ]);
+}
+
+/**
+ * -------------------------------------------------------------
+ * 1. INLINE QUERY HANDLER
+ * -------------------------------------------------------------
+ */
 if (isset($update["inline_query"])) {
     $inlineQuery = $update["inline_query"];
     $queryId = $inlineQuery["id"];
@@ -89,37 +187,16 @@ if (isset($update["inline_query"])) {
         ];
     }
     
-    // Respond to Telegram Inline Query API
-    $token = getenv('TELEGRAM_BOT_TOKEN') ?: ($_ENV['TELEGRAM_BOT_TOKEN'] ?? ($_SERVER['TELEGRAM_BOT_TOKEN'] ?? ''));
-    if (!empty($token)) {
-        $url = "https://api.telegram.org/bot" . $token . "/answerInlineQuery";
-        $data = [
-            'inline_query_id' => $queryId,
-            'results' => json_encode($results),
-            'cache_time' => 0
-        ];
-        
-        $options = [
-            'http' => [
-                'method'  => 'POST',
-                'header'  => "Content-Type: application/x-www-form-urlencoded\r\n",
-                'content' => http_build_query($data),
-                'timeout' => 5
-            ],
-            'ssl' => [
-                'verify_peer' => false,
-                'verify_peer_name' => false
-            ]
-        ];
-        $context  = stream_context_create($options);
-        @file_get_contents($url, false, $context);
-    }
-    
+    answerInline($queryId, $results);
     echo json_encode(['success' => true]);
     exit();
 }
 
-// Handle Callback Queries (Klik-klik menu Tambah Aset)
+/**
+ * -------------------------------------------------------------
+ * 2. CALLBACK QUERY HANDLER
+ * -------------------------------------------------------------
+ */
 if (isset($update["callback_query"])) {
     $callbackQuery = $update["callback_query"];
     $callbackId = $callbackQuery["id"];
@@ -127,8 +204,6 @@ if (isset($update["callback_query"])) {
     $message = $callbackQuery["message"];
     $chatId = $message["chat"]["id"];
     $messageId = $message["message_id"];
-    
-    $token = getenv('TELEGRAM_BOT_TOKEN') ?: ($_ENV['TELEGRAM_BOT_TOKEN'] ?? ($_SERVER['TELEGRAM_BOT_TOKEN'] ?? ''));
     
     if ($data === 'new_wizard_start') {
         $cStmt = $conn->query("SELECT id, nama_kategori FROM kategori_aset ORDER BY nama_kategori ASC");
@@ -139,26 +214,8 @@ if (isset($update["callback_query"])) {
         }
         $keyboard = ['inline_keyboard' => $inlineButtons];
         $text = "➕ *WIZARD TAMBAH ASET*\n\nSilakan pilih *Kategori Aset* yang ingin Anda daftarkan:";
-        if (!empty($token)) {
-            $url = "https://api.telegram.org/bot" . $token . "/editMessageText";
-            $postData = [
-                'chat_id' => $chatId,
-                'message_id' => $messageId,
-                'text' => $text,
-                'parse_mode' => 'Markdown',
-                'reply_markup' => json_encode($keyboard)
-            ];
-            $options = [
-                'http' => [
-                    'method'  => 'POST',
-                    'header'  => "Content-Type: application/x-www-form-urlencoded\r\n",
-                    'content' => http_build_query($postData),
-                    'timeout' => 5
-                ],
-                'ssl' => ['verify_peer' => false, 'verify_peer_name' => false]
-            ];
-            @file_get_contents($url, false, stream_context_create($options));
-        }
+        editMessage($chatId, $messageId, $text, $keyboard);
+        
     } elseif (strpos($data, 'new_cat:') === 0) {
         $catId = intval(substr($data, 8));
         
@@ -177,35 +234,14 @@ if (isset($update["callback_query"])) {
                 $inlineButtons[] = [['text' => $br['nama_cabang'], 'callback_data' => "new_br:{$catId}:{$br['id']}"]];
             }
             
-            $keyboard = [
-                'inline_keyboard' => $inlineButtons
-            ];
-            
+            $keyboard = ['inline_keyboard' => $inlineButtons];
             $text = "➕ *TAMBAH ASET BARU*\n"
                   . "*• Kategori:* " . htmlspecialchars($kategori['nama_kategori']) . "\n\n"
                   . "Sekarang silakan klik *Kantor Cabang* penugasan aset:";
                   
-            if (!empty($token)) {
-                $url = "https://api.telegram.org/bot" . $token . "/editMessageText";
-                $postData = [
-                    'chat_id' => $chatId,
-                    'message_id' => $messageId,
-                    'text' => $text,
-                    'parse_mode' => 'Markdown',
-                    'reply_markup' => json_encode($keyboard)
-                ];
-                $options = [
-                    'http' => [
-                        'method'  => 'POST',
-                        'header'  => "Content-Type: application/x-www-form-urlencoded\r\n",
-                        'content' => http_build_query($postData),
-                        'timeout' => 5
-                    ],
-                    'ssl' => ['verify_peer' => false, 'verify_peer_name' => false]
-                ];
-                @file_get_contents($url, false, stream_context_create($options));
-            }
+            editMessage($chatId, $messageId, $text, $keyboard);
         }
+        
     } elseif (strpos($data, 'new_br:') === 0) {
         $parts = explode(':', $data);
         $catId = intval($parts[1]);
@@ -263,42 +299,21 @@ if (isset($update["callback_query"])) {
                 $text = "❌ *Gagal menyimpan aset:* " . $e->getMessage();
             }
             
-            if (!empty($token)) {
-                $url = "https://api.telegram.org/bot" . $token . "/editMessageText";
-                $postData = [
-                    'chat_id' => $chatId,
-                    'message_id' => $messageId,
-                    'text' => $text,
-                    'parse_mode' => 'Markdown'
-                ];
-                $options = [
-                    'http' => [
-                        'method'  => 'POST',
-                        'header'  => "Content-Type: application/x-www-form-urlencoded\r\n",
-                        'content' => http_build_query($postData),
-                        'timeout' => 5
-                    ],
-                    'ssl' => ['verify_peer' => false, 'verify_peer_name' => false]
-                ];
-                @file_get_contents($url, false, stream_context_create($options));
-            }
+            editMessage($chatId, $messageId, $text);
         }
     }
     
     // Answer callback query
-    if (!empty($token)) {
-        $url = "https://api.telegram.org/bot" . $token . "/answerCallbackQuery?callback_query_id=" . $callbackId;
-        $options = [
-            'http' => ['timeout' => 3],
-            'ssl' => ['verify_peer' => false, 'verify_peer_name' => false]
-        ];
-        @file_get_contents($url, false, stream_context_create($options));
-    }
-    
+    answerCallback($callbackId);
     echo json_encode(['success' => true]);
     exit();
 }
 
+/**
+ * -------------------------------------------------------------
+ * 3. INCOMING COMMAND MESSAGE PARSER
+ * -------------------------------------------------------------
+ */
 if (!isset($update["message"])) {
     echo json_encode(['success' => false, 'message' => 'No message found']);
     exit();
@@ -326,7 +341,13 @@ if (strpos($command, '@') !== false) {
 }
 
 $responseText = '';
+$replyMarkupKeyboard = null;
 
+/**
+ * -------------------------------------------------------------
+ * 4. ROUTE COMMAND HANDLERS
+ * -------------------------------------------------------------
+ */
 if ($command === '/start' || $command === '/help') {
     $responseText = "🤖 *REKAP IT TELEGRAM BOT*\n\n"
                   . "Halo! Anda dapat mengelola dan memantau database RekapIT langsung melalui chat Telegram ini.\n\n"
@@ -340,6 +361,25 @@ if ($command === '/start' || $command === '/help') {
                   . "🔍 Cukup ketik `@RekapItBot [kode/nama]` di kolom obrolan mana saja (bahkan di grup atau chat pribadi lain) untuk mencari aset secara instan tanpa mengirim pesan.\n\n"
                   . "_Ketik `/tm` untuk melihat format template tambah manual._\n"
                   . "_Ketik `/m` untuk melihat format template maintenance._";
+                  
+    $appUrl = "https://" . ($_SERVER['HTTP_HOST'] ?? 'rekap-it-vercel-txjt.vercel.app');
+    $replyMarkupKeyboard = [
+        'inline_keyboard' => [
+            [
+                [
+                    'text' => '📱 Tambah Aset (Formulir Web)',
+                    'web_app' => ['url' => $appUrl . "/api/telegram_add_asset.php"]
+                ]
+            ],
+            [
+                [
+                    'text' => '🤖 Klik Wizard Tambah Aset',
+                    'callback_data' => 'new_wizard_start'
+                ]
+            ]
+        ]
+    ];
+    
 } elseif ($command === '/cari') {
     if (empty($argument)) {
         $responseText = "⚠️ *Format Salah.*\nSilakan masukkan kode atau nama aset yang ingin dicari.\nContoh: `/cari LAP-001`";
@@ -385,6 +425,7 @@ if ($command === '/start' || $command === '/help') {
             $responseText = "❌ Aset dengan kata kunci *\"{$argument}\"* tidak ditemukan di database.";
         }
     }
+    
 } elseif ($command === '/maintenance' || $command === '/m') {
     if (empty($argument)) {
         $responseText = "📝 *PANDUAN MAINTENANCE MASSAL VIA BOT*\n\n"
@@ -501,6 +542,7 @@ if ($command === '/start' || $command === '/help') {
             }
         }
     }
+    
 } elseif ($command === '/tambah') {
     try {
         // Fetch categories from database to check if they exist
@@ -509,7 +551,7 @@ if ($command === '/start' || $command === '/help') {
         
         $appUrl = "https://" . ($_SERVER['HTTP_HOST'] ?? 'rekap-it-vercel-txjt.vercel.app');
 
-        $keyboard = [
+        $replyMarkupKeyboard = [
             'inline_keyboard' => [
                 [
                     [
@@ -521,7 +563,7 @@ if ($command === '/start' || $command === '/help') {
         ];
         
         if (!empty($categories)) {
-            $keyboard['inline_keyboard'][] = [
+            $replyMarkupKeyboard['inline_keyboard'][] = [
                 [
                     'text' => '🤖 Tambah dengan Klik Wizard', 
                     'callback_data' => 'new_wizard_start'
@@ -542,6 +584,7 @@ if ($command === '/start' || $command === '/help') {
         $responseText = "❌ *Gagal memproses perintah /tambah:* " . $e->getMessage();
         error_log("Error in /tambah command: " . $e->getMessage());
     }
+    
 } elseif ($command === '/tambah_manual' || $command === '/tm') {
     if (empty($argument)) {
         $responseText = "➕ *FORMULIR TAMBAH ASET MANUAL*\n\n"
@@ -594,160 +637,114 @@ if ($command === '/start' || $command === '/help') {
             $responseText = "⚠️ *Gagal:* Baris `Cabang:` tidak boleh kosong.";
         } else {
             // Resolve Kategori
-            $idKategori = null;
-            if (!empty($fields['kategori'])) {
-                $cStmt = $conn->prepare("SELECT id FROM kategori_aset WHERE nama_kategori LIKE ? LIMIT 1");
-                $cStmt->execute(['%' . $fields['kategori'] . '%']);
-                $cat = $cStmt->fetch();
-                if ($cat) {
-                    $idKategori = $cat['id'];
-                } else {
-                    $cInsert = $conn->prepare("INSERT INTO kategori_aset (nama_kategori, created_at) VALUES (?, datetime('now', 'localtime'))");
-                    $cInsert->execute([$fields['kategori']]);
-                    $idKategori = $conn->lastInsertId();
+            try {
+                $idKategori = null;
+                if (!empty($fields['kategori'])) {
+                    $cStmt = $conn->prepare("SELECT id FROM kategori_aset WHERE nama_kategori LIKE ? LIMIT 1");
+                    $cStmt->execute(['%' . $fields['kategori'] . '%']);
+                    $cat = $cStmt->fetch();
+                    if ($cat) {
+                        $idKategori = $cat['id'];
+                    } else {
+                        $cInsert = $conn->prepare("INSERT INTO kategori_aset (nama_kategori, created_at) VALUES (?, datetime('now', 'localtime'))");
+                        $cInsert->execute([$fields['kategori']]);
+                        $idKategori = $conn->lastInsertId();
+                    }
                 }
-            }
-            
-            // Resolve Cabang
-            $idCabang = null;
-            $cbrStmt = $conn->prepare("SELECT id, nama_cabang FROM cabang WHERE nama_cabang LIKE ? LIMIT 1");
-            $cbrStmt->execute(['%' . $fields['cabang'] . '%']);
-            $cab = $cbrStmt->fetch();
-            if ($cab) {
-                $idCabang = $cab['id'];
-                $fields['cabang'] = $cab['nama_cabang'];
-            } else {
-                $cbrInsert = $conn->prepare("INSERT INTO cabang (nama_cabang, created_at) VALUES (?, datetime('now', 'localtime'))");
-                $cbrInsert->execute([$fields['cabang']]);
-                $idCabang = $conn->lastInsertId();
-            }
-            
-            // Resolve Divisi
-            $idDivisi = null;
-            if (!empty($fields['divisi'])) {
-                $dStmt = $conn->prepare("SELECT id, nama_divisi FROM divisi WHERE nama_divisi LIKE ? LIMIT 1");
-                $dStmt->execute(['%' . $fields['divisi'] . '%']);
-                $div = $dStmt->fetch();
-                if ($div) {
-                    $idDivisi = $div['id'];
-                    $fields['divisi'] = $div['nama_divisi'];
-                } else {
-                    $dInsert = $conn->prepare("INSERT INTO divisi (nama_divisi, created_at) VALUES (?, datetime('now', 'localtime'))");
-                    $dInsert->execute([$fields['divisi']]);
-                    $idDivisi = $conn->lastInsertId();
-                }
-            }
-            
-            // Resolve Karyawan
-            $idKaryawan = null;
-            if (!empty($fields['karyawan'])) {
-                $kStmt = $conn->prepare("SELECT id, nama_karyawan FROM karyawan WHERE nama_karyawan LIKE ? LIMIT 1");
-                $kStmt->execute(['%' . $fields['karyawan'] . '%']);
-                $kary = $kStmt->fetch();
-                if ($kary) {
-                    $idKaryawan = $kary['id'];
-                    $fields['karyawan'] = $kary['nama_karyawan'];
-                } else {
-                    $kInsert = $conn->prepare("INSERT INTO karyawan (nama_karyawan, id_cabang, id_divisi, created_at) VALUES (?, ?, ?, datetime('now', 'localtime'))");
-                    $kInsert->execute([$fields['karyawan'], $idCabang, $idDivisi]);
-                    $idKaryawan = $conn->lastInsertId();
-                }
-            }
-            
-            // Check if code already exists
-            $dupStmt = $conn->prepare("SELECT id FROM assets WHERE kode_aset = ?");
-            $dupStmt->execute([$fields['kode']]);
-            if ($dupStmt->fetch()) {
-                $responseText = "⚠️ *Gagal:* Kode Aset `{$fields['kode']}` sudah terdaftar di database.";
-            } else {
-                // Insert Asset
-                $insertStmt = $conn->prepare("INSERT INTO assets (kode_aset, nama_aset, serial_number, id_kategori, merk, model, id_cabang, id_divisi, id_karyawan, spesifikasi, kondisi, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Baik', datetime('now', 'localtime'))");
-                $insertStmt->execute([
-                    $fields['kode'],
-                    $fields['nama'],
-                    $fields['sn'],
-                    $idKategori,
-                    $fields['merk'],
-                    $fields['model'],
-                    $idCabang,
-                    $idDivisi,
-                    $idKaryawan,
-                    $fields['spesifikasi']
-                ]);
                 
-                $responseText = "✅ *ASET BERHASIL DITAMBAHKAN*\n\n"
-                              . "*• Kode Aset:* `{$fields['kode']}`\n"
-                              . "*• Nama Aset:* {$fields['nama']}\n"
-                              . "*• Serial Number:* `" . ($fields['sn'] ?: '-') . "`\n"
-                              . "*• Kategori:* " . ($fields['kategori'] ?: '-') . "\n"
-                              . "*• Merk/Model:* " . ($fields['merk'] ?: '-') . " / " . ($fields['model'] ?: '-') . "\n"
-                              . "*• Cabang:* {$fields['cabang']}\n"
-                              . "*• Divisi:* " . ($fields['divisi'] ?: '-') . "\n"
-                              . "*• Pengguna:* " . ($fields['karyawan'] ?: '-') . "\n"
-                              . "*• Spesifikasi:* " . ($fields['spesifikasi'] ?: '-');
+                // Resolve Cabang
+                $idCabang = null;
+                $cbrStmt = $conn->prepare("SELECT id, nama_cabang FROM cabang WHERE nama_cabang LIKE ? LIMIT 1");
+                $cbrStmt->execute(['%' . $fields['cabang'] . '%']);
+                $cab = $cbrStmt->fetch();
+                if ($cab) {
+                    $idCabang = $cab['id'];
+                    $fields['cabang'] = $cab['nama_cabang'];
+                } else {
+                    $cbrInsert = $conn->prepare("INSERT INTO cabang (nama_cabang, created_at) VALUES (?, datetime('now', 'localtime'))");
+                    $cbrInsert->execute([$fields['cabang']]);
+                    $idCabang = $conn->lastInsertId();
+                }
+                
+                // Resolve Divisi
+                $idDivisi = null;
+                if (!empty($fields['divisi'])) {
+                    $dStmt = $conn->prepare("SELECT id, nama_divisi FROM divisi WHERE nama_divisi LIKE ? LIMIT 1");
+                    $dStmt->execute(['%' . $fields['divisi'] . '%']);
+                    $div = $dStmt->fetch();
+                    if ($div) {
+                        $idDivisi = $div['id'];
+                        $fields['divisi'] = $div['nama_divisi'];
+                    } else {
+                        $dInsert = $conn->prepare("INSERT INTO divisi (nama_divisi, created_at) VALUES (?, datetime('now', 'localtime'))");
+                        $dInsert->execute([$fields['divisi']]);
+                        $idDivisi = $conn->lastInsertId();
+                    }
+                }
+                
+                // Resolve Karyawan
+                $idKaryawan = null;
+                if (!empty($fields['karyawan'])) {
+                    $kStmt = $conn->prepare("SELECT id, nama_karyawan FROM karyawan WHERE nama_karyawan LIKE ? LIMIT 1");
+                    $kStmt->execute(['%' . $fields['karyawan'] . '%']);
+                    $kary = $kStmt->fetch();
+                    if ($kary) {
+                        $idKaryawan = $kary['id'];
+                        $fields['karyawan'] = $kary['nama_karyawan'];
+                    } else {
+                        $kInsert = $conn->prepare("INSERT INTO karyawan (nama_karyawan, id_cabang, id_divisi, created_at) VALUES (?, ?, ?, datetime('now', 'localtime'))");
+                        $kInsert->execute([$fields['karyawan'], $idCabang, $idDivisi]);
+                        $idKaryawan = $conn->lastInsertId();
+                    }
+                }
+                
+                // Check if code already exists
+                $dupStmt = $conn->prepare("SELECT id FROM assets WHERE kode_aset = ?");
+                $dupStmt->execute([$fields['kode']]);
+                if ($dupStmt->fetch()) {
+                    $responseText = "⚠️ *Gagal:* Kode Aset `{$fields['kode']}` sudah terdaftar di database.";
+                } else {
+                    // Insert Asset
+                    $insertStmt = $conn->prepare("INSERT INTO assets (kode_aset, nama_aset, serial_number, id_kategori, merk, model, id_cabang, id_divisi, id_karyawan, spesifikasi, kondisi, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Baik', datetime('now', 'localtime'))");
+                    $insertStmt->execute([
+                        $fields['kode'],
+                        $fields['nama'],
+                        $fields['sn'],
+                        $idKategori,
+                        $fields['merk'],
+                        $fields['model'],
+                        $idCabang,
+                        $idDivisi,
+                        $idKaryawan,
+                        $fields['spesifikasi']
+                    ]);
+                    
+                    $responseText = "✅ *ASET BERHASIL DITAMBAHKAN*\n\n"
+                                  . "*• Kode Aset:* `{$fields['kode']}`\n"
+                                  . "*• Nama Aset:* {$fields['nama']}\n"
+                                  . "*• Serial Number:* `" . ($fields['sn'] ?: '-') . "`\n"
+                                  . "*• Kategori:* " . ($fields['kategori'] ?: '-') . "\n"
+                                  . "*• Merk/Model:* " . ($fields['merk'] ?: '-') . " / " . ($fields['model'] ?: '-') . "\n"
+                                  . "*• Cabang:* {$fields['cabang']}\n"
+                                  . "*• Divisi:* " . ($fields['divisi'] ?: '-') . "\n"
+                                  . "*• Pengguna:* " . ($fields['karyawan'] ?: '-') . "\n"
+                                  . "*• Spesifikasi:* " . ($fields['spesifikasi'] ?: '-');
+                }
+            } catch (Exception $e) {
+                $responseText = "❌ *Gagal memproses database:* " . $e->getMessage();
             }
         }
     }
 }
 
+/**
+ * -------------------------------------------------------------
+ * 5. SEND FINAL RESPONSE MESSAGE
+ * -------------------------------------------------------------
+ */
 if (!empty($responseText)) {
-    // Reply back via Telegram API using stream context
-    $token = getenv('TELEGRAM_BOT_TOKEN') ?: ($_ENV['TELEGRAM_BOT_TOKEN'] ?? ($_SERVER['TELEGRAM_BOT_TOKEN'] ?? ''));
-    if (!empty($token)) {
-        $url = "https://api.telegram.org/bot" . $token . "/sendMessage";
-        $data = [
-            'chat_id' => $chatId,
-            'text' => $responseText,
-            'parse_mode' => 'Markdown',
-            'reply_to_message_id' => $messageId
-        ];
-        
-        // Attach Clickable Command Buttons for /start or /help
-        if ($command === '/start' || $command === '/help') {
-            $appUrl = "https://" . ($_SERVER['HTTP_HOST'] ?? 'rekap-it-vercel-txjt.vercel.app');
-            $keyboard = [
-                'inline_keyboard' => [
-                    [
-                        [
-                            'text' => '📱 Tambah Aset (Formulir Web)',
-                            'web_app' => ['url' => $appUrl . "/api/telegram_add_asset.php"]
-                        ]
-                    ],
-                    [
-                        [
-                            'text' => '🤖 Klik Wizard Tambah Aset',
-                            'callback_data' => 'new_wizard_start'
-                        ]
-                    ]
-                ]
-            ];
-            $data['reply_markup'] = json_encode($keyboard);
-        }
-        
-        // Attach Inline Keyboard markup for the /tambah command wizard
-        if ($command === '/tambah' && isset($keyboard)) {
-            $data['reply_markup'] = json_encode($keyboard);
-        }
-        
-        $options = [
-            'http' => [
-                'method'  => 'POST',
-                'header'  => "Content-Type: application/x-www-form-urlencoded\r\n",
-                'content' => http_build_query($data),
-                'timeout' => 5
-            ],
-            'ssl' => [
-                'verify_peer' => false,
-                'verify_peer_name' => false
-            ]
-        ];
-        $context  = stream_context_create($options);
-        $result = @file_get_contents($url, false, $context);
-        
-        echo json_encode(['success' => $result !== false]);
-    } else {
-        echo json_encode(['success' => false, 'error' => 'No Telegram Token configured']);
-    }
+    $res = replyMessage($chatId, $responseText, $replyMarkupKeyboard, $messageId);
+    echo json_encode(['success' => $res !== false]);
 } else {
     echo json_encode(['success' => true, 'message' => 'No action taken']);
 }
