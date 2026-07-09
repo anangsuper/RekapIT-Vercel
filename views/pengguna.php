@@ -9,6 +9,24 @@ $userModel = new User($conn);
 $cabangModel = new Cabang($conn);
 $logModel = new ActivityLog($conn);
 
+$serviceAccountEmail = 'Tidak terkonfigurasi';
+$credsPath = __DIR__ . '/../config/service-account.json';
+if (!file_exists($credsPath)) {
+    $root_creds = glob(dirname(__DIR__) . '/rekapit-*.json');
+    if (!empty($root_creds)) {
+        $credsPath = $root_creds[0];
+    }
+}
+$creds = null;
+if (file_exists($credsPath)) {
+    $creds = json_decode(file_get_contents($credsPath), true);
+} elseif (getenv('GOOGLE_SERVICE_ACCOUNT_JSON')) {
+    $creds = json_decode(getenv('GOOGLE_SERVICE_ACCOUNT_JSON'), true);
+}
+if ($creds && isset($creds['client_email'])) {
+    $serviceAccountEmail = $creds['client_email'];
+}
+
 if (isset($_POST['hapus'])) {
     if ($userModel->delete($_POST['id'])) {
         $logModel->add($_SESSION['user_id'], 'Hapus User', "Menghapus user ID: " . $_POST['id']);
@@ -194,8 +212,13 @@ $cabangs = $cabangModel->getAll();
                 </div>
                 <div class="mb-3">
                     <label class="form-label small fw-bold">Google Drive Folder ID</label>
-                    <input type="text" name="google_drive_folder_id" class="form-control" placeholder="ID Folder Drive (contoh: 1a2b3c4d...)">
-                    <div class="form-text text-muted" style="font-size: 0.7rem;">Bagikan folder Google Drive Anda dengan email Service Account sebagai Editor, lalu salin ID foldernya ke sini.</div>
+                    <div class="alert alert-info py-2 px-3 small border-0 mb-2" style="border-radius: 12px; font-size: 0.75rem;">
+                        <i class="bi bi-info-circle-fill me-1"></i>
+                        Share folder Google Drive Anda ke email Service Account berikut sebagai <strong>Editor</strong>:<br>
+                        <code class="user-select-all fw-bold text-dark mt-1 d-inline-block"><?= htmlspecialchars($serviceAccountEmail) ?></code>
+                    </div>
+                    <input type="text" name="google_drive_folder_id" class="form-control" placeholder="ID Folder Drive (contoh: 12zDpTxdsag...)">
+                    <div class="form-text text-muted" style="font-size: 0.7rem;">Salin ID dari URL folder Drive Anda (contoh: 12zDpTxdsag10fAnkSlBB2Y7hFjHnoBva) ke sini.</div>
                 </div>
             </div>
             <div class="modal-footer border-0 p-4">
@@ -246,8 +269,13 @@ $cabangs = $cabangModel->getAll();
                 </div>
                 <div class="mb-3">
                     <label class="form-label small fw-bold">Google Drive Folder ID</label>
-                    <input type="text" name="google_drive_folder_id" id="edit_drive_folder" class="form-control" placeholder="ID Folder Drive (contoh: 1a2b3c4d...)">
-                    <div class="form-text text-muted" style="font-size: 0.7rem;">Bagikan folder Google Drive Anda dengan email Service Account sebagai Editor, lalu salin ID foldernya ke sini.</div>
+                    <div class="alert alert-info py-2 px-3 small border-0 mb-2" style="border-radius: 12px; font-size: 0.75rem;">
+                        <i class="bi bi-info-circle-fill me-1"></i>
+                        Share folder Google Drive Anda ke email Service Account berikut sebagai <strong>Editor</strong>:<br>
+                        <code class="user-select-all fw-bold text-dark mt-1 d-inline-block"><?= htmlspecialchars($serviceAccountEmail) ?></code>
+                    </div>
+                    <input type="text" name="google_drive_folder_id" id="edit_drive_folder" class="form-control" placeholder="ID Folder Drive (contoh: 12zDpTxdsag...)">
+                    <div class="form-text text-muted" style="font-size: 0.7rem;">Salin ID dari URL folder Drive Anda (contoh: 12zDpTxdsag10fAnkSlBB2Y7hFjHnoBva) ke sini.</div>
                 </div>
             </div>
             <div class="modal-footer border-0 p-4">
