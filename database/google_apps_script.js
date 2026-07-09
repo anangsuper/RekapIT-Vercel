@@ -30,6 +30,8 @@ function doPost(e) {
       return handleDelete(table, postData.id);
     } else if (action === 'batchSync') {
       return handleBatchSync(postData.tables);
+    } else if (action === 'uploadFile') {
+      return handleUploadFile(postData.filename, postData.mimeType, postData.fileContent, postData.folderId);
     }
     
     return ContentService.createTextOutput(JSON.stringify({ error: "Invalid POST action" }))
@@ -316,5 +318,39 @@ function onEdit(e) {
 
 function onChange(e) {
   notifyWebApp();
+}
+
+function handleUploadFile(filename, mimeType, base64Data, folderId) {
+  try {
+    var decoded = Utilities.base64Decode(base64Data);
+    var blob = Utilities.newBlob(decoded, mimeType, filename);
+    
+    var folder;
+    if (folderId) {
+      try {
+        folder = DriveApp.getFolderById(folderId);
+      } catch (err) {
+        folder = DriveApp.getRootFolder();
+      }
+    } else {
+      folder = DriveApp.getRootFolder();
+    }
+    
+    var file = folder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    var downloadUrl = "https://docs.google.com/uc?export=download&id=" + file.getId();
+    
+    return ContentService.createTextOutput(JSON.stringify({ 
+      success: true, 
+      id: file.getId(), 
+      url: downloadUrl 
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ 
+      success: false, 
+      error: err.message 
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
 }
 

@@ -67,6 +67,28 @@ function getDriveAccessToken() {
 }
 
 /**
+ * Helper to fetch the Web App URL configured in database.php or environment
+ */
+function getGoogleSheetsWebAppUrl() {
+    $webAppUrl = getenv('GOOGLE_SHEET_WEBAPP_URL');
+    if ($webAppUrl) {
+        return $webAppUrl;
+    }
+    
+    $dbConfigPath = __DIR__ . '/../config/database.php';
+    if (file_exists($dbConfigPath)) {
+        $content = file_get_contents($dbConfigPath);
+        if (preg_match('/\$google_sheet_webapp_url\s*=\s*getenv\(\'GOOGLE_SHEET_WEBAPP_URL\'\)\s*\|\|\s*\'([^\']+)\'/i', $content, $m)) {
+            return $m[1];
+        }
+        if (preg_match('/\$google_sheet_webapp_url\s*=\s*\'([^\']+)\'/i', $content, $m)) {
+            return $m[1];
+        }
+    }
+    return '';
+}
+
+/**
  * Upload local file directly to Google Drive via cURL multipart API
  */
 function uploadFileToGoogleDrive($accessToken, $filePath, $mimeType, $fileName, $targetFolderId = '') {
@@ -78,6 +100,46 @@ function uploadFileToGoogleDrive($accessToken, $filePath, $mimeType, $fileName, 
             $folderId = $matches[1];
         } elseif (preg_match('/id=([a-zA-Z0-9_-]+)/', $folderId, $matches)) {
             $folderId = $matches[1];
+        }
+    }
+    
+    // Attempt Google Apps Script Web App upload first if configured
+    $webAppUrl = getGoogleSheetsWebAppUrl();
+    if (!empty($webAppUrl) && strpos($webAppUrl, 'script.google.com') !== false) {
+        $fileData = file_get_contents($filePath);
+        $base64Data = base64_encode($fileData);
+        
+        $payload = [
+            'action' => 'uploadFile',
+            'filename' => $fileName,
+            'mimeType' => $mimeType,
+            'fileContent' => $base64Data,
+            'folderId' => $folderId
+        ];
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $webAppUrl);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Apps Script redirect is required
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        @curl_close($ch);
+        
+        if ($response) {
+            $result = json_decode($response, true);
+            if (isset($result['success']) && $result['success'] === true && isset($result['url'])) {
+                return $result['url'];
+            }
+            error_log("Web App upload failed response: " . $response);
+        } else {
+            error_log("Web App upload request failed (HTTP {$httpCode})");
         }
     }
     
