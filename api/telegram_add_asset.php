@@ -34,9 +34,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $conn->beginTransaction();
             try {
+                // Handle file upload to Google Drive
+                $fotoUrl = '';
+                if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+                    $google_sheet_webapp_url = getenv('GOOGLE_SHEET_WEBAPP_URL') ?: 'https://script.google.com/macros/s/AKfycbysMXyw48D4STuA8cOc-hwOlWgWoltjSaT04W-ouuI4Gs10qXE9ioTgOj3Bzx32q0eDKQ/exec';
+                    
+                    $postData = [
+                        'action' => 'uploadFile',
+                        'fileName' => 'asset_' . $kode . '_' . time() . '_' . $_FILES['foto']['name'],
+                        'mimeType' => $_FILES['foto']['type'],
+                        'base64Data' => base64_encode(file_get_contents($_FILES['foto']['tmp_name']))
+                    ];
+                    
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $google_sheet_webapp_url);
+                    curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+                    
+                    $response = curl_exec($ch);
+                    curl_close($ch);
+                    
+                    if ($response) {
+                        $resData = json_decode($response, true);
+                        if (isset($resData['success']) && $resData['success'] && isset($resData['url'])) {
+                            $fotoUrl = $resData['url'];
+                        } else {
+                            error_log("Google Drive upload error: " . ($resData['error'] ?? 'Unknown Apps Script error'));
+                        }
+                    } else {
+                        error_log("Google Drive upload request failed.");
+                    }
+                }
+
                 // Insert asset
-                $insertStmt = $conn->prepare("INSERT INTO assets (kode_aset, nama_aset, serial_number, id_kategori, merk, model, id_cabang, id_divisi, id_karyawan, spesifikasi, kondisi, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Baik', datetime('now', 'localtime'))");
-                $insertStmt->execute([$kode, $nama, $sn, $id_kategori, $merk, $model, $id_cabang, $id_divisi, $id_karyawan, $spesifikasi]);
+                $insertStmt = $conn->prepare("INSERT INTO assets (kode_aset, nama_aset, serial_number, id_kategori, merk, model, id_cabang, id_divisi, id_karyawan, spesifikasi, kondisi, foto, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Baik', ?, datetime('now', 'localtime'))");
+                $insertStmt->execute([$kode, $nama, $sn, $id_kategori, $merk, $model, $id_cabang, $id_divisi, $id_karyawan, $spesifikasi, $fotoUrl]);
                 
                 // Get name details for telegram message broadcast
                 $catName = '';
@@ -76,6 +112,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                              . "*• Divisi:* " . ($divName ?: '-') . "\n"
                              . "*• Pengguna:* " . ($usrName ?: '-') . "\n"
                              . "*• Kondisi:* 🟢 Baik";
+                if ($fotoUrl) {
+                    $messageText .= "\n*• Foto Aset:* [Lihat di Google Drive]({$fotoUrl})";
+                }
                 sendTelegramNotification($messageText);
             } catch (Exception $e) {
                 $conn->rollBack();
@@ -177,7 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 <?php endif; ?>
                 
-                <form id="addAssetForm" method="POST">
+                <form id="addAssetForm" method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label class="form-label small">Kategori</label>
                         <select name="id_kategori" id="id_kategori" class="form-select" onchange="autoGenerateCode(this.value)">
@@ -244,9 +283,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </select>
                     </div>
 
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <label class="form-label small">Spesifikasi</label>
                         <textarea name="spesifikasi" class="form-control" rows="2" placeholder="Detail RAM, SSD, Processor..."></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small">Foto Aset (Opsional - Google Drive)</label>
+                        <div class="d-flex flex-column align-items-center gap-2 p-3 rounded-4" style="background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.15);">
+                            <i class="bi bi-camera fs-1 text-muted" id="cameraIcon"></i>
+                            <span class="text-muted small text-center" id="uploadLabel" style="font-size: 0.75rem;">Ambil Foto atau Pilih Gambar</span>
+                            <input type="file" name="foto" id="foto" accept="image/*" capture="environment" class="form-control d-none" onchange="previewImage(event)">
+                            <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3 mt-1" onclick="document.getElementById('foto').click()" style="font-size: 0.75rem;">
+                                <i class="bi bi-upload me-1"></i> Pilih Berkas
+                            </button>
+                            <img id="imgPreview" class="img-fluid rounded-3 mt-2 d-none" style="max-height: 150px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                        </div>
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100 mb-2">💾 Simpan Aset Baru</button>
@@ -317,6 +369,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     selectKaryawan.appendChild(opt);
                 }
             });
+        }
+
+        // Image upload preview logic
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('imgPreview');
+            const label = document.getElementById('uploadLabel');
+            const icon = document.getElementById('cameraIcon');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.classList.remove('d-none');
+                    label.textContent = file.name;
+                    icon.classList.remove('bi-camera');
+                    icon.classList.add('bi-file-image');
+                }
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = "";
+                preview.classList.add('d-none');
+                label.textContent = "Ambil Foto atau Pilih Gambar";
+                icon.classList.remove('bi-file-image');
+                icon.classList.add('bi-camera');
+            }
         }
     </script>
 </body>

@@ -30,12 +30,44 @@ function doPost(e) {
       return handleDelete(table, postData.id);
     } else if (action === 'batchSync') {
       return handleBatchSync(postData.tables);
+    } else if (action === 'uploadFile') {
+      return handleUploadFile(postData.fileName, postData.mimeType, postData.base64Data);
     }
     
     return ContentService.createTextOutput(JSON.stringify({ error: "Invalid POST action" }))
                          .setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
     return ContentService.createTextOutput(JSON.stringify({ error: err.message }))
+                         .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function handleUploadFile(fileName, mimeType, base64Data) {
+  try {
+    var decoded = Utilities.base64Decode(base64Data);
+    var blob = Utilities.newBlob(decoded, mimeType, fileName);
+    
+    var folderName = "RekapIT Assets";
+    var folders = DriveApp.getFoldersByName(folderName);
+    var folder;
+    if (folders.hasNext()) {
+      folder = folders.next();
+    } else {
+      folder = DriveApp.createFolder(folderName);
+    }
+    
+    var file = folder.createFile(blob);
+    
+    // Set file sharing permission to anyone with link can view
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    // Construct public direct URL for embedding as image
+    var directUrl = "https://docs.google.com/uc?export=download&id=" + file.getId();
+    
+    return ContentService.createTextOutput(JSON.stringify({ success: true, url: directUrl }))
+                         .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ success: false, error: err.message }))
                          .setMimeType(ContentService.MimeType.JSON);
   }
 }
