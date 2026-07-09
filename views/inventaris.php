@@ -72,6 +72,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
         'spesifikasi' => $_POST['spesifikasi'] ?? null
     ];
     try {
+        // Handle file upload to Google Drive
+        $fotoUrl = '';
+        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            require_once 'helpers/drive_upload.php';
+            $driveToken = getDriveAccessToken();
+            if ($driveToken) {
+                $targetFolderId = '';
+                if (!empty($_SESSION['user_id'])) {
+                    $userQuery = $conn->prepare("SELECT google_drive_folder_id FROM users WHERE id = ?");
+                    $userQuery->execute([$_SESSION['user_id']]);
+                    $targetFolderId = $userQuery->fetchColumn() ?: '';
+                }
+                
+                $uploadedUrl = uploadFileToGoogleDrive(
+                    $driveToken,
+                    $_FILES['foto']['tmp_name'],
+                    $_FILES['foto']['type'],
+                    'asset_' . $data['kode_aset'] . '_' . time() . '_' . $_FILES['foto']['name'],
+                    $targetFolderId
+                );
+                if ($uploadedUrl) {
+                    $fotoUrl = $uploadedUrl;
+                }
+            }
+        }
+        $data['foto'] = $fotoUrl;
+
         if ($assetModel->create($data)) {
             $logModel->add($_SESSION['user_id'], 'Tambah Aset', "Menambahkan aset baru: " . $data['nama_aset'] . " (" . $data['kode_aset'] . ")");
             
@@ -84,6 +111,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
                  . "*• Kondisi:* 🟢 {$data['kondisi']}\n"
                  . "*• Oleh:* {$namaUser}\n"
                  . "*• Waktu:* " . date('d M Y, H:i:s');
+            if ($fotoUrl) {
+                $msg .= "\n*• Foto Aset:* [Lihat di Google Drive]({$fotoUrl})";
+            }
             sendTelegramNotification($msg);
             
             header("Location: index.php?page=inventaris&status=success");
@@ -117,6 +147,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
         'spesifikasi' => $_POST['spesifikasi'] ?? null
     ];
     try {
+        // Handle file upload to Google Drive
+        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            require_once 'helpers/drive_upload.php';
+            $driveToken = getDriveAccessToken();
+            if ($driveToken) {
+                $targetFolderId = '';
+                if (!empty($_SESSION['user_id'])) {
+                    $userQuery = $conn->prepare("SELECT google_drive_folder_id FROM users WHERE id = ?");
+                    $userQuery->execute([$_SESSION['user_id']]);
+                    $targetFolderId = $userQuery->fetchColumn() ?: '';
+                }
+                
+                $uploadedUrl = uploadFileToGoogleDrive(
+                    $driveToken,
+                    $_FILES['foto']['tmp_name'],
+                    $_FILES['foto']['type'],
+                    'asset_' . $data['kode_aset'] . '_' . time() . '_' . $_FILES['foto']['name'],
+                    $targetFolderId
+                );
+                if ($uploadedUrl) {
+                    $data['foto'] = $uploadedUrl;
+                }
+            }
+        }
+
         if ($assetModel->update($id, $data, $_SESSION['user_id'])) {
             $logModel->add($_SESSION['user_id'], 'Update Aset', "Memperbarui aset: " . $data['nama_aset'] . " (" . $data['kode_aset'] . ")");
             
@@ -128,6 +183,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
                  . "*• Kondisi:* " . ($data['kondisi'] === 'Baik' ? '🟢' : ($data['kondisi'] === 'Rusak Ringan' ? '🟡' : '🔴')) . " {$data['kondisi']}\n"
                  . "*• Oleh:* {$namaUser}\n"
                  . "*• Waktu:* " . date('d M Y, H:i:s');
+            if (!empty($data['foto'])) {
+                $msg .= "\n*• Foto Aset:* [Lihat di Google Drive]({$data['foto']})";
+            }
             sendTelegramNotification($msg);
             
             header("Location: index.php?page=inventaris&status=updated");
@@ -470,7 +528,8 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                                                    data-karyawan="<?= $a['id_karyawan'] ?>"
                                                    data-kondisi="<?= $a['kondisi'] ?>"
                                                    data-garansi="<?= htmlspecialchars($a['tanggal_kadaluarsa_garansi'] ?: '') ?>"
-                                                   data-spesifikasi="<?= htmlspecialchars($a['spesifikasi'] ?: '') ?>">
+                                                   data-spesifikasi="<?= htmlspecialchars($a['spesifikasi'] ?: '') ?>"
+                                                   data-foto="<?= htmlspecialchars($a['foto'] ?? '') ?>">
                                                 <i class="bi bi-pencil me-2 text-warning"></i> Edit Aset</a></li>
                                             <li><hr class="dropdown-divider"></li>
                                             <li>
@@ -581,7 +640,8 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                                    data-karyawan="<?= $a['id_karyawan'] ?>"
                                    data-kondisi="<?= $a['kondisi'] ?>"
                                    data-garansi="<?= htmlspecialchars($a['tanggal_kadaluarsa_garansi'] ?: '') ?>"
-                                   data-spesifikasi="<?= htmlspecialchars($a['spesifikasi'] ?: '') ?>">
+                                   data-spesifikasi="<?= htmlspecialchars($a['spesifikasi'] ?: '') ?>"
+                                   data-foto="<?= htmlspecialchars($a['foto'] ?? '') ?>">
                                 <i class="bi bi-pencil me-1"></i> Edit
                             </button>
                             <form method="POST" class="flex-fill" onsubmit="return confirm('Hapus aset ini secara permanen?')">
@@ -621,7 +681,7 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
 <div class="modal fade" id="modalTambah" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 28px;">
-            <form method="POST">
+            <form method="POST" enctype="multipart/form-data">
                 <div class="modal-header border-0 p-4 pb-0">
                     <h5 class="fw-800 m-0"><i class="bi bi-plus-circle-fill text-primary me-2"></i> Daftarkan Aset Baru</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -700,6 +760,10 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                             <label class="form-label small fw-bold text-muted">Spesifikasi / Detail Teknis</label>
                             <textarea name="spesifikasi" class="form-control bg-light border-0" rows="3" placeholder="Contoh: RAM 16GB, SSD 512GB, Intel Core i7"></textarea>
                         </div>
+                        <div class="col-md-12">
+                            <label class="form-label small fw-bold text-muted">Foto Aset (Opsional - Google Drive)</label>
+                            <input type="file" name="foto" class="form-control bg-light border-0" accept="image/*">
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0">
@@ -715,7 +779,7 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
 <div class="modal fade" id="modalEdit" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 28px;">
-            <form method="POST">
+            <form method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="id" id="edit_id">
                 <div class="modal-header border-0 p-4 pb-0">
                     <h5 class="fw-800 m-0"><i class="bi bi-pencil-square text-warning me-2"></i> Perbarui Detail Aset</h5>
@@ -793,6 +857,14 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                         <div class="col-md-12">
                             <label class="form-label small fw-bold text-muted">Spesifikasi / Detail Teknis</label>
                             <textarea name="spesifikasi" id="edit_spesifikasi" class="form-control bg-light border-0" rows="3" placeholder="Contoh: RAM 16GB, SSD 512GB, Intel Core i7"></textarea>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label small fw-bold text-muted">Foto Aset (Opsional - Google Drive)</label>
+                            <input type="file" name="foto" class="form-control bg-light border-0" accept="image/*">
+                            <div id="edit_foto_preview_container" class="mt-2 d-none">
+                                <span class="small text-muted">Foto Saat Ini:</span><br>
+                                <a id="edit_foto_link" href="#" target="_blank" class="small text-primary"><i class="bi bi-image me-1"></i> Lihat Foto</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -904,6 +976,7 @@ document.querySelectorAll('.btn-edit').forEach(btn => {
         const kondisi = this.getAttribute('data-kondisi');
         const garansi = this.getAttribute('data-garansi');
         const spesifikasi = this.getAttribute('data-spesifikasi');
+        const foto = this.getAttribute('data-foto');
 
         document.getElementById('edit_id').value = id;
         document.getElementById('edit_kode').value = kode;
@@ -920,6 +993,18 @@ document.querySelectorAll('.btn-edit').forEach(btn => {
         document.getElementById('edit_kondisi').value = kondisi;
         document.getElementById('edit_garansi').value = garansi || "";
         document.getElementById('edit_spesifikasi').value = spesifikasi || "";
+
+        const previewContainer = document.getElementById('edit_foto_preview_container');
+        const previewLink = document.getElementById('edit_foto_link');
+        if (previewContainer && previewLink) {
+            if (foto) {
+                previewLink.href = foto;
+                previewContainer.classList.remove('d-none');
+            } else {
+                previewLink.href = '#';
+                previewContainer.classList.add('d-none');
+            }
+        }
 
         new bootstrap.Modal(document.getElementById('modalEdit')).show();
     });
