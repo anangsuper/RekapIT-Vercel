@@ -48,34 +48,31 @@ if ($token) {
 }
 
 $userFolderId = '1MtZ30lUjmEJ29ynpduUYU0hOd-amqnXd';
-echo "3. Testing upload to user shared folder: " . $userFolderId . "...\n";
-echo "Make sure you have shared this folder to: " . $serviceAccountEmail . " as EDITOR!\n\n";
+echo "3. Testing upload via Google Apps Script Web App...\n";
+$webAppUrl = getGoogleSheetsWebAppUrl();
+echo "Web App URL: " . $webAppUrl . "\n\n";
 
-$metadata = [
-    'name' => 'rekapit_shared_folder_test.txt',
-    'parents' => [$userFolderId]
+if (empty($webAppUrl) || strpos($webAppUrl, 'script.google.com') === false) {
+    echo "ERROR: Web App URL is not configured in database.php!\n";
+    exit;
+}
+
+$payload = [
+    'action' => 'uploadFile',
+    'filename' => 'rekapit_webapp_test_' . time() . '.txt',
+    'mimeType' => 'text/plain',
+    'fileContent' => base64_encode('This is a test upload via the Google Apps Script Web App.'),
+    'folderId' => $userFolderId
 ];
-$boundary = '-------314159265358979323846';
-$fileContent = 'This is a test upload directly inside your shared Google Drive folder.';
-$body = "--" . $boundary . "\r\n" .
-        "Content-Type: application/json; charset=UTF-8\r\n\r\n" .
-        json_encode($metadata) . "\r\n" .
-        "--" . $boundary . "\r\n" .
-        "Content-Type: text/plain\r\n\r\n" .
-        $fileContent . "\r\n" .
-        "--" . $boundary . "--";
 
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true');
+curl_setopt($ch, CURLOPT_URL, $webAppUrl);
 curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Authorization: Bearer ' . $token,
-    'Content-Type: multipart/related; boundary=' . $boundary,
-    'Content-Length: ' . strlen($body)
-]);
-curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
@@ -84,12 +81,13 @@ $uploadCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $uploadErr = curl_error($ch);
 @curl_close($ch);
 
-echo "Upload to Shared Folder HTTP Code: " . $uploadCode . "\n";
-echo "Upload to Shared Folder Error (if any): " . $uploadErr . "\n";
-echo "Upload to Shared Folder Response Body:\n" . $uploadRes . "\n\n";
+echo "Web App Response Code: " . $uploadCode . "\n";
+echo "Web App Error (if any): " . $uploadErr . "\n";
+echo "Web App Response Body:\n" . $uploadRes . "\n\n";
 
-if ($uploadCode === 200) {
-    echo "SUCCESS! Upload to shared folder succeeded!\n";
+$result = json_decode($uploadRes, true);
+if (isset($result['success']) && $result['success'] === true && isset($result['url'])) {
+    echo "SUCCESS! Web App file upload succeeded!\nUploaded file URL: " . $result['url'] . "\n";
 } else {
-    echo "FAILED! Upload to shared folder failed. Please check if you have shared the folder with Editor permissions to " . $serviceAccountEmail . ".\n";
+    echo "FAILED! Web App file upload failed. Please verify that you have deployed the correct code and set permissions to 'Anyone' on Google Apps Script.\n";
 }
