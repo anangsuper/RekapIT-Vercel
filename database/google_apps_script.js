@@ -4,6 +4,13 @@
  * Masukkan URL Web App hasil deploy ke file config/database.php pada variabel $google_sheet_webapp_url.
  */
 
+// KLIK TOMBOL "JALANKAN / RUN" PADA FUNGSI INI PERTAMA KALI UNTUK MEMBERIKAN IZIN GOOGLE DRIVE & SPREADSHEET
+function runThisFirstToAuthorize() {
+  DriveApp.getRootFolder();
+  SpreadsheetApp.getActiveSpreadsheet();
+  Logger.log("OTORISASI SUKSES! Izin Google Drive & Spreadsheet berhasil diberikan.");
+}
+
 function doGet(e) {
   var action = e.parameter.action;
   
