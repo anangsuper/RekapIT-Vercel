@@ -71,7 +71,7 @@ register_shutdown_function('save_session_to_cookie');
  */
 
 // Silakan masukkan URL Web App Google Apps Script Anda di sini atau lewat env variable GOOGLE_SHEET_WEBAPP_URL
-$google_sheet_webapp_url = getenv('GOOGLE_SHEET_WEBAPP_URL') ?: 'https://script.google.com/macros/s/AKfycbysMXyw48D4STuA8cOc-hwOlWgWoltjSaT04W-ouuI4Gs10qXE9ioTgOj3Bzx32q0eDKQ/exec';
+$google_sheet_webapp_url = getenv('GOOGLE_SHEET_WEBAPP_URL') ?: 'https://script.google.com/macros/s/AKfycbx48lncJM_fCh6jwGBClxL57Ee09_WSj7KBEoHfS3AoKM1F98NpT6HkjQGjdWZvwlY/exec';
 
 class GoogleSheetsSync {
     private $dbPath;
