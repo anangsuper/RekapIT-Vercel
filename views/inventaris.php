@@ -502,7 +502,8 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                                                        data-karyawan="<?= htmlspecialchars($a['nama_karyawan'] ?: 'Unassigned') ?>"
                                                        data-kondisi="<?= $a['kondisi'] ?>"
                                                        data-garansi="<?= !empty($a['tanggal_kadaluarsa_garansi']) ? date('d M Y', strtotime($a['tanggal_kadaluarsa_garansi'])) : '-' ?>"
-                                                       data-spesifikasi="<?= htmlspecialchars($a['spesifikasi'] ?: '') ?>">
+                                                       data-spesifikasi="<?= htmlspecialchars($a['spesifikasi'] ?: '') ?>"
+                                                       data-foto="<?= htmlspecialchars($a['foto'] ?? '') ?>">
                                                     <i class="bi bi-eye me-2 text-info"></i> Lihat Detail</a></li>
                                                 <?php if ($a['kondisi'] !== 'Baik'): ?>
                                                     <li><a class="dropdown-item py-2" href="index.php?page=perbaikan&asset_id=<?= $a['id'] ?>">
@@ -616,7 +617,8 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                                     data-karyawan="<?= htmlspecialchars($a['nama_karyawan'] ?: 'Unassigned') ?>"
                                     data-kondisi="<?= $a['kondisi'] ?>"
                                     data-garansi="<?= !empty($a['tanggal_kadaluarsa_garansi']) ? date('d M Y', strtotime($a['tanggal_kadaluarsa_garansi'])) : '-' ?>"
-                                    data-spesifikasi="<?= htmlspecialchars($a['spesifikasi'] ?: '') ?>">
+                                    data-spesifikasi="<?= htmlspecialchars($a['spesifikasi'] ?: '') ?>"
+                                    data-foto="<?= htmlspecialchars($a['foto'] ?? '') ?>">
                                 <i class="bi bi-eye"></i> Detail
                             </button>
                             <button class="btn btn-sm btn-outline-primary flex-fill fw-bold py-2 btn-qr" 
@@ -1047,6 +1049,7 @@ document.querySelectorAll('.btn-detail').forEach(btn => {
         const kondisi = this.getAttribute('data-kondisi');
         const garansi = this.getAttribute('data-garansi');
         const spesifikasi = this.getAttribute('data-spesifikasi');
+        const foto = this.getAttribute('data-foto');
 
         document.getElementById('detail_kode').innerText = kode;
         document.getElementById('detail_nama').innerText = nama;
@@ -1067,6 +1070,21 @@ document.querySelectorAll('.btn-detail').forEach(btn => {
             badgeKondisi.className += 'bg-warning bg-opacity-10 text-warning';
         } else {
             badgeKondisi.className += 'bg-danger bg-opacity-10 text-danger';
+        }
+
+        const fotoRow = document.getElementById('detail_foto_row');
+        const fotoLink = document.getElementById('detail_foto_link');
+        const fotoImg = document.getElementById('detail_foto_img');
+        if (fotoRow && fotoLink && fotoImg) {
+            if (foto && foto.trim() !== '') {
+                fotoLink.href = foto;
+                fotoImg.src = foto;
+                fotoRow.classList.remove('d-none');
+            } else {
+                fotoLink.href = '#';
+                fotoImg.src = '';
+                fotoRow.classList.add('d-none');
+            }
         }
 
         new bootstrap.Modal(document.getElementById('modalDetailAset')).show();
@@ -1250,9 +1268,18 @@ document.querySelectorAll('input[type="file"][name="foto"]').forEach(input => {
                                 <td class="text-muted fw-semibold py-2">Penanggung Jawab</td>
                                 <td class="text-dark fw-bold py-2" id="detail_user">-</td>
                             </tr>
-                            <tr>
+                            <tr class="border-bottom py-2">
                                 <td class="text-muted fw-semibold py-2" valign="top">Spesifikasi</td>
                                 <td class="text-dark fw-bold py-2" style="white-space: pre-line;" id="detail_spesifikasi">-</td>
+                            </tr>
+                            <tr class="border-bottom py-2 d-none" id="detail_foto_row">
+                                <td class="text-muted fw-semibold py-2" valign="top">Foto Aset</td>
+                                <td class="py-2">
+                                    <a id="detail_foto_link" href="#" target="_blank" class="d-block mb-2 text-primary small fw-bold">
+                                        <i class="bi bi-box-arrow-up-right me-1"></i> Buka di Tab Baru
+                                    </a>
+                                    <img id="detail_foto_img" src="" alt="Foto Aset" class="img-fluid rounded-3 border shadow-sm" style="max-height: 200px; object-fit: cover;">
+                                </td>
                             </tr>
                         </tbody>
                     </table>
