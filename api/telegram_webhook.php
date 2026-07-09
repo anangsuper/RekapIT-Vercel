@@ -123,12 +123,23 @@ if (isset($update["inline_query"])) {
     if (!empty($queryString)) {
         // Query database for matching assets
         $q = "%$queryString%";
-        $query = "SELECT a.*, c.nama_cabang, d.nama_divisi, k.nama_karyawan 
+        $query = "SELECT a.*, c.nama_cabang, d.nama_divisi, k.nama_karyawan, kat.nama_kategori 
                   FROM assets a
                   LEFT JOIN cabang c ON a.id_cabang = c.id
                   LEFT JOIN divisi d ON a.id_divisi = d.id
                   LEFT JOIN karyawan k ON a.id_karyawan = k.id
-                  WHERE a.kode_aset LIKE :q OR a.nama_aset LIKE :q LIMIT 5";
+                  LEFT JOIN kategori_aset kat ON a.id_kategori = kat.id
+                  WHERE a.kode_aset LIKE :q 
+                     OR a.nama_aset LIKE :q 
+                     OR a.serial_number LIKE :q
+                     OR a.merk LIKE :q
+                     OR a.model LIKE :q
+                     OR a.kondisi LIKE :q
+                     OR c.nama_cabang LIKE :q 
+                     OR d.nama_divisi LIKE :q 
+                     OR k.nama_karyawan LIKE :q
+                     OR kat.nama_kategori LIKE :q
+                  LIMIT 10";
                   
         $stmt = $conn->prepare($query);
         $stmt->execute([':q' => $q]);
@@ -152,24 +163,32 @@ if (isset($update["inline_query"])) {
             $responseText = "🔍 *DETAIL INFORMASI ASET*\n\n"
                           . "*• Kode Aset:* `{$asset['kode_aset']}`\n"
                           . "*• Nama Aset:* {$asset['nama_aset']}\n"
+                          . "*• Kategori:* " . ($asset['nama_kategori'] ?: '-') . "\n"
                           . "*• Merk/Model:* " . ($asset['merk'] ? "{$asset['merk']} " : "") . "{$asset['model']}\n"
                           . "*• Kondisi:* {$statusEmoji} *{$asset['kondisi']}*\n"
-                          . "*• Cabang:* {$asset['nama_cabang']}\n"
-                          . "*• Divisi:* {$asset['nama_divisi']}\n"
+                          . "*• Cabang:* " . ($asset['nama_cabang'] ?: '-') . "\n"
+                          . "*• Divisi:* " . ($asset['nama_divisi'] ?: '-') . "\n"
                           . "*• Pengguna:* " . ($asset['nama_karyawan'] ?: '-') . "\n"
                           . "*• Serial Number:* `" . ($asset['serial_number'] ?: '-') . "`\n"
                           . "*• Cek Terakhir:* {$maintText}";
+            if (!empty($asset['foto'])) {
+                $responseText .= "\n*• Foto Aset:* [Lihat Foto]({$asset['foto']})";
+            }
                           
-            $results[] = [
+            $resultItem = [
                 'type' => 'article',
                 'id' => uniqid(),
                 'title' => "[{$asset['kode_aset']}] {$asset['nama_aset']}",
-                'description' => "Kondisi: {$asset['kondisi']} | Cabang: {$asset['nama_cabang']}",
+                'description' => "Kondisi: {$asset['kondisi']} | Cabang: " . ($asset['nama_cabang'] ?: '-'),
                 'input_message_content' => [
                     'message_text' => $responseText,
                     'parse_mode' => 'Markdown'
                 ]
             ];
+            if (!empty($asset['foto'])) {
+                $resultItem['thumb_url'] = $asset['foto'];
+            }
+            $results[] = $resultItem;
         }
     }
     
@@ -379,19 +398,42 @@ if ($command === '/start' || $command === '/help') {
     if (empty($argument)) {
         $responseText = "⚠️ *Format Salah.*\nSilakan masukkan kode atau nama aset yang ingin dicari.\nContoh: `/cari LAP-001`";
     } else {
-        // Query asset from database
-        $query = "SELECT a.*, c.nama_cabang, d.nama_divisi, k.nama_karyawan 
+        // Query assets from database
+        $query = "SELECT a.*, c.nama_cabang, d.nama_divisi, k.nama_karyawan, kat.nama_kategori 
                   FROM assets a
                   LEFT JOIN cabang c ON a.id_cabang = c.id
                   LEFT JOIN divisi d ON a.id_divisi = d.id
                   LEFT JOIN karyawan k ON a.id_karyawan = k.id
-                  WHERE a.kode_aset LIKE :q OR a.nama_aset LIKE :q LIMIT 1";
+                  LEFT JOIN kategori_aset kat ON a.id_kategori = kat.id
+                  WHERE a.kode_aset LIKE :q 
+                     OR a.nama_aset LIKE :q 
+                     OR a.serial_number LIKE :q
+                     OR a.merk LIKE :q
+                     OR a.model LIKE :q
+                     OR a.kondisi LIKE :q
+                     OR c.nama_cabang LIKE :q 
+                     OR d.nama_divisi LIKE :q 
+                     OR k.nama_karyawan LIKE :q
+                     OR kat.nama_kategori LIKE :q
+                  LIMIT 10";
                   
         $stmt = $conn->prepare($query);
         $stmt->execute([':q' => "%$argument%"]);
-        $asset = $stmt->fetch();
+        $assets = $stmt->fetchAll();
         
-        if ($asset) {
+        if (count($assets) > 1) {
+            $responseText = "🔍 *HASIL PENCARIAN ASET* (Ditemukan " . count($assets) . " aset):\n\n";
+            $idx = 1;
+            foreach ($assets as $asset) {
+                $statusEmoji = ($asset['kondisi'] === 'Baik') ? '🟢' : (($asset['kondisi'] === 'Rusak Ringan') ? '🟡' : '🔴');
+                $responseText .= "{$idx}. `{$asset['kode_aset']}` - {$asset['nama_aset']}\n";
+                $responseText .= "    • Kategori: " . ($asset['nama_kategori'] ?: '-') . "\n";
+                $responseText .= "    • Lokasi: " . ($asset['nama_cabang'] ?: '-') . " | Kondisi: {$statusEmoji} {$asset['kondisi']}\n\n";
+                $idx++;
+            }
+            $responseText .= "_Tips: Gunakan kode aset secara spesifik untuk melihat detail rincian lengkap (contoh: `/cari LAP-001`)._";
+        } elseif (count($assets) === 1) {
+            $asset = $assets[0];
             $statusEmoji = ($asset['kondisi'] === 'Baik') ? '🟢' : (($asset['kondisi'] === 'Rusak Ringan') ? '🟡' : '🔴');
             
             // Get last maintenance activity
@@ -406,16 +448,20 @@ if ($command === '/start' || $command === '/help') {
                 $maintText = "{$maintDate} (Hasil: {$lastMaint['temuan']})";
             }
             
-            $responseText = "🔍 *HASIL PENCARIAN ASET*\n\n"
+            $responseText = "🔍 *DETAIL RINCIAN ASET*\n\n"
                           . "*• Kode Aset:* `{$asset['kode_aset']}`\n"
                           . "*• Nama Aset:* {$asset['nama_aset']}\n"
+                          . "*• Kategori:* " . ($asset['nama_kategori'] ?: '-') . "\n"
                           . "*• Merk/Model:* " . ($asset['merk'] ? "{$asset['merk']} " : "") . "{$asset['model']}\n"
                           . "*• Kondisi:* {$statusEmoji} *{$asset['kondisi']}*\n"
-                          . "*• Cabang:* {$asset['nama_cabang']}\n"
-                          . "*• Divisi:* {$asset['nama_divisi']}\n"
+                          . "*• Cabang:* " . ($asset['nama_cabang'] ?: '-') . "\n"
+                          . "*• Divisi:* " . ($asset['nama_divisi'] ?: '-') . "\n"
                           . "*• Pengguna:* " . ($asset['nama_karyawan'] ?: '-') . "\n"
                           . "*• Serial Number:* `" . ($asset['serial_number'] ?: '-') . "`\n"
                           . "*• Cek Terakhir:* {$maintText}";
+            if (!empty($asset['foto'])) {
+                $responseText .= "\n*• Foto Aset:* [Lihat Foto]({$asset['foto']})";
+            }
         } else {
             $responseText = "❌ Aset dengan kata kunci *\"{$argument}\"* tidak ditemukan di database.";
         }
