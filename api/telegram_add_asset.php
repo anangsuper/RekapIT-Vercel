@@ -52,9 +52,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $conn->beginTransaction();
             try {
+                // Handle file upload to ImgBB
+                $fotoUrl = '';
+                if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+                    require_once __DIR__ . '/../helpers/imgbb_upload.php';
+                    $uploadedUrl = uploadFileToImgBB(
+                        $_FILES['foto']['tmp_name'],
+                        'asset_' . $kode . '_' . time()
+                    );
+                    if ($uploadedUrl) {
+                        $fotoUrl = $uploadedUrl;
+                    }
+                }
+
                 // Insert asset
-                $insertStmt = $conn->prepare("INSERT INTO assets (kode_aset, nama_aset, serial_number, id_kategori, merk, model, id_cabang, id_divisi, id_karyawan, spesifikasi, kondisi, foto, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Baik', null, datetime('now', 'localtime'))");
-                $insertStmt->execute([$kode, $nama, $sn, $id_kategori, $merk, $model, $id_cabang, $id_divisi, $id_karyawan, $spesifikasi]);
+                $insertStmt = $conn->prepare("INSERT INTO assets (kode_aset, nama_aset, serial_number, id_kategori, merk, model, id_cabang, id_divisi, id_karyawan, spesifikasi, kondisi, foto, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Baik', ?, datetime('now', 'localtime'))");
+                $insertStmt->execute([$kode, $nama, $sn, $id_kategori, $merk, $model, $id_cabang, $id_divisi, $id_karyawan, $spesifikasi, $fotoUrl ?: null]);
                 
                 // Get name details for telegram message broadcast
                 $catName = '';
@@ -94,6 +107,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                              . "*• Divisi:* " . ($divName ?: '-') . "\n"
                              . "*• Pengguna:* " . ($usrName ?: '-') . "\n"
                              . "*• Kondisi:* 🟢 Baik";
+                if ($fotoUrl) {
+                    $messageText .= "\n*• Foto Aset:* [Lihat Foto]({$fotoUrl})";
+                }
                 sendTelegramNotification($messageText);
             } catch (Exception $e) {
                 $conn->rollBack();
@@ -267,6 +283,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <textarea name="spesifikasi" class="form-control" rows="2" placeholder="Detail RAM, SSD, Processor..."></textarea>
                     </div>
 
+                    <div class="mb-4">
+                        <label class="form-label small">Foto Aset (Opsional - ImgBB)</label>
+                        <div class="d-flex flex-column align-items-center gap-2 p-3 rounded-4" style="background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.15);">
+                            <i class="bi bi-camera fs-1 text-muted" id="cameraIcon"></i>
+                            <span class="text-muted small text-center" id="uploadLabel" style="font-size: 0.75rem;">Ambil Foto atau Pilih Gambar</span>
+                            <input type="file" name="foto" id="foto" accept="image/*" capture="environment" class="form-control d-none" onchange="previewImage(event)">
+                            <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3 mt-1" onclick="document.getElementById('foto').click()" style="font-size: 0.75rem;">
+                                <i class="bi bi-upload me-1"></i> Pilih Berkas
+                            </button>
+                            <img id="imgPreview" class="img-fluid rounded-3 mt-2 d-none" style="max-height: 150px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                        </div>
+                    </div>
+
                     <input type="hidden" name="tg_user" id="tg_user_input" value="<?= htmlspecialchars($_GET['tg_user'] ?? '') ?>">
                     <button type="submit" class="btn btn-primary w-100 mb-2">💾 Simpan Aset Baru</button>
                     <button type="button" class="btn btn-outline-secondary w-100" onclick="closeWebApp()">Batal</button>
@@ -362,6 +391,106 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     selectKaryawan.appendChild(opt);
                 }
             });
+        }
+
+        // Image upload preview and compression logic
+        function previewImage(event) {
+            const input = event.target;
+            const file = input.files[0];
+            const preview = document.getElementById('imgPreview');
+            const label = document.getElementById('uploadLabel');
+            const icon = document.getElementById('cameraIcon');
+            
+            if (file) {
+                // If it is already compressed, don't re-compress it
+                if (file.name.startsWith('compressed_')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.src = e.target.result;
+                        preview.classList.remove('d-none');
+                        label.textContent = file.name.replace('compressed_', '');
+                        icon.classList.remove('bi-camera');
+                        icon.classList.add('bi-file-image');
+                    }
+                    reader.readAsDataURL(file);
+                    return;
+                }
+
+                // Show compressing loading text
+                label.textContent = "Mengompres Gambar...";
+                const submitBtn = document.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.dataset.originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mengompres...';
+                }
+
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 1000;
+                        const MAX_HEIGHT = 1000;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                            }
+                        } else {
+                            if (height > MAX_HEIGHT) {
+                                width *= MAX_HEIGHT / height;
+                                height = MAX_HEIGHT;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        canvas.toBlob(function(blob) {
+                            // Create a new file from blob
+                            const compressedFile = new File([blob], 'compressed_' + file.name, {
+                                type: 'image/jpeg',
+                                lastModified: Date.now()
+                            });
+
+                            // Replace files in the input element using DataTransfer
+                            const dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(compressedFile);
+                            input.files = dataTransfer.files;
+
+                            // Show preview of the compressed image
+                            const reader2 = new FileReader();
+                            reader2.onload = function(e2) {
+                                preview.src = e2.target.result;
+                                preview.classList.remove('d-none');
+                                label.textContent = file.name;
+                                icon.classList.remove('bi-camera');
+                                icon.classList.add('bi-file-image');
+                            }
+                            reader2.readAsDataURL(compressedFile);
+
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = submitBtn.dataset.originalText;
+                            }
+                        }, 'image/jpeg', 0.7); // 0.7 quality Jpeg
+                    };
+                };
+            } else {
+                preview.src = "";
+                preview.classList.add('d-none');
+                label.textContent = "Ambil Foto atau Pilih Gambar";
+                icon.classList.remove('bi-file-image');
+                icon.classList.add('bi-camera');
+            }
         }
     </script>
 </body>

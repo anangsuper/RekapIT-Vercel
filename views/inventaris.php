@@ -72,6 +72,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
         'spesifikasi' => $_POST['spesifikasi'] ?? null
     ];
     try {
+        $fotoUrl = '';
+        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            require_once 'helpers/imgbb_upload.php';
+            $uploadedUrl = uploadFileToImgBB(
+                $_FILES['foto']['tmp_name'],
+                'asset_' . $data['kode_aset'] . '_' . time()
+            );
+            if ($uploadedUrl) {
+                $fotoUrl = $uploadedUrl;
+            }
+        }
+        $data['foto'] = $fotoUrl;
+
         if ($assetModel->create($data)) {
             $logModel->add($_SESSION['user_id'], 'Tambah Aset', "Menambahkan aset baru: " . $data['nama_aset'] . " (" . $data['kode_aset'] . ")");
             
@@ -85,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah'])) {
                  . "*• Oleh:* {$namaUser}\n"
                  . "*• Waktu:* " . date('d M Y, H:i:s');
             if ($fotoUrl) {
-                $msg .= "\n*• Foto Aset:* [Lihat di Google Drive]({$fotoUrl})";
+                $msg .= "\n*• Foto Aset:* [Lihat Foto]({$fotoUrl})";
             }
             sendTelegramNotification($msg);
             
@@ -120,6 +133,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
         'spesifikasi' => $_POST['spesifikasi'] ?? null
     ];
     try {
+        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            require_once 'helpers/imgbb_upload.php';
+            $uploadedUrl = uploadFileToImgBB(
+                $_FILES['foto']['tmp_name'],
+                'asset_' . $data['kode_aset'] . '_' . time()
+            );
+            if ($uploadedUrl) {
+                $data['foto'] = $uploadedUrl;
+            }
+        }
+
         if ($assetModel->update($id, $data, $_SESSION['user_id'])) {
             $logModel->add($_SESSION['user_id'], 'Update Aset', "Memperbarui aset: " . $data['nama_aset'] . " (" . $data['kode_aset'] . ")");
             
@@ -132,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
                  . "*• Oleh:* {$namaUser}\n"
                  . "*• Waktu:* " . date('d M Y, H:i:s');
             if (!empty($data['foto'])) {
-                $msg .= "\n*• Foto Aset:* [Lihat di Google Drive]({$data['foto']})";
+                $msg .= "\n*• Foto Aset:* [Lihat Foto]({$data['foto']})";
             }
             sendTelegramNotification($msg);
             
@@ -710,6 +734,10 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                             <label class="form-label small fw-bold text-muted">Spesifikasi / Detail Teknis</label>
                             <textarea name="spesifikasi" class="form-control bg-light border-0" rows="3" placeholder="Contoh: RAM 16GB, SSD 512GB, Intel Core i7"></textarea>
                         </div>
+                        <div class="col-md-12">
+                            <label class="form-label small fw-bold text-muted">Foto Aset (Opsional - ImgBB)</label>
+                            <input type="file" name="foto" class="form-control bg-light border-0" accept="image/*">
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0">
@@ -803,6 +831,14 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                         <div class="col-md-12">
                             <label class="form-label small fw-bold text-muted">Spesifikasi / Detail Teknis</label>
                             <textarea name="spesifikasi" id="edit_spesifikasi" class="form-control bg-light border-0" rows="3" placeholder="Contoh: RAM 16GB, SSD 512GB, Intel Core i7"></textarea>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label small fw-bold text-muted">Foto Aset (Opsional - ImgBB)</label>
+                            <input type="file" name="foto" class="form-control bg-light border-0" accept="image/*">
+                            <div id="edit_foto_preview_container" class="mt-2 d-none">
+                                <span class="small text-muted">Foto Saat Ini:</span><br>
+                                <a id="edit_foto_link" href="#" target="_blank" class="small text-primary"><i class="bi bi-image me-1"></i> Lihat Foto</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -914,6 +950,7 @@ document.querySelectorAll('.btn-edit').forEach(btn => {
         const kondisi = this.getAttribute('data-kondisi');
         const garansi = this.getAttribute('data-garansi');
         const spesifikasi = this.getAttribute('data-spesifikasi');
+        const foto = this.getAttribute('data-foto');
 
         document.getElementById('edit_id').value = id;
         document.getElementById('edit_kode').value = kode;
@@ -930,6 +967,18 @@ document.querySelectorAll('.btn-edit').forEach(btn => {
         document.getElementById('edit_kondisi').value = kondisi;
         document.getElementById('edit_garansi').value = garansi || "";
         document.getElementById('edit_spesifikasi').value = spesifikasi || "";
+
+        const previewContainer = document.getElementById('edit_foto_preview_container');
+        const previewLink = document.getElementById('edit_foto_link');
+        if (previewContainer && previewLink) {
+            if (foto) {
+                previewLink.href = foto;
+                previewContainer.classList.remove('d-none');
+            } else {
+                previewLink.href = '#';
+                previewContainer.classList.add('d-none');
+            }
+        }
 
         new bootstrap.Modal(document.getElementById('modalEdit')).show();
     });
@@ -972,6 +1021,7 @@ document.querySelectorAll('.btn-detail').forEach(btn => {
         const kondisi = this.getAttribute('data-kondisi');
         const garansi = this.getAttribute('data-garansi');
         const spesifikasi = this.getAttribute('data-spesifikasi');
+        const foto = this.getAttribute('data-foto');
 
         document.getElementById('detail_kode').innerText = kode;
         document.getElementById('detail_nama').innerText = nama;
@@ -992,6 +1042,21 @@ document.querySelectorAll('.btn-detail').forEach(btn => {
             badgeKondisi.className += 'bg-warning bg-opacity-10 text-warning';
         } else {
             badgeKondisi.className += 'bg-danger bg-opacity-10 text-danger';
+        }
+
+        const fotoRow = document.getElementById('detail_foto_row');
+        const fotoLink = document.getElementById('detail_foto_link');
+        const fotoImg = document.getElementById('detail_foto_img');
+        if (fotoRow && fotoLink && fotoImg) {
+            if (foto && foto.trim() !== '') {
+                fotoLink.href = foto;
+                fotoImg.src = foto;
+                fotoRow.classList.remove('d-none');
+            } else {
+                fotoLink.href = '#';
+                fotoImg.src = '';
+                fotoRow.classList.add('d-none');
+            }
         }
 
         new bootstrap.Modal(document.getElementById('modalDetailAset')).show();
@@ -1063,6 +1128,74 @@ function printQRLabel() {
     `);
     printWindow.document.close();
 }
+
+// Compress image on client side before upload to prevent server timeout
+document.querySelectorAll('input[type="file"][name="foto"]').forEach(input => {
+    input.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Only compress images
+        if (!file.type.startsWith('image/')) return;
+
+        // Disable submit button and show loading state
+        const submitBtn = this.form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.dataset.originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mengompres Gambar...';
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function(event) {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 1000;
+                const MAX_HEIGHT = 1000;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob(function(blob) {
+                    // Create a new file from blob
+                    const compressedFile = new File([blob], file.name, {
+                        type: 'image/jpeg',
+                        lastModified: Date.now()
+                    });
+
+                    // Replace files in the input element using DataTransfer
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(compressedFile);
+                    input.files = dataTransfer.files;
+
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = submitBtn.dataset.originalText;
+                    }
+                }, 'image/jpeg', 0.7); // 0.7 quality Jpeg
+            };
+        };
+    });
+});
 </script>
 
 <!-- Modal Detail Aset -->
@@ -1110,6 +1243,15 @@ function printQRLabel() {
                             <tr class="border-bottom py-2">
                                 <td class="text-muted fw-semibold py-2" valign="top">Spesifikasi</td>
                                 <td class="text-dark fw-bold py-2" style="white-space: pre-line;" id="detail_spesifikasi">-</td>
+                            </tr>
+                            <tr class="border-bottom py-2 d-none" id="detail_foto_row">
+                                <td class="text-muted fw-semibold py-2" valign="top">Foto Aset</td>
+                                <td class="py-2">
+                                    <a id="detail_foto_link" href="#" target="_blank" class="d-block mb-2 text-primary small fw-bold">
+                                        <i class="bi bi-box-arrow-up-right me-1"></i> Buka di Tab Baru
+                                    </a>
+                                    <img id="detail_foto_img" src="" alt="Foto Aset" class="img-fluid rounded-3 border shadow-sm" style="max-height: 200px; object-fit: cover;">
+                                </td>
                             </tr>
                         </tbody>
                     </table>
