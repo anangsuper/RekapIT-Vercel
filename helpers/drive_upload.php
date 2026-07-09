@@ -70,51 +70,79 @@ function getDriveAccessToken() {
  * Upload local file directly to Google Drive via cURL multipart API
  */
 function uploadFileToGoogleDrive($accessToken, $filePath, $mimeType, $fileName, $targetFolderId = '') {
-    $folderId = $targetFolderId;
+    $folderId = trim($targetFolderId);
     
-    $metadata = ['name' => $fileName];
+    // If it's a full Google Drive URL, extract the folder ID
     if (!empty($folderId)) {
-        $metadata['parents'] = [$folderId];
+        if (preg_match('/folders\/([a-zA-Z0-9_-]+)/', $folderId, $matches)) {
+            $folderId = $matches[1];
+        } elseif (preg_match('/id=([a-zA-Z0-9_-]+)/', $folderId, $matches)) {
+            $folderId = $matches[1];
+        }
     }
-    
-    $boundary = '-------314159265358979323846';
-    $delimiter = "\r\n--" . $boundary . "\r\n";
-    $closeDelimiter = "\r\n--" . $boundary . "--";
     
     $fileData = file_get_contents($filePath);
     
-    $body = $delimiter . 'Content-Type: application/json; charset=UTF-8' . "\r\n\r\n" . json_encode($metadata) .
-            $delimiter . 'Content-Type: ' . $mimeType . "\r\n\r\n" . $fileData .
-            $closeDelimiter;
-            
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart');
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer ' . $accessToken,
-        'Content-Type: multipart/related; boundary=' . $boundary,
-        'Content-Length: ' . strlen($body)
-    ]);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    // Helper closure to perform the actual multipart upload
+    $performUpload = function($fId) use ($accessToken, $fileData, $mimeType, $fileName) {
+        $metadata = ['name' => $fileName];
+        if (!empty($fId)) {
+            $metadata['parents'] = [$fId];
+        }
+        
+        $boundary = '-------314159265358979323846';
+        $body = "--" . $boundary . "\r\n" .
+                "Content-Type: application/json; charset=UTF-8\r\n\r\n" .
+                json_encode($metadata) . "\r\n" .
+                "--" . $boundary . "\r\n" .
+                "Content-Type: " . $mimeType . "\r\n\r\n" .
+                $fileData . "\r\n" .
+                "--" . $boundary . "--";
+                
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart');
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $accessToken,
+            'Content-Type: multipart/related; boundary=' . $boundary,
+            'Content-Length: ' . strlen($body)
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        @curl_close($ch);
+        
+        return ['code' => $httpCode, 'response' => $response];
+    };
     
-    $response = curl_exec($ch);
-    
-    if (!$response) {
-        return false;
-    }
+    // 1. Try uploading to specified folder
+    $uploadResult = $performUpload($folderId);
+    $response = $uploadResult['response'];
+    $httpCode = $uploadResult['code'];
     
     $fileInfo = json_decode($response, true);
     $fileId = $fileInfo['id'] ?? null;
+    
+    // 2. Fallback: If folder upload fails, upload directly to the root of the Service Account's Drive
+    if (!$fileId && !empty($folderId)) {
+        error_log("Google Drive upload to folder '{$folderId}' failed (HTTP {$httpCode}). Retrying upload directly to root folder.");
+        $uploadResult = $performUpload('');
+        $response = $uploadResult['response'];
+        $fileInfo = json_decode($response, true);
+        $fileId = $fileInfo['id'] ?? null;
+    }
     
     if (!$fileId) {
         error_log("Google Drive direct upload failed: " . $response);
         return false;
     }
     
+    // 3. Set sharing permission to public reader
     $permData = [
         'role' => 'reader',
         'type' => 'anyone'
@@ -133,6 +161,7 @@ function uploadFileToGoogleDrive($accessToken, $filePath, $mimeType, $fileName, 
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     curl_exec($ch);
+    @curl_close($ch);
     
     return "https://docs.google.com/uc?export=download&id=" . $fileId;
 }
