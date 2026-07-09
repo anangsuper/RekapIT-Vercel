@@ -60,17 +60,37 @@ $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 echo "Google Drive API Response Code: " . $code . "\n";
 echo "Response Body:\n" . $res . "\n\n";
 
-echo "4. Attempting dummy file upload to Google Drive root...\n";
-$tempFile = sys_get_temp_dir() . '/rekapit_test_upload.txt';
-file_put_contents($tempFile, 'This is a diagnostic file created by RekapIT to test Google Drive API.');
+echo "4. Testing manual dummy upload to Google Drive root...\n";
+$metadata = ['name' => 'rekapit_manual_test.txt'];
+$boundary = '-------314159265358979323846';
+$fileContent = 'This is a manual diagnostic test upload text.';
+$body = "--" . $boundary . "\r\n" .
+        "Content-Type: application/json; charset=UTF-8\r\n\r\n" .
+        json_encode($metadata) . "\r\n" .
+        "--" . $boundary . "\r\n" .
+        "Content-Type: text/plain\r\n\r\n" .
+        $fileContent . "\r\n" .
+        "--" . $boundary . "--";
 
-$fileName = 'rekapit_diagnostic_' . time() . '.txt';
-$uploadedUrl = uploadFileToGoogleDrive($token, $tempFile, 'text/plain', $fileName, '');
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart');
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Authorization: Bearer ' . $token,
+    'Content-Type: multipart/related; boundary=' . $boundary,
+    'Content-Length: ' . strlen($body)
+]);
+curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
-if ($uploadedUrl) {
-    echo "SUCCESS: Dummy file uploaded successfully!\nURL: " . $uploadedUrl . "\n";
-} else {
-    echo "ERROR: Dummy file upload failed!\n";
-}
+$uploadRes = curl_exec($ch);
+$uploadCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$uploadErr = curl_error($ch);
+@curl_close($ch);
 
-@unlink($tempFile);
+echo "Manual Upload HTTP Code: " . $uploadCode . "\n";
+echo "Manual Upload Error (if any): " . $uploadErr . "\n";
+echo "Manual Upload Response Body:\n" . $uploadRes . "\n\n";
