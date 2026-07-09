@@ -34,36 +34,29 @@ if (!$creds) {
     exit;
 }
 
-echo "Client Email: " . ($creds['client_email'] ?? 'Not found') . "\n";
+$serviceAccountEmail = $creds['client_email'] ?? '';
+echo "Client Email: " . $serviceAccountEmail . "\n";
 echo "Private Key: " . (isset($creds['private_key']) ? "Found (length: " . strlen($creds['private_key']) . ")" : 'Not found') . "\n\n";
 
 echo "2. Requesting Google Drive Access Token...\n";
 $token = getDriveAccessToken();
 if ($token) {
-    echo "SUCCESS: Access token generated successfully!\nToken prefix: " . substr($token, 0, 15) . "...\n\n";
+    echo "SUCCESS: Access token generated successfully!\n\n";
 } else {
     echo "ERROR: Failed to generate access token!\n\n";
     exit;
 }
 
-echo "3. Testing direct raw API call to Google Drive (files.list)...\n";
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, 'https://www.googleapis.com/drive/v3/files?pageSize=1');
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token]);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-$res = curl_exec($ch);
-$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-@curl_close($ch);
+$userFolderId = '12zDpTxdsag10fAnkSlBB2Y7hFjHnoBva';
+echo "3. Testing upload to user shared folder: " . $userFolderId . "...\n";
+echo "Make sure you have shared this folder to: " . $serviceAccountEmail . " as EDITOR!\n\n";
 
-echo "Google Drive API Response Code: " . $code . "\n";
-echo "Response Body:\n" . $res . "\n\n";
-
-echo "4. Testing manual dummy upload to Google Drive root...\n";
-$metadata = ['name' => 'rekapit_manual_test.txt'];
+$metadata = [
+    'name' => 'rekapit_shared_folder_test.txt',
+    'parents' => [$userFolderId]
+];
 $boundary = '-------314159265358979323846';
-$fileContent = 'This is a manual diagnostic test upload text.';
+$fileContent = 'This is a test upload directly inside your shared Google Drive folder.';
 $body = "--" . $boundary . "\r\n" .
         "Content-Type: application/json; charset=UTF-8\r\n\r\n" .
         json_encode($metadata) . "\r\n" .
@@ -91,6 +84,12 @@ $uploadCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $uploadErr = curl_error($ch);
 @curl_close($ch);
 
-echo "Manual Upload HTTP Code: " . $uploadCode . "\n";
-echo "Manual Upload Error (if any): " . $uploadErr . "\n";
-echo "Manual Upload Response Body:\n" . $uploadRes . "\n\n";
+echo "Upload to Shared Folder HTTP Code: " . $uploadCode . "\n";
+echo "Upload to Shared Folder Error (if any): " . $uploadErr . "\n";
+echo "Upload to Shared Folder Response Body:\n" . $uploadRes . "\n\n";
+
+if ($uploadCode === 200) {
+    echo "SUCCESS! Upload to shared folder succeeded!\n";
+} else {
+    echo "FAILED! Upload to shared folder failed. Please check if you have shared the folder with Editor permissions to " . $serviceAccountEmail . ".\n";
+}
