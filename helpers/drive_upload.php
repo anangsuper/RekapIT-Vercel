@@ -100,7 +100,7 @@ function uploadFileToGoogleDrive($accessToken, $filePath, $mimeType, $fileName, 
                 "--" . $boundary . "--";
                 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart');
+        curl_setopt($ch, CURLOPT_URL, 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true');
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -149,7 +149,7 @@ function uploadFileToGoogleDrive($accessToken, $filePath, $mimeType, $fileName, 
     ];
     
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, 'https://www.googleapis.com/drive/v3/files/' . $fileId . '/permissions');
+    curl_setopt($ch, CURLOPT_URL, 'https://www.googleapis.com/drive/v3/files/' . $fileId . '/permissions?supportsAllDrives=true');
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($permData));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
