@@ -618,17 +618,38 @@ class GoogleSheetsSync {
         return $data['values'][0] ?? [];
     }
 
-    private function appendRowToSheets($table, $rowData) {
-        if (!$this->spreadsheetId) return;
-        try {
-            $accessToken = $this->getAccessToken();
-            $headers = $this->getSheetHeaders($table, $accessToken);
-            
-            if (empty($headers)) {
-                $headers = array_keys($rowData);
-                if (!in_array('id', $headers)) {
-                    array_unshift($headers, 'id');
+    private function synchronizeHeaders($table, $rowData, $accessToken) {
+        $headers = $this->getSheetHeaders($table, $accessToken);
+        
+        if (empty($headers)) {
+            $headers = array_keys($rowData);
+            if (!in_array('id', $headers)) {
+                array_unshift($headers, 'id');
+            }
+            $url = 'https://sheets.googleapis.com/v4/spreadsheets/' . $this->spreadsheetId . '/values/' . urlencode($table) . '!A1';
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url . '?valueInputOption=USER_ENTERED');
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['values' => [$headers]]));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer ' . $accessToken,
+                'Content-Type: application/json'
+            ]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+            curl_exec($ch);
+            @curl_close($ch);
+        } else {
+            // Check for columns in rowData that are missing in spreadsheet headers
+            $newKeys = [];
+            foreach (array_keys($rowData) as $k) {
+                if (!in_array($k, $headers)) {
+                    $newKeys[] = $k;
                 }
+            }
+            
+            if (!empty($newKeys)) {
+                $headers = array_merge($headers, $newKeys);
                 $url = 'https://sheets.googleapis.com/v4/spreadsheets/' . $this->spreadsheetId . '/values/' . urlencode($table) . '!A1';
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, $url . '?valueInputOption=USER_ENTERED');
@@ -643,6 +664,16 @@ class GoogleSheetsSync {
                 curl_exec($ch);
                 @curl_close($ch);
             }
+        }
+        
+        return $headers;
+    }
+
+    private function appendRowToSheets($table, $rowData) {
+        if (!$this->spreadsheetId) return;
+        try {
+            $accessToken = $this->getAccessToken();
+            $headers = $this->synchronizeHeaders($table, $rowData, $accessToken);
 
             $rowValues = [];
             foreach ($headers as $h) {
@@ -702,7 +733,7 @@ class GoogleSheetsSync {
             $rowIndex = $this->findRowIndexById($table, $id, $accessToken);
             if ($rowIndex === -1) return;
 
-            $headers = $this->getSheetHeaders($table, $accessToken);
+            $headers = $this->synchronizeHeaders($table, $rowData, $accessToken);
             
             $url = 'https://sheets.googleapis.com/v4/spreadsheets/' . $this->spreadsheetId . '/values/' . urlencode($table) . '!A' . $rowIndex . ':Z' . $rowIndex;
             $ch = curl_init();
