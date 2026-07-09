@@ -47,7 +47,7 @@ if ($token) {
     exit;
 }
 
-$userFolderId = '12zDpTxdsag10fAnkSlBB2Y7hFjHnoBva';
+$userFolderId = '1MtZ30lUjmEJ29ynpduUYU0hOd-amqnXd';
 echo "3. Testing upload to user shared folder: " . $userFolderId . "...\n";
 echo "Make sure you have shared this folder to: " . $serviceAccountEmail . " as EDITOR!\n\n";
 
