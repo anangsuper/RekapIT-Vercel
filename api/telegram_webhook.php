@@ -502,40 +502,45 @@ if ($command === '/start' || $command === '/help') {
         }
     }
 } elseif ($command === '/tambah') {
-    // Fetch categories from database to check if they exist
-    $catStmt = $conn->query("SELECT id, nama_kategori FROM kategori_aset ORDER BY nama_kategori ASC");
-    $categories = $catStmt->fetchAll();
-    
-    $appUrl = "https://" . ($_SERVER['HTTP_HOST'] ?? 'rekap-it-vercel-txjt.vercel.app');
+    try {
+        // Fetch categories from database to check if they exist
+        $catStmt = $conn->query("SELECT id, nama_kategori FROM kategori_aset ORDER BY nama_kategori ASC");
+        $categories = $catStmt->fetchAll();
+        
+        $appUrl = "https://" . ($_SERVER['HTTP_HOST'] ?? 'rekap-it-vercel-txjt.vercel.app');
 
-    $keyboard = [
-        'inline_keyboard' => [
-            [
+        $keyboard = [
+            'inline_keyboard' => [
                 [
-                    'text' => '📱 Buka Formulir Web (Rekomendasi)', 
-                    'web_app' => ['url' => $appUrl . "/api/telegram_add_asset.php"]
+                    [
+                        'text' => '📱 Buka Formulir Web (Rekomendasi)', 
+                        'web_app' => ['url' => $appUrl . "/api/telegram_add_asset.php"]
+                    ]
                 ]
             ]
-        ]
-    ];
-    
-    if (!empty($categories)) {
-        $keyboard['inline_keyboard'][] = [
-            [
-                'text' => '🤖 Tambah dengan Klik Wizard', 
-                'callback_data' => 'new_wizard_start'
-            ]
         ];
-    }
-    
-    $responseText = "➕ *TAMBAH ASET BARU*\n\n"
-                  . "Silakan pilih metode penginputan aset di bawah ini:\n\n"
-                  . "1. *📱 Formulir Web:* Buka form lengkap interaktif langsung di dalam Telegram (tinggal klik-klik pilihan, tanpa mengetik manual!).\n";
-                  
-    if (!empty($categories)) {
-        $responseText .= "2. *🤖 Klik Wizard:* Mendaftarkan aset cepat lewat rangkaian tanya-jawab bot.";
-    } else {
-        $responseText .= "\n⚠️ *Catatan:* Pilihan 'Klik Wizard' dinonaktifkan sementara karena belum ada kategori aset terdaftar di database. Silakan tambahkan kategori di website terlebih dahulu.";
+        
+        if (!empty($categories)) {
+            $keyboard['inline_keyboard'][] = [
+                [
+                    'text' => '🤖 Tambah dengan Klik Wizard', 
+                    'callback_data' => 'new_wizard_start'
+                ]
+            ];
+        }
+        
+        $responseText = "➕ *TAMBAH ASET BARU*\n\n"
+                      . "Silakan pilih metode penginputan aset di bawah ini:\n\n"
+                      . "1. *📱 Formulir Web:* Buka form lengkap interaktif langsung di dalam Telegram (tinggal klik-klik pilihan, tanpa mengetik manual!).\n";
+                      
+        if (!empty($categories)) {
+            $responseText .= "2. *🤖 Klik Wizard:* Mendaftarkan aset cepat lewat rangkaian tanya-jawab bot.";
+        } else {
+            $responseText .= "\n⚠️ *Catatan:* Pilihan 'Klik Wizard' dinonaktifkan sementara karena belum ada kategori aset terdaftar di database. Silakan tambahkan kategori di website terlebih dahulu.";
+        }
+    } catch (Exception $e) {
+        $responseText = "❌ *Gagal memproses perintah /tambah:* " . $e->getMessage();
+        error_log("Error in /tambah command: " . $e->getMessage());
     }
 } elseif ($command === '/tambah_manual' || $command === '/tm') {
     if (empty($argument)) {
@@ -699,13 +704,22 @@ if (!empty($responseText)) {
         
         // Attach Clickable Command Buttons for /start or /help
         if ($command === '/start' || $command === '/help') {
+            $appUrl = "https://" . ($_SERVER['HTTP_HOST'] ?? 'rekap-it-vercel-txjt.vercel.app');
             $keyboard = [
-                'keyboard' => [
-                    [['text' => '/help']],
-                    [['text' => '/m'], ['text' => '/tm'], ['text' => '/tambah']]
-                ],
-                'resize_keyboard' => true,
-                'one_time_keyboard' => false
+                'inline_keyboard' => [
+                    [
+                        [
+                            'text' => '📱 Tambah Aset (Formulir Web)',
+                            'web_app' => ['url' => $appUrl . "/api/telegram_add_asset.php"]
+                        ]
+                    ],
+                    [
+                        [
+                            'text' => '🤖 Klik Wizard Tambah Aset',
+                            'callback_data' => 'new_wizard_start'
+                        ]
+                    ]
+                ]
             ];
             $data['reply_markup'] = json_encode($keyboard);
         }
