@@ -337,7 +337,7 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         height: 100vh;
         display: grid;
         justify-content: center;
-        align-content: center;
+        align-content: start;
     }
     
     /* Layout 8 Kartu (Portrait) */
