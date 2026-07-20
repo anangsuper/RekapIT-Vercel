@@ -890,12 +890,10 @@ class GoogleSheetsSync {
 
         if (stripos($query, 'insert') === 0) {
             $db = $this->conn ?: $this->getSQLiteConnection();
-            $lastId = $db->lastInsertId();
-            if ($lastId) {
-                $row = $db->query("SELECT * FROM `$table` WHERE id = $lastId")->fetch();
-                if ($row) {
-                    $this->appendRowToSheets($table, $row);
-                }
+            // Bypass lastInsertId query mapping bug: ambil baris dengan ID terbesar yang baru saja ditambahkan
+            $row = $db->query("SELECT * FROM `$table` ORDER BY id DESC LIMIT 1")->fetch();
+            if ($row) {
+                $this->appendRowToSheets($table, $row);
             }
         } elseif (stripos($query, 'update') === 0) {
             $id = $this->extractId($query, $params);
