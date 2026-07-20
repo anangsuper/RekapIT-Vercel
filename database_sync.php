@@ -83,6 +83,15 @@ $tables = [
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
+
+    "inventaris_kartu" => "CREATE TABLE IF NOT EXISTS inventaris_kartu (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nomor_rekening VARCHAR(100) NOT NULL,
+        nama_barang VARCHAR(255) NOT NULL,
+        tanggal_perolehan DATE NOT NULL,
+        barcode_data TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
 ];
 

@@ -900,6 +900,11 @@ $notifCount = count($notifications);
             </a>
         </li>
         <li>
+            <a href="index.php?page=cetak_kartu" class="sidebar-link <?= ($page == 'cetak_kartu') ? 'active' : '' ?>">
+                <i class="bi bi-card-heading"></i> Cetak Kartu
+            </a>
+        </li>
+        <li>
             <a href="index.php?page=kategori" class="sidebar-link <?= ($page == 'kategori') ? 'active' : '' ?>">
                 <i class="bi bi-tags"></i> Kategori Aset
             </a>

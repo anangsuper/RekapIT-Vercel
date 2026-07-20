@@ -303,6 +303,14 @@ class GoogleSheetsSync {
                 id_sparepart INTEGER NOT NULL,
                 jumlah INTEGER NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );",
+            "inventaris_kartu" => "CREATE TABLE IF NOT EXISTS inventaris_kartu (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nomor_rekening TEXT NOT NULL,
+                nama_barang TEXT NOT NULL,
+                tanggal_perolehan TEXT NOT NULL,
+                barcode_data TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );"
         ];
     }
@@ -605,6 +613,36 @@ class GoogleSheetsSync {
         }
     }
 
+    private function createSheet($tableName, $accessToken) {
+        if (!$this->spreadsheetId) return null;
+        $url = 'https://sheets.googleapis.com/v4/spreadsheets/' . $this->spreadsheetId . ':batchUpdate';
+        $payload = [
+            'requests' => [
+                [
+                    'addSheet' => [
+                        'properties' => [
+                            'title' => $tableName
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $accessToken,
+            'Content-Type: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        $res = curl_exec($ch);
+        @curl_close($ch);
+        return $res;
+    }
+
     private function getSheetHeaders($table, $accessToken) {
         $url = 'https://sheets.googleapis.com/v4/spreadsheets/' . $this->spreadsheetId . '/values/' . urlencode($table) . '!A1:Z1';
         $ch = curl_init();
@@ -619,6 +657,11 @@ class GoogleSheetsSync {
     }
 
     private function synchronizeHeaders($table, $rowData, $accessToken) {
+        $sheetId = $this->getSheetIdByName($table, $accessToken);
+        if ($sheetId === null) {
+            $this->createSheet($table, $accessToken);
+        }
+
         $headers = $this->getSheetHeaders($table, $accessToken);
         
         if (empty($headers)) {
@@ -1002,6 +1045,20 @@ try {
         $conn->exec("ALTER TABLE users ADD COLUMN google_drive_folder_id TEXT NULL");
     } catch (Exception $e) {
         // Column already exists
+    }
+    
+    // Auto-migrate schema: create inventaris_kartu if not exists
+    try {
+        $conn->exec("CREATE TABLE IF NOT EXISTS inventaris_kartu (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nomor_rekening TEXT NOT NULL,
+            nama_barang TEXT NOT NULL,
+            tanggal_perolehan TEXT NOT NULL,
+            barcode_data TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )");
+    } catch (Exception $e) {
+        error_log("Gagal auto-migrate inventaris_kartu: " . $e->getMessage());
     }
 } catch (PDOException $e) {
     error_log("Koneksi SQLite Gagal: " . $e->getMessage());

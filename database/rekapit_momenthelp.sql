@@ -169,6 +169,16 @@ CREATE TABLE IF NOT EXISTS sparepart (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 14. Inventaris Kartu (Cetak Kartu)
+CREATE TABLE IF NOT EXISTS inventaris_kartu (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nomor_rekening VARCHAR(100) NOT NULL,
+    nama_barang VARCHAR(255) NOT NULL,
+    tanggal_perolehan DATE NOT NULL,
+    barcode_data TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- Default User Administrator (Username: admin, Password: admin)
 INSERT IGNORE INTO users (nama, username, password, role)
 VALUES ('Administrator', 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');

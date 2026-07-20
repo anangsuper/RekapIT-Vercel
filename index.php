@@ -30,7 +30,7 @@ $file = __DIR__ . '/views/' . $page . '.php';
 
 // Restricted pages for teknisi
 $restrictedPages = [
-    'audit', 'cabang', 'divisi', 'inventaris', 'karyawan', 'kategori', 'laporan', 'logs', 'mutasi', 'pengguna'
+    'audit', 'cabang', 'divisi', 'inventaris', 'karyawan', 'kategori', 'laporan', 'logs', 'mutasi', 'pengguna', 'cetak_kartu'
 ];
 
 if (in_array($page, $restrictedPages)) {
