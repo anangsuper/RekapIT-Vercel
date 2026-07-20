@@ -617,9 +617,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="atm-card">
                         <table class="atm-card-table">
                             <tr>
-                                <td class="card-header-logo" rowspan="2" style="width: 26%;">
-                                    <img src="logo.jpg" alt="Logo">
-                                    <div class="card-header-logo-text">BANK MITRA</div>
+                                <td class="card-header-logo" rowspan="2" style="width: 26%; text-align: center; vertical-align: middle;">
+                                    <img src="assets/LOGO TYPE 2.png" alt="Logo" style="max-height: 32px; max-width: 95%; object-fit: contain; display: block; margin: 0 auto;">
                                 </td>
                                 <td class="card-header-title" colspan="2" style="width: 74%; height: 18px;">PT BPR Mitratama Arthabuana</td>
                             </tr>
@@ -628,22 +627,22 @@ document.addEventListener('DOMContentLoaded', function() {
                             </tr>
                             <tr>
                                 <td class="card-label">Nomor Asset</td>
-                                <td class="card-value-bold" colspan="2">${item.assetnum}</td>
+                                <td class="card-value" colspan="2" style="text-align: left; padding-left: 6px;">${item.assetnum}</td>
                             </tr>
                             <tr>
                                 <td class="card-label">Nama Asset</td>
-                                <td class="card-value-bold" colspan="2">${item.nama}</td>
+                                <td class="card-value-bold" colspan="2" style="text-align: left; padding-left: 6px; text-transform: uppercase;">${item.nama}</td>
                             </tr>
                             <tr>
                                 <td class="card-label">Tgl Perolehan</td>
-                                <td class="card-value">${item.tanggal}</td>
+                                <td class="card-value" style="text-align: left; padding-left: 6px;">${item.tanggal}</td>
                                 <td class="card-qr-cell" rowspan="3" style="width: 32%;">
                                     <div id="${cardId}" class="card-qr-img"></div>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="card-label">Lokasi</td>
-                                <td class="card-value">${manualLoc}</td>
+                                <td class="card-value" style="text-align: left; padding-left: 6px;">${manualLoc}</td>
                             </tr>
                             <tr>
                                 <td class="card-attention" colspan="2">${attentionText}</td>
