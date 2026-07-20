@@ -379,128 +379,235 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         width: 85.6mm !important;
         height: 54.0mm !important;
         box-sizing: border-box !important;
-        border: 1.2px solid #000000 !important;
+        border: 1.5px solid #003d79 !important;
+        border-radius: 12px !important;
         background: #ffffff !important;
         font-family: Arial, sans-serif !important;
         color: #000000 !important;
         overflow: hidden !important;
         position: relative !important;
-        font-size: 7.5pt !important;
-        line-height: 1.15 !important;
+        display: flex !important;
+        flex-direction: column !important;
         padding: 0 !important;
         margin: 0 !important;
     }
 
-    .atm-card-table {
+    /* Top Header Section */
+    .card-header-sec {
+        display: flex !important;
         width: 100% !important;
-        height: 100% !important;
-        border-collapse: collapse !important;
-        table-layout: fixed !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        border: none !important;
-    }
-
-    .atm-card-table td {
-        border: 0.8px solid #000000 !important;
-        padding: 2px 4px !important;
-        vertical-align: middle !important;
-        word-wrap: break-word !important;
+        height: 38px !important;
+        border-bottom: 1.2px solid #003d79 !important;
         box-sizing: border-box !important;
-        font-family: Arial, sans-serif !important;
-        color: #000000 !important;
-        background: #ffffff !important;
-        font-size: 7.5pt !important;
-        line-height: 1.15 !important;
     }
-
-    /* Header styling */
-    .card-header-logo {
-        text-align: center !important;
-        vertical-align: middle !important;
+    .header-logo-box {
+        width: 26% !important;
+        height: 100% !important;
+        border-right: 1.2px solid #003d79 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
         background: #ffffff !important;
+        box-sizing: border-box !important;
         padding: 2px !important;
     }
-    .card-header-logo img {
-        height: 28px !important;
+    .header-logo-box img {
         max-height: 28px !important;
         max-width: 95% !important;
         object-fit: contain !important;
-        display: block !important;
-        margin: 0 auto !important;
     }
-
-    .card-header-title {
-        background-color: #8cd4f5 !important; /* Biru muda */
+    .header-title-box {
+        width: 74% !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        box-sizing: border-box !important;
+    }
+    .header-main-title {
+        background-color: #003d79 !important;
+        color: #ffffff !important;
+        font-weight: bold !important;
+        font-size: 7.2pt !important;
+        text-align: center !important;
+        height: 17px !important;
+        line-height: 17px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.1px !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        font-weight: bold !important;
-        text-align: center !important;
-        font-size: 7.5pt !important;
-        text-transform: uppercase !important;
-        letter-spacing: -0.2px !important;
     }
-    .card-header-subtitle {
-        background-color: #8cd4f5 !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        font-weight: bold !important;
-        text-align: center !important;
-        font-size: 8.5pt !important;
-        text-transform: uppercase !important;
-        letter-spacing: -0.2px !important;
-    }
-
-    /* Label & Value columns */
-    .card-label {
-        font-weight: bold !important;
-        font-size: 7.5pt !important;
-        text-transform: capitalize !important;
-        padding-left: 5px !important;
-    }
-    .card-value {
-        font-size: 7.5pt !important;
-        font-weight: normal !important;
-        word-break: break-all !important;
-        padding-left: 5px !important;
-    }
-    .card-value-bold {
-        font-weight: bold !important;
-        font-size: 7.5pt !important;
-        word-break: break-all !important;
-        padding-left: 5px !important;
-    }
-
-    /* QR Code Cell */
-    .card-qr-cell {
-        text-align: center !important;
-        vertical-align: middle !important;
-        padding: 0 !important;
+    .header-sub-sec {
+        height: 20px !important;
         background: #ffffff !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 0 8px 0 6px !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+    }
+    .header-sub-title {
+        background: linear-gradient(90deg, #8dc63f 0%, #003d79 100%) !important;
+        color: #ffffff !important;
+        font-weight: bold !important;
+        font-size: 7.5pt !important;
+        text-align: center !important;
+        height: 15px !important;
+        line-height: 15px !important;
+        padding: 0 15px 0 8px !important;
+        border-radius: 0 10px 10px 0 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.2px !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    .header-dots {
+        display: grid !important;
+        grid-template-columns: repeat(3, 3px) !important;
+        grid-gap: 2px !important;
+    }
+    .header-dots span {
+        width: 3px !important;
+        height: 3px !important;
+        background-color: #8dc63f !important;
+        border-radius: 50% !important;
+        display: block !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Fields Section */
+    .card-fields-sec {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+    }
+    .card-field-row {
+        display: flex !important;
+        width: 100% !important;
+        height: 22px !important;
+        border-bottom: 1.2px solid #003d79 !important;
+        box-sizing: border-box !important;
+    }
+    .field-label {
+        width: 26% !important;
+        height: 100% !important;
+        background-color: #003d79 !important;
+        color: #ffffff !important;
+        font-weight: bold !important;
+        font-size: 7.2pt !important;
+        display: flex !important;
+        align-items: center !important;
+        padding-left: 6px !important;
+        box-sizing: border-box !important;
+        border-right: 1.2px solid #003d79 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    .field-value-container {
+        width: 74% !important;
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        background: #ffffff !important;
+        box-sizing: border-box !important;
+    }
+    .field-icon {
+        width: 24px !important;
+        height: 100% !important;
+        border-right: 1.2px solid #003d79 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: #003d79 !important;
+        box-sizing: border-box !important;
+    }
+    .field-svg-icon {
+        width: 11px !important;
+        height: 11px !important;
+        color: #003d79 !important;
+    }
+    .field-value {
+        font-size: 7.2pt !important;
+        color: #000000 !important;
+        padding-left: 6px !important;
+        font-weight: normal !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    .field-value.value-bold {
+        font-weight: bold !important;
+    }
+
+    /* Bottom Section */
+    .card-bottom-sec {
+        display: flex !important;
+        width: 100% !important;
+        height: 52px !important; /* Locked to precise height to fit 54mm card */
+        border-top: 1.5px solid #8dc63f !important; /* Green divider line */
+        box-sizing: border-box !important;
+    }
+    .bottom-left-attention {
+        width: 68% !important;
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        padding: 4px 6px !important;
+        box-sizing: border-box !important;
+        border-right: 1.2px solid #8dc63f !important; /* Green line divider */
+    }
+    .attention-icon {
+        margin-right: 6px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    .attention-text-box {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    .attention-title {
+        font-weight: bold !important;
+        font-size: 6.5pt !important;
+        color: #003d79 !important;
+        margin-bottom: 1px !important;
+    }
+    .attention-desc {
+        font-size: 4.8pt !important;
+        line-height: 1.1 !important;
+        color: #000000 !important;
+        font-weight: bold !important;
+    }
+    .bottom-right-qr {
+        width: 32% !important;
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: #ffffff !important;
+        box-sizing: border-box !important;
+        padding: 4px !important;
+    }
+    .qr-border-box {
+        border: 1px solid #d1d5db !important;
+        border-radius: 6px !important;
+        padding: 2px !important;
+        background: #ffffff !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
     .card-qr-img {
-        display: block !important;
-        margin: 0 auto !important;
-        width: 72px !important;
-        height: 72px !important;
+        width: 38px !important;
+        height: 38px !important;
     }
     .card-qr-img img, .card-qr-img canvas {
-        width: 72px !important;
-        height: 72px !important;
+        width: 38px !important;
+        height: 38px !important;
         display: block !important;
-        margin: 0 auto !important;
-    }
-
-    /* Attention text */
-    .card-attention {
-        font-size: 5pt !important;
-        font-weight: bold !important;
-        text-align: center !important;
-        vertical-align: middle !important;
-        line-height: 1.15 !important;
-        padding: 1px 3px !important;
-        white-space: pre-line !important;
-        background: #ffffff !important;
     }
 }
 </style>
@@ -684,44 +791,84 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 pageHtml += `
                     <div class="atm-card">
-                        <table class="atm-card-table">
-                            <colgroup>
-                                <col style="width: 26%;">
-                                <col style="width: 42%;">
-                                <col style="width: 32%;">
-                            </colgroup>
-                            <tr>
-                                <td class="card-header-logo" rowspan="2" style="text-align: center; vertical-align: middle;">
-                                    <img src="${logoUrl}" alt="Logo">
-                                </td>
-                                <td class="card-header-title" colspan="2" style="height: 18px;">PT BPR Mitratama Arthabuana</td>
-                            </tr>
-                            <tr>
-                                <td class="card-header-subtitle" colspan="2" style="height: 18px;">Asset Tetap</td>
-                            </tr>
-                            <tr>
-                                <td class="card-label">Nomor Asset</td>
-                                <td class="card-value" colspan="2" style="text-align: left; padding-left: 6px;">${item.assetnum}</td>
-                            </tr>
-                            <tr>
-                                <td class="card-label">Nama Asset</td>
-                                <td class="card-value-bold" colspan="2" style="text-align: left; padding-left: 6px; text-transform: uppercase;">${item.nama}</td>
-                            </tr>
-                            <tr>
-                                <td class="card-label">Tgl Perolehan</td>
-                                <td class="card-value" style="text-align: left; padding-left: 6px;">${item.tanggal}</td>
-                                <td class="card-qr-cell" rowspan="3">
+                        <!-- Top Header -->
+                        <div class="card-header-sec">
+                            <div class="header-logo-box">
+                                <img src="${logoUrl}" alt="Logo">
+                            </div>
+                            <div class="header-title-box">
+                                <div class="header-main-title">PT BPR MITRATAMA ARTHABUANA</div>
+                                <div class="header-sub-sec">
+                                    <div class="header-sub-title">ASSET TETAP</div>
+                                    <div class="header-dots">
+                                        <span></span><span></span><span></span>
+                                        <span></span><span></span><span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Data Fields Section -->
+                        <div class="card-fields-sec">
+                            <!-- Nomor Asset -->
+                            <div class="card-field-row">
+                                <div class="field-label">Nomor Asset</div>
+                                <div class="field-value-container">
+                                    <div class="field-icon">
+                                        <svg viewBox="0 0 16 16" fill="currentColor" class="field-svg-icon"><path d="M2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 8.586V2zm3.5 3.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg>
+                                    </div>
+                                    <div class="field-value">${item.assetnum}</div>
+                                </div>
+                            </div>
+                            <!-- Nama Asset -->
+                            <div class="card-field-row">
+                                <div class="field-label">Nama Asset</div>
+                                <div class="field-value-container">
+                                    <div class="field-icon">
+                                        <svg viewBox="0 0 16 16" fill="currentColor" class="field-svg-icon"><path d="M12 1H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zM4 2h8a1 1 0 0 1 1 1v7H3V3a1 1 0 0 1 1-1z"/><path d="M8 12a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
+                                    </div>
+                                    <div class="field-value value-bold">${item.nama}</div>
+                                </div>
+                            </div>
+                            <!-- Tgl Perolehan -->
+                            <div class="card-field-row">
+                                <div class="field-label">Tgl Perolehan</div>
+                                <div class="field-value-container">
+                                    <div class="field-icon">
+                                        <svg viewBox="0 0 16 16" fill="currentColor" class="field-svg-icon"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>
+                                    </div>
+                                    <div class="field-value">${item.tanggal}</div>
+                                </div>
+                            </div>
+                            <!-- Lokasi -->
+                            <div class="card-field-row">
+                                <div class="field-label">Lokasi</div>
+                                <div class="field-value-container">
+                                    <div class="field-icon">
+                                        <svg viewBox="0 0 16 16" fill="currentColor" class="field-svg-icon"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
+                                    </div>
+                                    <div class="field-value">${manualLoc}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Bottom Section (Attention & QR) -->
+                        <div class="card-bottom-sec">
+                            <div class="bottom-left-attention">
+                                <div class="attention-icon">
+                                    <svg viewBox="0 0 16 16" fill="currentColor" class="attention-svg-icon" style="color: #003d79; width: 20px; height: 20px;"><path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.117.773 7.537 2.527 9.578 1.158 1.348 2.63 2.106 3.292 2.402a.474.474 0 0 0 .416 0c.662-.296 2.134-1.054 3.292-2.402 1.754-2.04 3.081-5.461 2.527-9.578a.48.48 0 0 0-.328-.39 61.44 61.44 0 0 0-2.837-.856.481.481 0 0 0-.415.118L8 2.22l-2.247-1.512a.48.48 0 0 0-.415-.119zm0-1.59a1.48 1.48 0 0 1 .825.248L8 1.44l2.163-1.455a1.48 1.48 0 0 1 1.255-.078c1.373.486 2.536 1.058 3.524 1.402a1.48 1.48 0 0 1 .98 1.2c.706 5.253-1.05 9.475-3.328 12.124-1.523 1.772-3.468 2.684-4.224 3.022a1.475 1.475 0 0 1-1.34 0c-.756-.338-2.7-1.25-4.224-3.022C1.756 12.115-.002 7.893.704 2.64a1.48 1.48 0 0 1 .98-1.2c.988-.344 2.15-.916 3.524-1.402a1.48 1.48 0 0 1 .13-.048z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/></svg>
+                                </div>
+                                <div class="attention-text-box">
+                                    <div class="attention-title">Perhatian</div>
+                                    <div class="attention-desc">${attentionText}</div>
+                                </div>
+                            </div>
+                            <div class="bottom-right-qr">
+                                <div class="qr-border-box">
                                     <div id="${cardId}" class="card-qr-img"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="card-label">Lokasi</td>
-                                <td class="card-value" style="text-align: left; padding-left: 6px;">${manualLoc}</td>
-                            </tr>
-                            <tr>
-                                <td class="card-attention" colspan="2">${attentionText}</td>
-                            </tr>
-                        </table>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 `;
             });
@@ -741,8 +888,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Generate QR Code
                 new QRCode(elem, {
                     text: item.barcode,
-                    width: 56,
-                    height: 56,
+                    width: 38,
+                    height: 38,
                     correctLevel: QRCode.CorrectLevel.M
                 });
             }
