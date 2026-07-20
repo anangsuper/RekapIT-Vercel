@@ -201,7 +201,7 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
                 <div class="modal-body p-4">
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted">Nomor Rekening</label>
-                        <input type="text" name="nomor_rekening" class="form-control bg-light border-0 py-2.5" placeholder="Contoh: 01.5.00003" required style="border-radius: 12px;">
+                        <input type="text" name="nomor_rekening" id="nomor_rekening" class="form-control bg-light border-0 py-2.5" placeholder="Contoh: 01.5.00003" required style="border-radius: 12px;">
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted">Nama Barang</label>
@@ -340,35 +340,38 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
 
     /* Grid A4 Layout */
     .print-page {
-        page-break-after: always;
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100vh;
-        display: grid;
-        justify-content: center;
-        align-content: start;
+        page-break-after: always !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: 100vh !important;
+        display: grid !important;
+        justify-content: center !important;
+        align-content: start !important;
     }
     
     /* Layout 8 Kartu (Portrait) */
     .print-page.layout-8 {
-        grid-template-columns: repeat(2, 85.6mm);
-        grid-gap: 12mm 14mm;
+        grid-template-columns: repeat(2, 85.6mm) !important;
+        grid-gap: 12mm 14mm !important;
+        padding-top: 15mm !important; /* Margin atas agar tidak terlalu rapat di pojok */
     }
     
     /* Layout 10 Kartu (Portrait) */
     .print-page.layout-10 {
-        grid-template-columns: repeat(2, 85.6mm);
-        grid-gap: 5mm 14mm;
+        grid-template-columns: repeat(2, 85.6mm) !important;
+        grid-gap: 5mm 14mm !important;
+        padding-top: 8mm !important; /* Margin atas untuk 10 kartu */
     }
 
     /* Layout 12 Kartu (Landscape) */
     .print-page.layout-12 {
-        grid-template-columns: repeat(3, 85.6mm);
-        grid-gap: 4mm 6mm;
-        transform: scale(0.92);
-        transform-origin: center center;
+        grid-template-columns: repeat(3, 85.6mm) !important;
+        grid-gap: 4mm 6mm !important;
+        transform: scale(0.92) !important;
+        transform-origin: center center !important;
+        padding-top: 10mm !important; /* Margin atas untuk 12 kartu landscape */
     }
 
     /* Ukuran ATM Card (CR80) */
@@ -504,6 +507,39 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Input Masking for Nomor Rekening (Format: XX.X.XXXXX)
+    function applyRekeningMask(input) {
+        let val = input.value.replace(/\D/g, ''); // Remove non-digits
+        if (val.length > 8) {
+            val = val.substring(0, 8);
+        }
+        let formatted = '';
+        if (val.length > 0) {
+            formatted += val.substring(0, 2);
+        }
+        if (val.length > 2) {
+            formatted += '.' + val.substring(2, 3);
+        }
+        if (val.length > 3) {
+            formatted += '.' + val.substring(3, 8);
+        }
+        input.value = formatted;
+    }
+
+    const inputRekening = document.getElementById('nomor_rekening');
+    const inputEditRekening = document.getElementById('edit_rekening');
+
+    if (inputRekening) {
+        inputRekening.addEventListener('input', function() {
+            applyRekeningMask(this);
+        });
+    }
+    if (inputEditRekening) {
+        inputEditRekening.addEventListener('input', function() {
+            applyRekeningMask(this);
+        });
+    }
+
     const checkAll = document.getElementById('checkAll');
     const checkboxes = document.querySelectorAll('.item-checkbox');
     const btnCetakMassal = document.getElementById('btnCetakMassal');
@@ -700,8 +736,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Generate QR Code
                 new QRCode(elem, {
                     text: item.barcode,
-                    width: 72,
-                    height: 72,
+                    width: 56,
+                    height: 56,
                     correctLevel: QRCode.CorrectLevel.M
                 });
             }
