@@ -685,11 +685,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 pageHtml += `
                     <div class="atm-card">
                         <table class="atm-card-table">
+                            <colgroup>
+                                <col style="width: 26%;">
+                                <col style="width: 42%;">
+                                <col style="width: 32%;">
+                            </colgroup>
                             <tr>
-                                <td class="card-header-logo" rowspan="2" style="width: 26%; text-align: center; vertical-align: middle;">
+                                <td class="card-header-logo" rowspan="2" style="text-align: center; vertical-align: middle;">
                                     <img src="${logoUrl}" alt="Logo">
                                 </td>
-                                <td class="card-header-title" colspan="2" style="width: 74%; height: 18px;">PT BPR Mitratama Arthabuana</td>
+                                <td class="card-header-title" colspan="2" style="height: 18px;">PT BPR Mitratama Arthabuana</td>
                             </tr>
                             <tr>
                                 <td class="card-header-subtitle" colspan="2" style="height: 18px;">Asset Tetap</td>
@@ -705,7 +710,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <tr>
                                 <td class="card-label">Tgl Perolehan</td>
                                 <td class="card-value" style="text-align: left; padding-left: 6px;">${item.tanggal}</td>
-                                <td class="card-qr-cell" rowspan="3" style="width: 32%;">
+                                <td class="card-qr-cell" rowspan="3">
                                     <div id="${cardId}" class="card-qr-img"></div>
                                 </td>
                             </tr>
