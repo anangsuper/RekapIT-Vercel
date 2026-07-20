@@ -21,3 +21,5 @@ rekapit-*.json
 # Temp/Cache
 *_token.json
 composer.phar
+database/rekapit_cache.sqlite
+database/rekapit_cache.sqlite.json
