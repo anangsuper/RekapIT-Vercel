@@ -396,7 +396,7 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
     .card-header-sec {
         display: flex !important;
         width: 100% !important;
-        height: 38px !important;
+        height: 9.5mm !important;
         border-bottom: 1.2px solid #003d79 !important;
         box-sizing: border-box !important;
     }
@@ -409,10 +409,10 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         justify-content: center !important;
         background: #ffffff !important;
         box-sizing: border-box !important;
-        padding: 2px !important;
+        padding: 0.5mm !important;
     }
     .header-logo-box img {
-        max-height: 28px !important;
+        max-height: 8.5mm !important;
         max-width: 95% !important;
         object-fit: contain !important;
     }
@@ -429,20 +429,20 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         font-weight: bold !important;
         font-size: 7.2pt !important;
         text-align: center !important;
-        height: 17px !important;
-        line-height: 17px !important;
+        height: 4.5mm !important;
+        line-height: 4.5mm !important;
         text-transform: uppercase !important;
         letter-spacing: 0.1px !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
     .header-sub-sec {
-        height: 20px !important;
+        height: 5.0mm !important;
         background: #ffffff !important;
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
-        padding: 0 8px 0 6px !important;
+        padding: 0 2mm 0 1.5mm !important;
         box-sizing: border-box !important;
         position: relative !important;
     }
@@ -452,9 +452,9 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         font-weight: bold !important;
         font-size: 7.5pt !important;
         text-align: center !important;
-        height: 15px !important;
-        line-height: 15px !important;
-        padding: 0 15px 0 8px !important;
+        height: 4.0mm !important;
+        line-height: 4.0mm !important;
+        padding: 0 4mm 0 2mm !important;
         border-radius: 0 10px 10px 0 !important;
         text-transform: uppercase !important;
         letter-spacing: 0.2px !important;
@@ -463,12 +463,12 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
     }
     .header-dots {
         display: grid !important;
-        grid-template-columns: repeat(3, 3px) !important;
-        grid-gap: 2px !important;
+        grid-template-columns: repeat(3, 1mm) !important;
+        grid-gap: 0.5mm !important;
     }
     .header-dots span {
-        width: 3px !important;
-        height: 3px !important;
+        width: 0.8mm !important;
+        height: 0.8mm !important;
         background-color: #8dc63f !important;
         border-radius: 50% !important;
         display: block !important;
@@ -488,7 +488,7 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
     .card-field-row {
         display: flex !important;
         width: 100% !important;
-        height: 22px !important;
+        height: 6.0mm !important;
         border-bottom: 1.2px solid #003d79 !important;
         box-sizing: border-box !important;
     }
@@ -501,7 +501,7 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         font-size: 7.2pt !important;
         display: flex !important;
         align-items: center !important;
-        padding-left: 6px !important;
+        padding-left: 1.5mm !important;
         box-sizing: border-box !important;
         border-right: 1.2px solid #003d79 !important;
         -webkit-print-color-adjust: exact !important;
@@ -516,7 +516,7 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         box-sizing: border-box !important;
     }
     .field-icon {
-        width: 24px !important;
+        width: 6.5mm !important;
         height: 100% !important;
         border-right: 1.2px solid #003d79 !important;
         display: flex !important;
@@ -526,14 +526,14 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         box-sizing: border-box !important;
     }
     .field-svg-icon {
-        width: 11px !important;
-        height: 11px !important;
+        width: 3.2mm !important;
+        height: 3.2mm !important;
         color: #003d79 !important;
     }
     .field-value {
         font-size: 7.2pt !important;
         color: #000000 !important;
-        padding-left: 6px !important;
+        padding-left: 1.5mm !important;
         font-weight: normal !important;
         white-space: nowrap !important;
         overflow: hidden !important;
@@ -547,7 +547,7 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
     .card-bottom-sec {
         display: flex !important;
         width: 100% !important;
-        height: 52px !important; /* Locked to precise height to fit 54mm card */
+        height: 20.5mm !important; /* Locked to precise height to fit 54mm card */
         border-top: 1.5px solid #8dc63f !important; /* Green divider line */
         box-sizing: border-box !important;
     }
@@ -556,12 +556,11 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         height: 100% !important;
         display: flex !important;
         align-items: center !important;
-        padding: 4px 6px !important;
+        padding: 1.0mm 1.5mm !important;
         box-sizing: border-box !important;
-        border-right: 1.2px solid #8dc63f !important; /* Green line divider */
     }
     .attention-icon {
-        margin-right: 6px !important;
+        margin-right: 1.5mm !important;
         display: flex !important;
         align-items: center !important;
     }
@@ -573,7 +572,7 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         font-weight: bold !important;
         font-size: 6.5pt !important;
         color: #003d79 !important;
-        margin-bottom: 1px !important;
+        margin-bottom: 0.2mm !important;
     }
     .attention-desc {
         font-size: 4.8pt !important;
@@ -589,25 +588,25 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         justify-content: center !important;
         background: #ffffff !important;
         box-sizing: border-box !important;
-        padding: 4px !important;
+        padding: 1.0mm !important;
     }
     .qr-border-box {
         border: 1px solid #d1d5db !important;
-        border-radius: 6px !important;
-        padding: 2px !important;
+        border-radius: 2mm !important;
+        padding: 0.5mm !important;
         background: #ffffff !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
     }
     .card-qr-img {
-        width: 38px !important;
-        height: 38px !important;
+        width: 13.5mm !important;
+        height: 13.5mm !important;
     }
-    .card-qr-img img, .card-qr-img canvas {
-        width: 38px !important;
-        height: 38px !important;
-        display: block !important;
+    .card-qr-img canvas, .card-qr-img img {
+        width: 13.5mm !important;
+        height: 13.5mm !important;
+        margin: 0 auto !important;
     }
 }
 </style>
