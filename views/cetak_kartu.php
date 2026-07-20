@@ -41,7 +41,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
 }
 
 $items = $inventarisModel->getAll();
+
+// Path preloading logo kustom
+$base_dir_path = dirname($_SERVER['SCRIPT_NAME']);
+$base_dir_path = str_replace('\\', '/', $base_dir_path);
+if ($base_dir_path === '/') {
+    $base_dir_path = '';
+}
+$preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
 ?>
+
+<!-- Preload logo to browser cache to ensure it prints instantly -->
+<img src="<?= htmlspecialchars($preload_logo_path) ?>" style="display: none;">
 
 <!-- QR Code Generator Library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -362,114 +373,131 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
 
     /* Ukuran ATM Card (CR80) */
     .atm-card {
-        width: 85.6mm;
-        height: 54.0mm;
-        box-sizing: border-box;
-        border: 1px solid #000000;
-        background: #ffffff;
-        font-family: Arial, sans-serif;
-        color: #000000;
-        overflow: hidden;
-        position: relative;
-        font-size: 7.5pt;
-        line-height: 1.1;
+        width: 85.6mm !important;
+        height: 54.0mm !important;
+        box-sizing: border-box !important;
+        border: 1.2px solid #000000 !important;
+        background: #ffffff !important;
+        font-family: Arial, sans-serif !important;
+        color: #000000 !important;
+        overflow: hidden !important;
+        position: relative !important;
+        font-size: 7.5pt !important;
+        line-height: 1.15 !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
 
     .atm-card-table {
-        width: 100%;
-        height: 100%;
-        border-collapse: collapse;
-        table-layout: fixed;
+        width: 100% !important;
+        height: 100% !important;
+        border-collapse: collapse !important;
+        table-layout: fixed !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
     }
 
     .atm-card-table td {
-        border: 0.5px solid #000000;
-        padding: 2px 3px;
-        vertical-align: middle;
-        word-wrap: break-word;
-        box-sizing: border-box;
+        border: 0.8px solid #000000 !important;
+        padding: 2px 4px !important;
+        vertical-align: middle !important;
+        word-wrap: break-word !important;
+        box-sizing: border-box !important;
+        font-family: Arial, sans-serif !important;
+        color: #000000 !important;
+        background: #ffffff !important;
+        font-size: 7.5pt !important;
+        line-height: 1.15 !important;
     }
 
     /* Header styling */
     .card-header-logo {
-        text-align: center;
-        vertical-align: middle;
+        text-align: center !important;
+        vertical-align: middle !important;
+        background: #ffffff !important;
+        padding: 2px !important;
     }
     .card-header-logo img {
-        height: 24px;
-        max-width: 100%;
-        object-fit: contain;
-        display: block;
-        margin: 0 auto 1px;
-    }
-    .card-header-logo-text {
-        font-size: 5pt;
-        font-weight: bold;
-        text-transform: uppercase;
-        letter-spacing: -0.2px;
-        line-height: 1;
+        height: 28px !important;
+        max-height: 28px !important;
+        max-width: 95% !important;
+        object-fit: contain !important;
+        display: block !important;
+        margin: 0 auto !important;
     }
 
     .card-header-title {
-        background-color: #8ad2f3 !important; /* Biru muda */
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-        font-weight: bold;
-        text-align: center;
-        font-size: 7.5pt;
-        text-transform: uppercase;
-        letter-spacing: -0.2px;
+        background-color: #8cd4f5 !important; /* Biru muda */
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        font-weight: bold !important;
+        text-align: center !important;
+        font-size: 7.5pt !important;
+        text-transform: uppercase !important;
+        letter-spacing: -0.2px !important;
     }
     .card-header-subtitle {
-        background-color: #8ad2f3 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-        font-weight: bold;
-        text-align: center;
-        font-size: 8.5pt;
-        text-transform: uppercase;
-        letter-spacing: -0.2px;
+        background-color: #8cd4f5 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        font-weight: bold !important;
+        text-align: center !important;
+        font-size: 8.5pt !important;
+        text-transform: uppercase !important;
+        letter-spacing: -0.2px !important;
     }
 
     /* Label & Value columns */
     .card-label {
-        font-weight: bold;
-        font-size: 7.5pt;
-        text-transform: capitalize;
+        font-weight: bold !important;
+        font-size: 7.5pt !important;
+        text-transform: capitalize !important;
+        padding-left: 5px !important;
     }
     .card-value {
-        font-size: 7.5pt;
-        word-break: break-all;
+        font-size: 7.5pt !important;
+        font-weight: normal !important;
+        word-break: break-all !important;
+        padding-left: 5px !important;
     }
     .card-value-bold {
-        font-weight: bold;
-        font-size: 7.5pt;
+        font-weight: bold !important;
+        font-size: 7.5pt !important;
+        word-break: break-all !important;
+        padding-left: 5px !important;
     }
 
     /* QR Code Cell */
     .card-qr-cell {
-        text-align: center;
-        vertical-align: middle;
+        text-align: center !important;
+        vertical-align: middle !important;
         padding: 0 !important;
+        background: #ffffff !important;
     }
     .card-qr-img {
-        display: inline-block;
-        vertical-align: middle;
-        margin: 0 auto;
+        display: block !important;
+        margin: 0 auto !important;
+        width: 72px !important;
+        height: 72px !important;
     }
-    .card-qr-img img {
-        display: block;
-        margin: 0 auto;
+    .card-qr-img img, .card-qr-img canvas {
+        width: 72px !important;
+        height: 72px !important;
+        display: block !important;
+        margin: 0 auto !important;
     }
 
     /* Attention text */
     .card-attention {
-        font-size: 5pt;
-        text-align: center;
-        vertical-align: middle;
-        line-height: 1.1;
+        font-size: 5pt !important;
+        font-weight: bold !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        line-height: 1.15 !important;
         padding: 1px 3px !important;
-        white-space: pre-line;
+        white-space: pre-line !important;
+        background: #ffffff !important;
     }
 }
 </style>
@@ -594,6 +622,11 @@ document.addEventListener('DOMContentLoaded', function() {
         printContainer.id = 'print-container';
         document.body.appendChild(printContainer);
 
+        // Get logo absolute path dynamically to prevent subfolder issues
+        const currentPath = window.location.pathname;
+        const baseDir = currentPath.substring(0, currentPath.lastIndexOf('/'));
+        const logoUrl = (baseDir ? baseDir : '') + '/assets/LOGO TYPE 2.png';
+
         // Group selected items into pages
         const selectedItems = Array.from(checked).map(cb => ({
             id: cb.value,
@@ -618,7 +651,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <table class="atm-card-table">
                             <tr>
                                 <td class="card-header-logo" rowspan="2" style="width: 26%; text-align: center; vertical-align: middle;">
-                                    <img src="assets/LOGO TYPE 2.png" alt="Logo" style="max-height: 32px; max-width: 95%; object-fit: contain; display: block; margin: 0 auto;">
+                                    <img src="${logoUrl}" alt="Logo">
                                 </td>
                                 <td class="card-header-title" colspan="2" style="width: 74%; height: 18px;">PT BPR Mitratama Arthabuana</td>
                             </tr>
