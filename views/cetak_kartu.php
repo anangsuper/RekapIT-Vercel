@@ -1,6 +1,9 @@
 <?php
 require_once 'models/InventarisKartu.php';
+require_once 'models/Cabang.php';
 $inventarisModel = new InventarisKartu($conn);
+$cabangModel = new Cabang($conn);
+$branches = $cabangModel->getAll();
 
 // Proses Hapus
 if (isset($_POST['hapus'])) {
@@ -96,6 +99,44 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
         </div>
     <?php endif; ?>
 
+    <!-- Filters Panel -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-3">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-5">
+                    <label class="form-label small fw-bold text-muted mb-1">Cari Nomor Rekening</label>
+                    <div class="input-group">
+                        <span class="input-group-text border-0 bg-light text-secondary" style="border-top-left-radius: 12px; border-bottom-left-radius: 12px;">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" id="filterRekening" class="form-control border-0 bg-light form-control-lg" placeholder="Masukkan nomor rekening..." style="border-top-right-radius: 12px; border-bottom-right-radius: 12px; font-size: 14px;">
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label small fw-bold text-muted mb-1">Filter Kantor Cabang</label>
+                    <div class="input-group">
+                        <span class="input-group-text border-0 bg-light text-secondary" style="border-top-left-radius: 12px; border-bottom-left-radius: 12px;">
+                            <i class="bi bi-building"></i>
+                        </span>
+                        <select id="filterCabang" class="form-select border-0 bg-light form-select-lg" style="border-top-right-radius: 12px; border-bottom-right-radius: 12px; font-size: 14px;">
+                            <option value="">Semua Cabang</option>
+                            <?php foreach ($branches as $branch): 
+                                $code = str_pad($branch['id'], 2, '0', STR_PAD_LEFT);
+                            ?>
+                                <option value="<?= $code ?>"><?= htmlspecialchars($branch['nama_cabang']) ?> (Code: <?= $code ?>)</option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2 d-flex align-items-end h-100 mt-md-4 pt-1">
+                    <button id="btnClearFilters" class="btn btn-light w-100 shadow-sm border" style="border-radius: 12px; font-size: 14px; height: 42px;">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Table Card -->
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
         <div class="card-body p-0">
@@ -136,8 +177,9 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
                                     $cleanTgl = date('dmY', strtotime($item['tanggal_perolehan']));
                                 }
                                 $combinedAssetNum = $cleanRek . $cleanTgl;
+                                $branchCode = substr($item['nomor_rekening'], 0, 2);
                             ?>
-                            <tr>
+                            <tr class="card-row-item" data-rekening="<?= htmlspecialchars($item['nomor_rekening']) ?>" data-branch-code="<?= $branchCode ?>">
                                 <td class="ps-4">
                                     <div class="form-check">
                                         <input class="form-check-input item-checkbox" type="checkbox" value="<?= $item['id'] ?>" 
@@ -908,5 +950,45 @@ document.addEventListener('DOMContentLoaded', function() {
             window.print();
         }, 300);
     });
+
+    // Client-side Filtering for Nomor Rekening and Cabang
+    const filterRekening = document.getElementById('filterRekening');
+    const filterCabang = document.getElementById('filterCabang');
+    const btnClearFilters = document.getElementById('btnClearFilters');
+    const cardRows = document.querySelectorAll('.card-row-item');
+
+    function applyFilters() {
+        const searchVal = filterRekening.value.toLowerCase().trim();
+        const branchVal = filterCabang.value;
+
+        cardRows.forEach(row => {
+            const rek = row.getAttribute('data-rekening').toLowerCase();
+            const branchCode = row.getAttribute('data-branch-code');
+
+            // Cocokkan nomor rekening (baik dengan format titik maupun digit saja)
+            const matchesRek = rek.includes(searchVal) || rek.replace(/\D/g, '').includes(searchVal);
+            // Cocokkan cabang (jika "Semua Cabang" kosong, maka true. Jika terisi, harus sama dengan kode cabang dari rekening)
+            const matchesBranch = (branchVal === '' || branchCode === branchVal);
+
+            if (matchesRek && matchesBranch) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    if (filterRekening && filterCabang) {
+        filterRekening.addEventListener('input', applyFilters);
+        filterCabang.addEventListener('change', applyFilters);
+    }
+
+    if (btnClearFilters) {
+        btnClearFilters.addEventListener('click', function() {
+            filterRekening.value = '';
+            filterCabang.value = '';
+            applyFilters();
+        });
+    }
 });
 </script>
