@@ -70,6 +70,7 @@ $notifCount = count($notifications);
             --btn-text-color: #ffffff;
             --blob-opacity: 0.18;
             --sidebar-width: 260px;
+            --btn-close-filter: invert(1) grayscale(1) brightness(2);
         }
 
         body.light-theme {
@@ -110,6 +111,7 @@ $notifCount = count($notifications);
             --modal-bg: rgba(255, 255, 255, 0.95);
             --btn-text-color: #0f172a;
             --blob-opacity: 0.06;
+            --btn-close-filter: none;
         }
 
         /* Smooth scrollbar styling */
@@ -602,6 +604,58 @@ $notifCount = count($notifications);
         .sidebar-toggle-btn:hover {
             color: var(--primary-color) !important;
             transform: scale(1.08);
+        }
+
+        /* Custom Premium Minimalist Alerts */
+        .alert {
+            border: 0 !important;
+            border-radius: 16px !important;
+            padding: 16px 20px !important;
+            font-size: 0.85rem !important;
+            font-weight: 600 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+        }
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1) !important;
+            color: #10b981 !important;
+        }
+        body.light-theme .alert-success {
+            background: rgba(16, 185, 129, 0.08) !important;
+            color: #059669 !important;
+        }
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1) !important;
+            color: #f59e0b !important;
+        }
+        body.light-theme .alert-warning {
+            background: rgba(245, 158, 11, 0.08) !important;
+            color: #d97706 !important;
+        }
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1) !important;
+            color: #ef4444 !important;
+        }
+        body.light-theme .alert-danger {
+            background: rgba(239, 68, 68, 0.08) !important;
+            color: #dc2626 !important;
+        }
+        .alert-info {
+            background: rgba(99, 102, 241, 0.1) !important;
+            color: #6366f1 !important;
+        }
+        body.light-theme .alert-info {
+            background: rgba(99, 102, 241, 0.08) !important;
+            color: #4f46e5 !important;
+        }
+        .alert .btn-close {
+            margin-left: auto !important;
+            filter: var(--btn-close-filter) !important;
+            padding: 0 !important;
+            opacity: 0.7 !important;
+            box-shadow: none !important;
         }
 
         /* Responsive Mobile Layout overrides */
