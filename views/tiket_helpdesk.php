@@ -89,6 +89,15 @@ $doneCount = count(array_filter($allTickets, fn($t) => $t['status'] === 'Selesai
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
+    <?php if (isset($_GET['status']) && $_GET['status'] === 'comment_added'): ?>
+        <div class="alert alert-success border-0 shadow-sm rounded-4 p-3 mb-4 d-flex align-items-center justify-content-between animate-fade-in" role="alert">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-chat-check-fill fs-5"></i>
+                <span class="small fw-semibold">Pesan balasan berhasil dikirim ke karyawan dan notifikasi Telegram!</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
 
     <!-- KPI Stats Cards -->
     <div class="row g-4 mb-4">
@@ -292,6 +301,11 @@ $doneCount = count(array_filter($allTickets, fn($t) => $t['status'] === 'Selesai
                     <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" name="update_ticket_status" class="btn btn-primary px-4">Simpan Perubahan</button>
                 </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Diskusi Tiket Admin -->
 <div class="modal fade" id="modalDiscussion" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
