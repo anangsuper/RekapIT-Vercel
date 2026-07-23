@@ -197,6 +197,7 @@ $cabangs = $cabangModel->getAll();
                 <div class="mb-3">
                     <label class="form-label small fw-bold">Role</label>
                     <select name="role" class="form-select" onchange="toggleCabang(this)">
+                        <option value="karyawan">Karyawan (Helpdesk)</option>
                         <option value="teknisi">Teknisi</option>
                         <option value="admin">Admin</option>
                     </select>
@@ -254,6 +255,7 @@ $cabangs = $cabangModel->getAll();
                 <div class="mb-3">
                     <label class="form-label small fw-bold">Role</label>
                     <select name="role" id="edit_role" class="form-select" onchange="toggleCabangEdit(this)">
+                        <option value="karyawan">Karyawan (Helpdesk)</option>
                         <option value="teknisi">Teknisi</option>
                         <option value="admin">Admin</option>
                     </select>
