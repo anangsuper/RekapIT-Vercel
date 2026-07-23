@@ -564,10 +564,11 @@ class GoogleSheetsSync {
         $db->beginTransaction();
         try {
             foreach ($schemas as $table => $sql) {
-                $db->exec("DROP TABLE IF EXISTS `$table`");
-                $db->exec($sql);
-
+                // Only drop & recreate tables that are fetched from Google Sheets
                 if (isset($data[$table]) && is_array($data[$table])) {
+                    $db->exec("DROP TABLE IF EXISTS `$table`");
+                    $db->exec($sql);
+
                     $rows = $data[$table];
                     if (count($rows) > 0) {
                         $cols = array_keys($rows[0]);
@@ -579,6 +580,9 @@ class GoogleSheetsSync {
                             $stmt->execute($row);
                         }
                     }
+                } else {
+                    // For local tables (e.g. inventaris_kartu, helpdesk_tickets), preserve existing data and ensure table structure exists
+                    $db->exec($sql);
                 }
             }
 
