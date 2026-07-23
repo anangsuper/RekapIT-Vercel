@@ -327,6 +327,12 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
                         </tbody>
                     </table>
                 </div>
+                <div class="alert alert-info border-0 rounded-3 p-2.5 mt-3 d-flex align-items-start gap-2" style="background: rgba(99, 102, 241, 0.1); color: var(--primary-color); font-size: 0.78rem;">
+                    <i class="bi bi-info-circle-fill mt-0.5"></i>
+                    <div>
+                        <strong>Tips Menyimpan PDF:</strong> Untuk menyimpan hasil cetak kartu sebagai file PDF, pilih opsi <b>"Simpan sebagai PDF" / "Save as PDF"</b> pada pilihan <b>Tujuan / Destination</b> di dialog print browser Anda.
+                    </div>
+                </div>
             </div>
             <div class="modal-footer border-0 p-4 pt-0">
                 <button type="button" class="btn btn-light px-4 py-2.5" data-bs-dismiss="modal" style="border-radius: 12px;">Batal</button>
