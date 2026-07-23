@@ -1,10 +1,8 @@
 <?php
 require_once 'models/InventarisKartu.php';
-require_once 'models/Asset.php';
 require_once 'models/Cabang.php';
 
 $inventarisModel = new InventarisKartu($conn);
-$assetModel = new Asset($conn);
 $cabangModel = new Cabang($conn);
 
 $branches = $cabangModel->getAll();
@@ -12,14 +10,10 @@ $branches = $cabangModel->getAll();
 // Proses Hapus
 if (isset($_POST['hapus'])) {
     $id = $_POST['id'];
-    if (str_starts_with($id, 'custom_')) {
-        $realId = (int)str_replace('custom_', '', $id);
-        $inventarisModel->delete($realId);
-    } elseif (is_numeric($id)) {
-        $inventarisModel->delete((int)$id);
+    if ($inventarisModel->delete($id)) {
+        header("Location: index.php?page=cetak_kartu&status=deleted");
+        exit();
     }
-    header("Location: index.php?page=cetak_kartu&status=deleted");
-    exit();
 }
 
 // Proses Tambah
@@ -45,58 +39,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
         'tanggal_perolehan' => $_POST['tanggal_perolehan'],
         'barcode_data' => trim($_POST['barcode_data'])
     ];
-    if (str_starts_with($id, 'custom_')) {
-        $realId = (int)str_replace('custom_', '', $id);
-        $inventarisModel->update($realId, $data);
-    } elseif (is_numeric($id)) {
-        $inventarisModel->update((int)$id, $data);
-    } else {
-        $inventarisModel->create($data);
-    }
-    header("Location: index.php?page=cetak_kartu&status=updated");
-    exit();
-}
-
-// Ambil semua data dari inventaris_kartu dan assets
-$customKartuItems = $inventarisModel->getAll();
-$masterAssets = $assetModel->getAll();
-
-$items = [];
-$addedRekening = [];
-
-// 1. Masukkan data dari inventaris_kartu terlebih dahulu
-if (!empty($customKartuItems)) {
-    foreach ($customKartuItems as $ck) {
-        $rekKey = trim(strtolower($ck['nomor_rekening']));
-        $addedRekening[$rekKey] = true;
-        $items[] = [
-            'id' => 'custom_' . $ck['id'],
-            'nomor_rekening' => $ck['nomor_rekening'],
-            'nama_barang' => $ck['nama_barang'],
-            'tanggal_perolehan' => $ck['tanggal_perolehan'],
-            'barcode_data' => $ck['barcode_data'],
-            'is_custom' => true
-        ];
+    if ($inventarisModel->update($id, $data)) {
+        header("Location: index.php?page=cetak_kartu&status=updated");
+        exit();
     }
 }
 
-// 2. Masukkan data dari master assets (Google Sheets / Database) yang belum ada di inventaris_kartu
-if (!empty($masterAssets)) {
-    foreach ($masterAssets as $ma) {
-        $rek = !empty($ma['kode_aset']) ? $ma['kode_aset'] : ('ASSET-' . $ma['id']);
-        $rekKey = trim(strtolower($rek));
-        if (!isset($addedRekening[$rekKey])) {
-            $items[] = [
-                'id' => 'asset_' . $ma['id'],
-                'nomor_rekening' => $rek,
-                'nama_barang' => $ma['nama_aset'],
-                'tanggal_perolehan' => !empty($ma['created_at']) ? date('Y-m-d', strtotime($ma['created_at'])) : date('Y-m-d'),
-                'barcode_data' => !empty($ma['serial_number']) ? $ma['serial_number'] : $rek,
-                'is_custom' => false
-            ];
-        }
-    }
-}
+// Hanya ambil data input manual khusus dari tabel inventaris_kartu
+$items = $inventarisModel->getAll();
 
 // Path preloading logo kustom
 $base_dir_path = dirname($_SERVER['SCRIPT_NAME']);
@@ -250,14 +200,12 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
                                             title="Edit">
                                         <i class="bi bi-pencil-square fs-6"></i>
                                     </button>
-                                    <?php if (!empty($item['is_custom'])): ?>
                                     <form method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data kartu ini?')">
                                         <input type="hidden" name="id" value="<?= $item['id'] ?>">
                                         <button type="submit" name="hapus" class="btn-action-delete" title="Hapus">
                                             <i class="bi bi-trash fs-6"></i>
                                         </button>
                                     </form>
-                                    <?php endif; ?>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
