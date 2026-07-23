@@ -900,6 +900,13 @@ $pendingTicketCount = $hModel->countPending();
     <div class="main-blob main-blob-2"></div>
 </div>
 
+<?php if ($page === 'helpdesk'): ?>
+<style>
+    .sidebar { display: none !important; }
+    .top-header-bar { left: 0 !important; width: 100% !important; border-bottom: 1px solid var(--card-border); }
+    .main-content { margin-left: 0 !important; width: 100% !important; padding-top: 85px !important; }
+</style>
+<?php else: ?>
 <!-- Left Sidebar Navigation -->
 <div class="sidebar" id="sidebarContainer">
     <a class="sidebar-brand" href="index.php?page=dashboard">
@@ -1056,9 +1063,33 @@ $pendingTicketCount = $hModel->countPending();
         </ul>
     </div>
 </div>
+<?php endif; ?>
 
 <!-- Floating Top Header Bar -->
 <div class="top-header-bar">
+    <?php if ($page === 'helpdesk'): ?>
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-headset text-primary fs-3"></i>
+            <h5 class="m-0 fw-800 text-dark">REKAP IT <span class="text-primary">HELPDESK</span></h5>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <!-- Theme Toggle Button -->
+            <button id="theme-toggle-btn" class="btn btn-outline-secondary btn-sm p-0 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--sidebar-border); background: var(--input-bg); color: var(--text-soft);" title="Ubah Tema">
+                <i class="bi bi-moon-stars" id="theme-toggle-icon" style="font-size: 0.95rem;"></i>
+            </button>
+
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <a href="index.php?page=tiket_helpdesk" class="btn btn-primary btn-sm px-3 rounded-pill fw-bold shadow-sm">
+                    <i class="bi bi-speedometer2 me-1"></i> Dashboard Admin
+                </a>
+            <?php else: ?>
+                <a href="login.php" class="btn btn-outline-primary btn-sm px-3 rounded-pill fw-bold shadow-sm">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Login Admin / Teknisi
+                </a>
+            <?php endif; ?>
+        </div>
+    <?php else: ?>
     <div class="d-flex align-items-center gap-3">
         <!-- Sidebar Toggle -->
         <button class="btn btn-sm btn-link p-0 border-0 sidebar-toggle-btn" id="sidebarToggleBtn">
@@ -1201,6 +1232,7 @@ $pendingTicketCount = $hModel->countPending();
             </ul>
         </div>
     </div>
+    <?php endif; ?>
 </div>
 
 <!-- Main Content Area -->
