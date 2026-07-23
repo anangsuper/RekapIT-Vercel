@@ -1085,7 +1085,7 @@ $pendingTicketCount = $hModel->countPending();
                         <i class="bi bi-speedometer2 me-1"></i> Dashboard Admin
                     </a>
                 <?php endif; ?>
-                <a href="logout.php" class="btn btn-outline-danger btn-sm px-3 rounded-pill fw-bold shadow-sm">
+                <a href="logout.php?redirect=helpdesk" class="btn btn-outline-danger btn-sm px-3 rounded-pill fw-bold shadow-sm">
                     <i class="bi bi-box-arrow-right me-1"></i> Logout
                 </a>
             <?php else: ?>

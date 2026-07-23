@@ -218,7 +218,7 @@ if ($isLoggedIn) {
                     <p class="text-muted small m-0">Login sebagai: <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2.5 py-1 fw-bold"><?= ucfirst($userRole) ?></span></p>
                 </div>
             </div>
-            <a href="logout.php" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold">
+            <a href="logout.php?redirect=helpdesk" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold">
                 <i class="bi bi-box-arrow-right me-1"></i> Keluar
             </a>
         </div>

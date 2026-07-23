@@ -3,6 +3,9 @@ ob_start();
 session_start();
 require_once __DIR__ . '/config/database.php';
 
+$userRoleBefore = $_SESSION['role'] ?? '';
+$redirectTarget = isset($_GET['redirect']) ? $_GET['redirect'] : '';
+
 // Kosongkan $_SESSION dan $_COOKIE superglobal
 $_SESSION = [];
 if (isset($_COOKIE['REKAPIT_SESSION'])) {
@@ -15,8 +18,6 @@ $isSecure = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
 if (!headers_sent()) {
     setcookie('REKAPIT_SESSION', '', time() - 3600, '/', '', $isSecure, true);
 }
-
-
 
 if (function_exists('save_session_to_cookie')) {
     save_session_to_cookie();
@@ -33,6 +34,10 @@ if (isset($_SERVER['HTTP_HOST']) && ($_SERVER['HTTP_HOST'] === 'localhost' || $_
     if ($base_path === '//') $base_path = '/';
 }
 
-header('Location: ' . $base_path . 'login.php' . $reason);
+if ($redirectTarget === 'helpdesk' || $userRoleBefore === 'karyawan') {
+    header('Location: ' . $base_path . 'index.php?page=helpdesk');
+} else {
+    header('Location: ' . $base_path . 'login.php' . $reason);
+}
 exit();
 ?>
