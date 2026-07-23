@@ -1,8 +1,11 @@
 <?php
 require_once 'models/Maintenance.php';
+require_once 'models/HelpdeskTicket.php';
 $mModel = new Maintenance($conn);
+$hModel = new HelpdeskTicket($conn);
 $notifications = $mModel->getUpcomingNotifications(7);
 $notifCount = count($notifications);
+$pendingTicketCount = $hModel->countPending();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -930,6 +933,14 @@ $notifCount = count($notifications);
         <li>
             <a href="index.php?page=perbaikan" class="sidebar-link <?= ($page == 'perbaikan') ? 'active' : '' ?>">
                 <i class="bi bi-tools"></i> Tiket Perbaikan
+            </a>
+        </li>
+        <li>
+            <a href="index.php?page=tiket_helpdesk" class="sidebar-link <?= ($page == 'tiket_helpdesk') ? 'active' : '' ?>">
+                <i class="bi bi-headset"></i> Tiket Helpdesk
+                <?php if (!empty($pendingTicketCount) && $pendingTicketCount > 0): ?>
+                    <span class="badge bg-danger rounded-pill ms-auto" style="font-size: 0.7rem;"><?= $pendingTicketCount ?></span>
+                <?php endif; ?>
             </a>
         </li>
         <li>

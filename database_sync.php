@@ -92,6 +92,24 @@ $tables = [
         tanggal_perolehan DATE NOT NULL,
         barcode_data TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
+
+    "helpdesk_tickets" => "CREATE TABLE IF NOT EXISTS helpdesk_tickets (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nomor_tiket VARCHAR(50) UNIQUE NOT NULL,
+        nama_pelapor VARCHAR(100) NOT NULL,
+        kontak_pelapor VARCHAR(50),
+        id_cabang INT,
+        id_divisi INT,
+        asset_id INT,
+        kode_aset VARCHAR(100),
+        prioritas VARCHAR(20) DEFAULT 'Biasa',
+        keluhan TEXT NOT NULL,
+        tindakan_teknisi TEXT,
+        teknisi_penanggung_jawab VARCHAR(100),
+        status VARCHAR(20) DEFAULT 'Menunggu',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
 ];
 

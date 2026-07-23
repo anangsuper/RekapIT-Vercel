@@ -311,6 +311,23 @@ class GoogleSheetsSync {
                 tanggal_perolehan TEXT NOT NULL,
                 barcode_data TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );",
+            "helpdesk_tickets" => "CREATE TABLE IF NOT EXISTS helpdesk_tickets (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nomor_tiket TEXT UNIQUE NOT NULL,
+                nama_pelapor TEXT NOT NULL,
+                kontak_pelapor TEXT,
+                id_cabang INTEGER,
+                id_divisi INTEGER,
+                asset_id INTEGER,
+                kode_aset TEXT,
+                prioritas TEXT DEFAULT 'Biasa',
+                keluhan TEXT NOT NULL,
+                tindakan_teknisi TEXT,
+                teknisi_penanggung_jawab TEXT,
+                status TEXT DEFAULT 'Menunggu',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );"
         ];
     }
