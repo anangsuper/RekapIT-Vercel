@@ -65,7 +65,11 @@ if (isset($_POST['login'])) {
             if (function_exists('save_session_to_cookie')) {
                 save_session_to_cookie();
             }
-            header('Location: index.php');
+            if ($user['role'] === 'karyawan') {
+                header('Location: index.php?page=helpdesk');
+            } else {
+                header('Location: index.php?page=dashboard');
+            }
             exit();
         } else {
             $error = 'Username atau password salah!';

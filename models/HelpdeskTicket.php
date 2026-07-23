@@ -45,6 +45,19 @@ class HelpdeskTicket {
         return $stmt->fetch();
     }
 
+    public function getByReporterName($nama) {
+        $query = "SELECT t.*, c.nama_cabang, d.nama_divisi, a.nama_aset 
+                  FROM " . $this->table . " t
+                  LEFT JOIN cabang c ON t.id_cabang = c.id
+                  LEFT JOIN divisi d ON t.id_divisi = d.id
+                  LEFT JOIN assets a ON t.asset_id = a.id
+                  WHERE LOWER(t.nama_pelapor) = LOWER(?)
+                  ORDER BY t.created_at DESC";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$nama]);
+        return $stmt->fetchAll();
+    }
+
     public function getAll($status = null, $id_cabang = null, $search = null) {
         $query = "SELECT t.*, c.nama_cabang, d.nama_divisi, a.nama_aset 
                   FROM " . $this->table . " t

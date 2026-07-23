@@ -598,6 +598,11 @@ class GoogleSheetsSync {
                 ]);
             }
 
+            $karyawanCheck = $db->query("SELECT COUNT(*) FROM users WHERE username = 'karyawan'")->fetchColumn();
+            if ($karyawanCheck == 0) {
+                $db->exec("INSERT INTO users (nama, username, password, role) VALUES ('Ahmad Fauzi (Karyawan)', 'karyawan', '$2y$10\$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'karyawan')");
+            }
+
             $db->commit();
             file_put_contents($this->dbPath . '.json', json_encode(['last_sync' => time()]));
         } catch (Exception $e) {
