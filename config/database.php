@@ -446,7 +446,38 @@ class GoogleSheetsSync {
             return;
         }
 
-        $tables = array_keys($this->getTablesSchema());
+        // Fetch existing sheet titles to avoid HTTP 400 for missing sheet tabs
+        $metaUrl = 'https://sheets.googleapis.com/v4/spreadsheets/' . $this->spreadsheetId . '?fields=sheets.properties.title';
+        $chMeta = curl_init();
+        curl_setopt($chMeta, CURLOPT_URL, $metaUrl);
+        curl_setopt($chMeta, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $accessToken]);
+        curl_setopt($chMeta, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($chMeta, CURLOPT_TIMEOUT, 3);
+        $metaResp = curl_exec($chMeta);
+        $metaHttpCode = curl_getinfo($chMeta, CURLINFO_HTTP_CODE);
+        @curl_close($chMeta);
+
+        $existingSheetTitles = [];
+        if ($metaHttpCode === 200 && $metaResp) {
+            $metaData = json_decode($metaResp, true);
+            if (isset($metaData['sheets']) && is_array($metaData['sheets'])) {
+                foreach ($metaData['sheets'] as $sh) {
+                    if (isset($sh['properties']['title'])) {
+                        $existingSheetTitles[] = $sh['properties']['title'];
+                    }
+                }
+            }
+        }
+
+        $allSchemaTables = array_keys($this->getTablesSchema());
+        $tables = array_filter($allSchemaTables, function($t) use ($existingSheetTitles) {
+            return empty($existingSheetTitles) || in_array($t, $existingSheetTitles);
+        });
+
+        if (empty($tables)) {
+            return;
+        }
+
         $queryParams = [];
         foreach ($tables as $t) {
             $queryParams[] = 'ranges=' . urlencode($t . '!A:Z');
