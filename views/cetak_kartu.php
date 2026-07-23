@@ -290,16 +290,16 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
 <!-- Modal Cetak Setup -->
 <div class="modal fade" id="modalCetak" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+        <div class="modal-content border-0 shadow-lg">
             <div class="modal-header border-0 p-4 pb-0">
-                <h5 class="fw-800 m-0 text-dark"><i class="bi bi-printer-fill text-primary me-2"></i>Konfigurasi Cetak Kartu A4 (CR80)</h5>
+                <h5 class="fw-800 m-0"><i class="bi bi-printer-fill text-primary me-2"></i>Konfigurasi Cetak Kartu A4 (CR80)</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
                         <label class="form-label small fw-bold text-muted">Layout Grid Kertas A4</label>
-                        <select id="printLayout" class="form-select bg-light border-0 py-2.5" style="border-radius: 12px;">
+                        <select id="printLayout" class="form-select">
                             <option value="8">8 Kartu per Lembar (2x4 - Portrait)</option>
                             <option value="10">10 Kartu per Lembar (2x5 - Portrait)</option>
                             <option value="12">12 Kartu per Lembar (3x4 - Landscape)</option>
@@ -307,19 +307,27 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small fw-bold text-muted">Teks Perhatian (Bagian Bawah Kartu)</label>
-                        <textarea id="printAttention" class="form-control bg-light border-0 text-xs" rows="2" style="border-radius: 12px; font-size: 0.8rem;">Perhatian
+                        <textarea id="printAttention" class="form-control" rows="2">Perhatian
 Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departement (HRD) Bank Mitra</textarea>
                     </div>
                 </div>
 
-                <h6 class="fw-bold text-dark mb-3"><i class="bi bi-geo-alt-fill text-danger me-2"></i>Isi Lokasi Aset Secara Manual</h6>
-                <div class="table-responsive" style="max-height: 250px;">
-                    <table class="table table-sm table-bordered align-middle text-xs">
-                        <thead class="table-light">
+                <!-- Tips Alert Placed Safely Above Table -->
+                <div class="alert alert-info border-0 rounded-4 p-3 mb-4 d-flex align-items-start gap-2">
+                    <i class="bi bi-info-circle-fill fs-5 mt-0.5"></i>
+                    <div class="small">
+                        <strong>Tips Menyimpan PDF:</strong> Untuk menyimpan hasil cetak sebagai file PDF, pilih opsi <b>"Simpan sebagai PDF" / "Save as PDF"</b> pada pilihan <b>Tujuan / Destination</b> di jendela cetak browser Anda.
+                    </div>
+                </div>
+
+                <h6 class="fw-bold mb-3"><i class="bi bi-geo-alt-fill text-danger me-2"></i>Isi Lokasi Aset Secara Manual</h6>
+                <div class="border rounded-4 overflow-hidden mb-2" style="max-height: 220px; overflow-y: auto; border-color: var(--card-border) !important;">
+                    <table class="table table-sm align-middle mb-0" style="font-size: 0.84rem;">
+                        <thead>
                             <tr>
-                                <th>Nomor Rekening</th>
+                                <th class="ps-3">Nomor Rekening</th>
                                 <th>Nama Barang</th>
-                                <th style="width: 320px;">Lokasi Aset (Ketik Manual)</th>
+                                <th class="pe-3" style="width: 320px;">Lokasi Aset (Ketik Manual)</th>
                             </tr>
                         </thead>
                         <tbody id="printLocationsList">
@@ -327,16 +335,10 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
                         </tbody>
                     </table>
                 </div>
-                <div class="alert alert-info border-0 rounded-3 p-2.5 mt-3 d-flex align-items-start gap-2" style="background: rgba(99, 102, 241, 0.1); color: var(--primary-color); font-size: 0.78rem;">
-                    <i class="bi bi-info-circle-fill mt-0.5"></i>
-                    <div>
-                        <strong>Tips Menyimpan PDF:</strong> Untuk menyimpan hasil cetak kartu sebagai file PDF, pilih opsi <b>"Simpan sebagai PDF" / "Save as PDF"</b> pada pilihan <b>Tujuan / Destination</b> di dialog print browser Anda.
-                    </div>
-                </div>
             </div>
             <div class="modal-footer border-0 p-4 pt-0">
-                <button type="button" class="btn btn-light px-4 py-2.5" data-bs-dismiss="modal" style="border-radius: 12px;">Batal</button>
-                <button type="button" id="btnProsesCetak" class="btn btn-primary px-4 py-2.5" style="border-radius: 12px;">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Batal</button>
+                <button type="button" id="btnProsesCetak" class="btn btn-primary px-4">
                     <i class="bi bi-printer me-2"></i> Cetak Sekarang
                 </button>
             </div>
@@ -786,13 +788,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><strong>${rekening}</strong></td>
+                <td class="ps-3"><strong>${rekening}</strong></td>
                 <td>${nama}</td>
-                <td>
+                <td class="pe-3 py-2">
                     <input type="text" class="form-control form-control-sm print-location-input" 
                            data-id="${id}" 
-                           placeholder="Contoh: KC.BTL/Lt-2/Ruang-AO" 
-                           style="border-radius: 8px;">
+                           placeholder="Contoh: KC.BTL/Lt-2/Ruang-AO">
                 </td>
             `;
             printLocationsList.appendChild(tr);
