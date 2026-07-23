@@ -68,15 +68,15 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
                 <i class="bi bi-card-heading fs-4"></i>
             </div>
             <div>
-                <h4 class="fw-800 m-0 text-dark">Cetak Kartu Inventaris</h4>
-                <p class="text-muted small m-0">Buat, kelola, dan cetak kartu inventaris berukuran ATM (CR80) secara massal.</p>
+                <h4 class="fw-800 m-0">Cetak Kartu Inventaris</h4>
+                <p class="text-muted small m-0">Kelola dan cetak kartu inventaris berukuran ATM (CR80) secara massal.</p>
             </div>
         </div>
         <div class="d-flex gap-2">
-            <button id="btnCetakMassal" class="btn btn-outline-primary shadow-sm" disabled style="border-radius: 12px;">
+            <button id="btnCetakMassal" class="btn btn-outline-primary shadow-sm" disabled>
                 <i class="bi bi-printer me-2"></i> Cetak Kartu Pilihan (<span id="selectedCount">0</span>)
             </button>
-            <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambah" style="border-radius: 12px;">
+            <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambah">
                 <i class="bi bi-plus-lg me-2"></i> Tambah Data Kartu
             </button>
         </div>
@@ -90,7 +90,7 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
         if ($status === 'updated') $msg = "Perubahan data kartu berhasil disimpan!";
         if ($status === 'deleted') $msg = "Data kartu inventaris berhasil dihapus!";
     ?>
-        <div class="alert alert-success border-0 shadow-sm rounded-4 p-3 mb-4 d-flex align-items-center justify-content-between animate-fade-in" role="alert" style="background: rgba(16, 185, 129, 0.1); color: #065f46;">
+        <div class="alert alert-success border-0 shadow-sm rounded-4 p-3 mb-4 d-flex align-items-center justify-content-between animate-fade-in" role="alert" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
             <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-check-circle-fill fs-5"></i>
                 <span class="small fw-semibold"><?= htmlspecialchars($msg) ?></span>
@@ -99,50 +99,33 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
         </div>
     <?php endif; ?>
 
-    <!-- Filters Panel -->
-    <div class="card border-0 shadow-sm rounded-4 mb-4">
-        <div class="card-body p-3">
-            <div class="row g-3 align-items-center">
-                <div class="col-md-5">
-                    <label class="form-label small fw-bold text-muted mb-1">Cari Nomor Rekening</label>
-                    <div class="input-group">
-                        <span class="input-group-text border-0 bg-light text-secondary" style="border-top-left-radius: 12px; border-bottom-left-radius: 12px;">
-                            <i class="bi bi-search"></i>
-                        </span>
-                        <input type="text" id="filterRekening" class="form-control border-0 bg-light form-control-lg" placeholder="Masukkan nomor rekening..." style="border-top-right-radius: 12px; border-bottom-right-radius: 12px; font-size: 14px;">
-                    </div>
-                </div>
-                <div class="col-md-5">
-                    <label class="form-label small fw-bold text-muted mb-1">Filter Kantor Cabang</label>
-                    <div class="input-group">
-                        <span class="input-group-text border-0 bg-light text-secondary" style="border-top-left-radius: 12px; border-bottom-left-radius: 12px;">
-                            <i class="bi bi-building"></i>
-                        </span>
-                        <select id="filterCabang" class="form-select border-0 bg-light form-select-lg" style="border-top-right-radius: 12px; border-bottom-right-radius: 12px; font-size: 14px;">
-                            <option value="">Semua Cabang</option>
-                            <?php foreach ($branches as $branch): 
-                                $code = str_pad($branch['id'], 2, '0', STR_PAD_LEFT);
-                            ?>
-                                <option value="<?= $code ?>"><?= htmlspecialchars($branch['nama_cabang']) ?> (Code: <?= $code ?>)</option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-2 d-flex align-items-end h-100 mt-md-4 pt-1">
-                    <button id="btnClearFilters" class="btn btn-light w-100 shadow-sm border" style="border-radius: 12px; font-size: 14px; height: 42px;">
-                        <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Main Table Card -->
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+        <!-- Table Toolbar / Filters (Integrated & Sleek) -->
+        <div class="p-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-3" style="border-color: var(--card-border) !important;">
+            <div class="d-flex align-items-center gap-2 flex-grow-1 flex-md-grow-0">
+                <div class="position-relative flex-grow-1" style="min-width: 240px;">
+                    <i class="bi bi-search position-absolute top-50 start-3 translate-middle-y text-muted" style="left: 12px; transform: translateY(-50%); pointer-events: none;"></i>
+                    <input type="text" id="filterRekening" class="form-control ps-5" placeholder="Cari nomor rekening..." style="font-size: 0.85rem; height: 38px;">
+                </div>
+                <select id="filterCabang" class="form-select" style="width: 200px; font-size: 0.85rem; height: 38px;">
+                    <option value="">Semua Cabang</option>
+                    <?php foreach ($branches as $branch): 
+                        $code = str_pad($branch['id'], 2, '0', STR_PAD_LEFT);
+                    ?>
+                        <option value="<?= $code ?>"><?= htmlspecialchars($branch['nama_cabang']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button id="btnClearFilters" class="btn btn-secondary p-2" title="Reset Filter" style="height: 38px; width: 38px;">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </button>
+            </div>
+        </div>
+
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light border-bottom">
+                    <thead>
                         <tr>
                             <th class="ps-4" style="width: 50px;">
                                 <div class="form-check">
@@ -161,7 +144,7 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
                         <?php if (empty($items)): ?>
                             <tr>
                                 <td colspan="7" class="text-center py-5 text-muted">
-                                    <div class="bg-light bg-opacity-50 text-secondary rounded-circle d-inline-flex p-3 mb-3">
+                                    <div class="bg-light bg-opacity-10 text-secondary rounded-circle d-inline-flex p-3 mb-3">
                                         <i class="bi bi-card-heading fs-3"></i>
                                     </div>
                                     <p class="small fw-semibold mb-0">Belum ada data kartu inventaris.</p>
@@ -190,7 +173,7 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
                                                data-barcode="<?= htmlspecialchars($item['barcode_data']) ?>">
                                     </div>
                                 </td>
-                                <td><strong class="text-dark"><?= htmlspecialchars($item['nomor_rekening']) ?></strong></td>
+                                <td><strong><?= htmlspecialchars($item['nomor_rekening']) ?></strong></td>
                                 <td><?= htmlspecialchars($item['nama_barang']) ?></td>
                                 <td>
                                     <div class="small text-muted">
@@ -205,18 +188,18 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
                                 </td>
                                 <td><code class="text-secondary"><?= htmlspecialchars($item['barcode_data']) ?></code></td>
                                 <td class="text-end pe-4">
-                                    <button class="btn btn-sm btn-light text-primary btn-edit p-2 rounded-3 me-1 shadow-sm" 
+                                    <button class="btn-action-edit btn-edit me-1" 
                                             data-id="<?= $item['id'] ?>"
                                             data-rekening="<?= htmlspecialchars($item['nomor_rekening']) ?>"
                                             data-nama="<?= htmlspecialchars($item['nama_barang']) ?>"
                                             data-tanggal="<?= htmlspecialchars($item['tanggal_perolehan']) ?>"
                                             data-barcode="<?= htmlspecialchars($item['barcode_data']) ?>"
-                                            title="Edit" style="border: 1px solid rgba(226, 232, 240, 0.8);">
+                                            title="Edit">
                                         <i class="bi bi-pencil-square fs-6"></i>
                                     </button>
                                     <form method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data kartu ini?')">
                                         <input type="hidden" name="id" value="<?= $item['id'] ?>">
-                                        <button type="submit" name="hapus" class="btn btn-sm btn-light text-danger p-2 rounded-3 shadow-sm" title="Hapus" style="border: 1px solid rgba(226, 232, 240, 0.8);">
+                                        <button type="submit" name="hapus" class="btn-action-delete" title="Hapus">
                                             <i class="bi bi-trash fs-6"></i>
                                         </button>
                                     </form>
@@ -234,33 +217,33 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
 <!-- Modal Tambah -->
 <div class="modal fade" id="modalTambah" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+        <div class="modal-content border-0 shadow-lg">
             <form method="POST">
                 <div class="modal-header border-0 p-4 pb-0">
-                    <h5 class="fw-800 m-0 text-dark"><i class="bi bi-plus-circle-fill text-primary me-2"></i>Tambah Kartu Inventaris</h5>
+                    <h5 class="fw-800 m-0"><i class="bi bi-plus-circle-fill text-primary me-2"></i>Tambah Kartu Inventaris</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted">Nomor Rekening</label>
-                        <input type="text" name="nomor_rekening" id="nomor_rekening" class="form-control bg-light border-0 py-2.5" placeholder="Contoh: 01.5.00003" required style="border-radius: 12px;">
+                        <input type="text" name="nomor_rekening" id="nomor_rekening" class="form-control" placeholder="Contoh: 01.5.00003" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted">Nama Barang</label>
-                        <input type="text" name="nama_barang" class="form-control bg-light border-0 py-2.5" placeholder="Contoh: BANGUNAN GEDUNG KANTOR PUSA" required style="border-radius: 12px;">
+                        <input type="text" name="nama_barang" class="form-control" placeholder="Contoh: BANGUNAN GEDUNG KANTOR PUSA" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted">Tanggal Perolehan</label>
-                        <input type="date" name="tanggal_perolehan" class="form-control bg-light border-0 py-2.5" required style="border-radius: 12px;">
+                        <input type="date" name="tanggal_perolehan" class="form-control" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted">Kode QR / Barcode (Data QR Code)</label>
-                        <input type="text" name="barcode_data" class="form-control bg-light border-0 py-2.5" placeholder="Salin/tempel kode QR di sini" required style="border-radius: 12px;">
+                        <input type="text" name="barcode_data" class="form-control" placeholder="Salin/tempel kode QR di sini" required>
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0">
-                    <button type="button" class="btn btn-light px-4 py-2.5" data-bs-dismiss="modal" style="border-radius: 12px;">Batal</button>
-                    <button type="submit" name="tambah" class="btn btn-primary px-4 py-2.5" style="border-radius: 12px;">Simpan</button>
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" name="tambah" class="btn btn-primary px-4">Simpan</button>
                 </div>
             </form>
         </div>
@@ -270,34 +253,34 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
 <!-- Modal Edit -->
 <div class="modal fade" id="modalEdit" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+        <div class="modal-content border-0 shadow-lg">
             <form method="POST">
                 <input type="hidden" name="id" id="edit_id">
                 <div class="modal-header border-0 p-4 pb-0">
-                    <h5 class="fw-800 m-0 text-dark"><i class="bi bi-pencil-square text-warning me-2"></i>Perbarui Kartu Inventaris</h5>
+                    <h5 class="fw-800 m-0"><i class="bi bi-pencil-square text-warning me-2"></i>Perbarui Kartu Inventaris</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted">Nomor Rekening</label>
-                        <input type="text" name="nomor_rekening" id="edit_rekening" class="form-control bg-light border-0 py-2.5" required style="border-radius: 12px;">
+                        <input type="text" name="nomor_rekening" id="edit_rekening" class="form-control" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted">Nama Barang</label>
-                        <input type="text" name="nama_barang" id="edit_nama" class="form-control bg-light border-0 py-2.5" required style="border-radius: 12px;">
+                        <input type="text" name="nama_barang" id="edit_nama" class="form-control" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted">Tanggal Perolehan</label>
-                        <input type="date" name="tanggal_perolehan" id="edit_tanggal" class="form-control bg-light border-0 py-2.5" required style="border-radius: 12px;">
+                        <input type="date" name="tanggal_perolehan" id="edit_tanggal" class="form-control" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted">Kode QR / Barcode (Data QR Code)</label>
-                        <input type="text" name="barcode_data" id="edit_barcode" class="form-control bg-light border-0 py-2.5" required style="border-radius: 12px;">
+                        <input type="text" name="barcode_data" id="edit_barcode" class="form-control" required>
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0">
-                    <button type="button" class="btn btn-light px-4 py-2.5" data-bs-dismiss="modal" style="border-radius: 12px;">Batal</button>
-                    <button type="submit" name="update" class="btn btn-warning text-dark fw-bold px-4 py-2.5" style="border-radius: 12px;">Simpan Perubahan</button>
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" name="update" class="btn btn-warning text-dark fw-bold px-4">Simpan Perubahan</button>
                 </div>
             </form>
         </div>
@@ -359,6 +342,40 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
 /* CSS khusus cetak kartu inventaris A4 */
 #print-container {
     display: none;
+}
+
+/* Web Action Buttons styling */
+.btn-action-edit {
+    background: rgba(245, 158, 11, 0.08) !important;
+    border: 1px solid rgba(245, 158, 11, 0.15) !important;
+    color: #f59e0b !important;
+    padding: 6px 10px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+.btn-action-edit:hover {
+    background: #f59e0b !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+.btn-action-delete {
+    background: rgba(239, 68, 68, 0.08) !important;
+    border: 1px solid rgba(239, 68, 68, 0.15) !important;
+    color: #ef4444 !important;
+    padding: 6px 10px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+.btn-action-delete:hover {
+    background: #ef4444 !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
 }
 
 @media print {
