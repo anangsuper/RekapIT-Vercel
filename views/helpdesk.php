@@ -1,11 +1,13 @@
 <?php
 require_once 'models/HelpdeskTicket.php';
+require_once 'models/HelpdeskComment.php';
 require_once 'models/Cabang.php';
 require_once 'models/Divisi.php';
 require_once 'models/Asset.php';
 require_once 'helpers/notification.php';
 
 $ticketModel = new HelpdeskTicket($conn);
+$commentModel = new HelpdeskComment($conn);
 $cabangModel = new Cabang($conn);
 $divisiModel = new Divisi($conn);
 $assetModel = new Asset($conn);
@@ -48,6 +50,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['helpdesk_login'])) {
 $isLoggedIn = isset($_SESSION['user_id']);
 $userNama = $_SESSION['nama'] ?? '';
 $userRole = $_SESSION['role'] ?? '';
+
+// Handle Diskusi / Comment Reply
+if ($isLoggedIn && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kirim_diskusi'])) {
+    $ticket_id = intval($_POST['ticket_id']);
+    $pesan = trim($_POST['pesan_diskusi'] ?? '');
+    $nomor_tiket = trim($_POST['nomor_tiket'] ?? '');
+
+    if ($ticket_id && !empty($pesan)) {
+        $commentModel->addComment($ticket_id, $_SESSION['user_id'] ?? null, $userNama, $userRole, $pesan);
+
+        $tgMsg = "💬 *BALASAN TIKET HELPDESK* (`#{$nomor_tiket}`)\n\n"
+               . "*• Dari:* {$userNama} (" . ucfirst($userRole) . ")\n"
+               . "*• Pesan:* {$pesan}\n"
+               . "*• Waktu:* " . date('d M Y, H:i:s');
+        sendTelegramNotification($tgMsg);
+
+        header("Location: index.php?page=helpdesk&cek_tiket=1&nomor_tiket=" . urlencode($nomor_tiket) . "&diskusi=success");
+        exit();
+    }
+}
 
 $successTicket = null;
 $searchedTicket = null;
@@ -466,9 +488,48 @@ if ($isLoggedIn) {
                                 <?= nl2br(htmlspecialchars($t['keluhan'])) ?>
                             </div>
                         </div>
-                        <div class="p-3 rounded-3 bg-light border">
+                        <div class="p-3 rounded-3 bg-light border mb-4">
                             <small class="text-muted fw-bold d-block mb-1">TINDAKAN TEKNISI</small>
                             <p class="small mb-0"><strong><?= htmlspecialchars($t['teknisi_penanggung_jawab'] ?: 'Tim IT') ?>:</strong> <?= nl2br(htmlspecialchars($t['tindakan_teknisi'] ?: 'Sedang dalam antrean penanganan.')) ?></p>
+                        </div>
+
+                        <!-- Diskusi & Catatan Tambahan Thread -->
+                        <div class="mt-4 pt-3 border-top">
+                            <h6 class="fw-bold mb-3"><i class="bi bi-chat-left-text text-primary me-2"></i>Diskusi & Catatan Tambahan</h6>
+                            <?php 
+                            $ticketComments = $commentModel->getByTicketId($t['id']);
+                            ?>
+                            <?php if (empty($ticketComments)): ?>
+                                <p class="small text-muted mb-3 fst-italic">Belum ada percakapan tambahan pada tiket ini.</p>
+                            <?php else: ?>
+                                <div class="d-flex flex-column gap-2.5 mb-4">
+                                    <?php foreach ($ticketComments as $tc): 
+                                        $isTech = in_array($tc['sender_role'], ['admin', 'teknisi']);
+                                        $bubbleBg = $isTech ? 'background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2);' : 'background: rgba(255, 255, 255, 0.04); border: 1px solid var(--card-border);';
+                                        $badgeColor = $isTech ? 'bg-primary text-white' : 'bg-secondary text-white';
+                                    ?>
+                                        <div class="p-3 rounded-3" style="max-width: 90%; <?= $isTech ? 'margin-left: auto;' : 'margin-right: auto;' ?> <?= $bubbleBg ?>">
+                                            <div class="d-flex justify-content-between align-items-center mb-1 gap-3">
+                                                <small class="fw-bold"><?= htmlspecialchars($tc['sender_name']) ?> <span class="badge <?= $badgeColor ?> rounded-pill ms-1" style="font-size: 0.65rem;"><?= ucfirst($tc['sender_role']) ?></span></small>
+                                                <small class="text-muted" style="font-size: 0.7rem;"><?= date('d/m H:i', strtotime($tc['created_at'])) ?></small>
+                                            </div>
+                                            <div class="small mb-0" style="word-break: break-word;"><?= nl2br(htmlspecialchars($tc['message'])) ?></div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Form Balasan Diskusi -->
+                            <form method="POST" class="mt-3">
+                                <input type="hidden" name="ticket_id" value="<?= $t['id'] ?>">
+                                <input type="hidden" name="nomor_tiket" value="<?= htmlspecialchars($t['nomor_tiket']) ?>">
+                                <div class="input-group">
+                                    <input type="text" name="pesan_diskusi" class="form-control" placeholder="Tuliskan pesan balasan / pertanyaan tambahan..." required>
+                                    <button type="submit" name="kirim_diskusi" class="btn btn-primary px-4 fw-bold">
+                                        <i class="bi bi-send me-1"></i> Kirim Pesan
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>

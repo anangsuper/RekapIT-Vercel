@@ -328,6 +328,15 @@ class GoogleSheetsSync {
                 status TEXT DEFAULT 'Menunggu',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );",
+            "helpdesk_comments" => "CREATE TABLE IF NOT EXISTS helpdesk_comments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ticket_id INTEGER NOT NULL,
+                user_id INTEGER,
+                sender_name TEXT NOT NULL,
+                sender_role TEXT NOT NULL,
+                message TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );"
         ];
     }

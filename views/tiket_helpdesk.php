@@ -1,11 +1,34 @@
 <?php
 require_once 'models/HelpdeskTicket.php';
+require_once 'models/HelpdeskComment.php';
 require_once 'models/Cabang.php';
+require_once 'helpers/notification.php';
 
 $ticketModel = new HelpdeskTicket($conn);
+$commentModel = new HelpdeskComment($conn);
 $cabangModel = new Cabang($conn);
 
 $branches = $cabangModel->getAll();
+
+// Handle Balasan Pesan dari Admin / Teknisi
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kirim_diskusi_admin'])) {
+    $ticket_id = intval($_POST['ticket_id']);
+    $pesan = trim($_POST['pesan_diskusi'] ?? '');
+    $nomor_tiket = trim($_POST['nomor_tiket'] ?? '');
+
+    if ($ticket_id && !empty($pesan)) {
+        $commentModel->addComment($ticket_id, $_SESSION['user_id'] ?? null, $_SESSION['nama'] ?? 'Teknisi IT', $_SESSION['role'] ?? 'teknisi', $pesan);
+
+        $tgMsg = "💬 *BALASAN TEKNISI IT* (`#{$nomor_tiket}`)\n\n"
+               . "*• Dari:* " . ($_SESSION['nama'] ?? 'Teknisi IT') . " (Teknisi)\n"
+               . "*• Pesan:* {$pesan}\n"
+               . "*• Waktu:* " . date('d M Y, H:i:s');
+        sendTelegramNotification($tgMsg);
+
+        header("Location: index.php?page=tiket_helpdesk&status=comment_added");
+        exit();
+    }
+}
 
 // Handle Status Updates
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_ticket_status'])) {
@@ -219,7 +242,10 @@ $doneCount = count(array_filter($allTickets, fn($t) => $t['status'] === 'Selesai
                                     </span>
                                 </td>
                                 <td class="text-end pe-4">
-                                    <button class="btn btn-sm btn-outline-primary rounded-3 px-3 py-1.5" onclick='openProcessModal(<?= json_encode($t) ?>)'>
+                                    <button class="btn btn-sm btn-outline-info rounded-3 px-2.5 py-1.5 me-1" onclick='openDiscussionModal(<?= json_encode($t) ?>, <?= json_encode($commentModel->getByTicketId($t['id'])) ?>)'>
+                                        <i class="bi bi-chat-left-text me-1"></i> Diskusi
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary rounded-3 px-2.5 py-1.5" onclick='openProcessModal(<?= json_encode($t) ?>)'>
                                         <i class="bi bi-pencil-square me-1"></i> Update Status
                                     </button>
                                 </td>
@@ -266,7 +292,35 @@ $doneCount = count(array_filter($allTickets, fn($t) => $t['status'] === 'Selesai
                     <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" name="update_ticket_status" class="btn btn-primary px-4">Simpan Perubahan</button>
                 </div>
-            </form>
+<!-- Modal Diskusi Tiket Admin -->
+<div class="modal fade" id="modalDiscussion" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+            <div class="modal-header border-0 p-4 pb-0">
+                <h5 class="fw-800 m-0"><i class="bi bi-chat-left-text text-primary me-2"></i>Diskusi & Catatan Tiket <span id="disc_ticket_number" class="text-primary"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="p-3 rounded-3 mb-3" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+                    <small class="text-muted fw-bold d-block mb-1">KELUHAN / LAPORAN AWAL:</small>
+                    <div id="disc_ticket_keluhan" class="small fw-semibold"></div>
+                </div>
+
+                <div id="disc_comments_container" class="d-flex flex-column gap-2.5 mb-3" style="max-height: 280px; overflow-y: auto;">
+                    <!-- Filled by JS -->
+                </div>
+
+                <form method="POST" class="mt-3">
+                    <input type="hidden" name="ticket_id" id="disc_ticket_id">
+                    <input type="hidden" name="nomor_tiket" id="disc_nomor_tiket">
+                    <div class="input-group">
+                        <input type="text" name="pesan_diskusi" class="form-control" placeholder="Balas ke karyawan / tulis catatan teknisi..." required>
+                        <button type="submit" name="kirim_diskusi_admin" class="btn btn-primary px-4 fw-bold">
+                            <i class="bi bi-send me-1"></i> Balas Pesan
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -280,6 +334,46 @@ function openProcessModal(ticket) {
     document.getElementById('ticket_tindakan').value = ticket.tindakan_teknisi || '';
 
     new bootstrap.Modal(document.getElementById('modalProcessTicket')).show();
+}
+
+function openDiscussionModal(ticket, comments) {
+    document.getElementById('disc_ticket_id').value = ticket.id;
+    document.getElementById('disc_nomor_tiket').value = ticket.nomor_tiket;
+    document.getElementById('disc_ticket_number').innerText = '#' + ticket.nomor_tiket;
+    document.getElementById('disc_ticket_keluhan').innerText = ticket.keluhan;
+
+    const container = document.getElementById('disc_comments_container');
+    container.innerHTML = '';
+
+    if (!comments || comments.length === 0) {
+        container.innerHTML = '<p class="small text-muted mb-0 fst-italic">Belum ada diskusi atau balasan pesan.</p>';
+    } else {
+        comments.forEach(c => {
+            const isTech = (c.sender_role === 'admin' || c.sender_role === 'teknisi');
+            const align = isTech ? 'margin-left: auto;' : 'margin-right: auto;';
+            const bg = isTech ? 'background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.25);' : 'background: rgba(255,255,255,0.04); border: 1px solid var(--card-border);';
+            const badge = isTech ? 'bg-primary text-white' : 'bg-secondary text-white';
+
+            const div = document.createElement('div');
+            div.className = 'p-3 rounded-3';
+            div.style.cssText = `max-width: 88%; ${align} ${bg}`;
+            div.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-1 gap-3">
+                    <small class="fw-bold">${escapeHtml(c.sender_name)} <span class="badge ${badge} rounded-pill ms-1" style="font-size: 0.65rem;">${c.sender_role}</span></small>
+                    <small class="text-muted" style="font-size: 0.7rem;">${c.created_at}</small>
+                </div>
+                <div class="small mb-0" style="word-break: break-word;">${escapeHtml(c.message)}</div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    new bootstrap.Modal(document.getElementById('modalDiscussion')).show();
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
 function copyHelpdeskLink() {
