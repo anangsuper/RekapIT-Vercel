@@ -12,6 +12,12 @@
     "config": {
         "allow-plugins": {
             "php-http/discovery": true
+        },
+        "platform": {
+            "php": "8.2.0",
+            "ext-gd": "8.2.0",
+            "ext-dom": "8.2.0",
+            "ext-mbstring": "8.2.0"
         }
     }
 }

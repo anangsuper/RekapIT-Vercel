@@ -1,13 +1,20 @@
 {
   "functions": {
-    "api/*.php": {
-      "runtime": "vercel-php@0.9.0"
-    }
+    "api/index.php": { "runtime": "vercel-php@0.9.0" },
+    "api/login.php": { "runtime": "vercel-php@0.9.0" },
+    "api/logout.php": { "runtime": "vercel-php@0.9.0" },
+    "api/telegram_webhook.php": { "runtime": "vercel-php@0.9.0" },
+    "api/telegram_add_asset.php": { "runtime": "vercel-php@0.9.0" },
+    "api/migrate_mysql_to_sheets.php": { "runtime": "vercel-php@0.9.0" },
+    "api/broadcast_maintenance_schedule.php": { "runtime": "vercel-php@0.9.0" },
+    "api/excel.php": { "runtime": "vercel-php@0.9.0" },
+    "api/maintenance_excel.php": { "runtime": "vercel-php@0.9.0" },
+    "api/maintenance_pdf.php": { "runtime": "vercel-php@0.9.0" }
   },
   "routes": [
     {
       "src": "/test_db.php",
-      "dest": "/api/test_db.php"
+      "dest": "/api/index.php"
     },
     {
       "src": "/(assets|uploads)/(.*)",
@@ -26,6 +33,10 @@
       "dest": "/api/excel.php"
     },
     {
+      "src": "/api/(dashboard_data|generate_asset_code|sync|health|test_db)\\.php",
+      "dest": "/api/index.php"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/api/$1"
     },
@@ -39,7 +50,7 @@
     },
     {
       "src": "/health.php",
-      "dest": "/api/health.php"
+      "dest": "/api/index.php"
     },
     {
       "src": "/migrate_mysql_to_sheets.php",
