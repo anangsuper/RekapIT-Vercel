@@ -1181,17 +1181,23 @@ $pendingTicketCount = $hModel->countPending();
         </div>
 
         <!-- User Profile Dropdown -->
+        <?php $userName = $_SESSION['nama'] ?? 'Karyawan / Guest'; ?>
+        <?php $userUsername = $_SESSION['username'] ?? 'guest'; ?>
         <div class="dropdown">
             <button class="btn btn-link p-0 border-0 bg-transparent dropdown-toggle d-flex align-items-center gap-2 text-decoration-none" data-bs-toggle="dropdown">
-                <img src="https://ui-avatars.com/api/?name=<?= urlencode($_SESSION['nama']) ?>&background=4361ee&color=fff" class="rounded-circle border" width="34">
-                <span class="small fw-bold text-dark d-none d-lg-inline"><?= $_SESSION['nama'] ?></span>
+                <img src="https://ui-avatars.com/api/?name=<?= urlencode($userName) ?>&background=4361ee&color=fff" class="rounded-circle border" width="34">
+                <span class="small fw-bold text-dark d-none d-lg-inline"><?= htmlspecialchars($userName) ?></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 rounded-3" style="min-width: 180px;">
                 <li class="px-3 py-2 border-bottom mb-2 bg-light">
                     <div class="small text-muted">Signed in as</div>
-                    <div class="fw-bold text-dark"><?= $_SESSION['username'] ?></div>
+                    <div class="fw-bold text-dark"><?= htmlspecialchars($userUsername) ?></div>
                 </li>
-                <li><a class="dropdown-item text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <li><a class="dropdown-item text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                <?php else: ?>
+                    <li><a class="dropdown-item text-primary" href="login.php"><i class="bi bi-box-arrow-in-right me-2"></i> Login IT Admin</a></li>
+                <?php endif; ?>
             </ul>
         </div>
     </div>

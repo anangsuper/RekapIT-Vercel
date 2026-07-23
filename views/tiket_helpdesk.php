@@ -46,9 +46,14 @@ $doneCount = count(array_filter($allTickets, fn($t) => $t['status'] === 'Selesai
                 <p class="text-muted small m-0">Kelola dan tindak lanjuti laporan kendala IT yang disampaikan oleh karyawan.</p>
             </div>
         </div>
-        <a href="index.php?page=helpdesk" target="_blank" class="btn btn-outline-primary shadow-sm">
-            <i class="bi bi-box-arrow-up-right me-2"></i> Buka Portal Helpdesk Publik
-        </a>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary shadow-sm" id="btnCopyHelpdeskLink" onclick="copyHelpdeskLink()">
+                <i class="bi bi-link-45deg me-1"></i> Salin Link Portal Karyawan
+            </button>
+            <a href="index.php?page=helpdesk" target="_blank" class="btn btn-outline-primary shadow-sm">
+                <i class="bi bi-box-arrow-up-right me-1"></i> Buka Portal Publik
+            </a>
+        </div>
     </div>
 
     <!-- Alert Notification -->
@@ -275,5 +280,21 @@ function openProcessModal(ticket) {
     document.getElementById('ticket_tindakan').value = ticket.tindakan_teknisi || '';
 
     new bootstrap.Modal(document.getElementById('modalProcessTicket')).show();
+}
+
+function copyHelpdeskLink() {
+    const helpdeskUrl = window.location.origin + window.location.pathname + '?page=helpdesk';
+    navigator.clipboard.writeText(helpdeskUrl).then(() => {
+        const btn = document.getElementById('btnCopyHelpdeskLink');
+        const oldHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check2 me-1 text-success"></i> Link Tersalin!';
+        btn.classList.remove('btn-outline-secondary');
+        btn.classList.add('btn-success', 'text-white');
+        setTimeout(() => {
+            btn.innerHTML = oldHtml;
+            btn.classList.remove('btn-success', 'text-white');
+            btn.classList.add('btn-outline-secondary');
+        }, 2000);
+    });
 }
 </script>
