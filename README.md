@@ -4,6 +4,18 @@ Rekap IT adalah aplikasi web modern berbasis PHP yang dirancang untuk mengelola 
 
 ---
 
+## 📋 Ringkasan Aplikasi (Rekap System)
+
+Rekap IT mempermudah tim IT Infrastructure dalam memantau, mendistribusikan, dan memelihara aset perangkat keras di seluruh cabang perusahaan. Sistem ini membagi pengelolaan operasional ke dalam beberapa modul utama:
+
+1. **Aset & Inventaris:** Melacak siklus hidup hardware (PC, Laptop, Router, dll.), spesifikasi detail, kondisi fisik, kepemilikan (karyawan), dan lokasi cabang.
+2. **Pemeliharaan (Maintenance):** Pencatatan inspeksi rutin berkala guna mendeteksi potensi kerusakan lebih awal.
+3. **Perbaikan (Repair):** Penanganan kendala/kerusakan perangkat, estimasi biaya, penggunaan sparepart, hingga status penyelesaian tiket.
+4. **Audit & Mutasi:** Riwayat perpindahan kepemilikan/lokasi aset serta audit pencocokan data sistem dengan fisik di lapangan.
+5. **Master Data & Log:** Integrasi data Cabang, Divisi, Karyawan, serta log audit aktivitas pengguna untuk transparansi data.
+
+---
+
 ## 🌟 Fitur Utama
 
 - **Dashboard Statistik:** Ringkasan kondisi operasional IT secara real-time (Total Aset, Maintenance, Perlu Tindakan, Biaya Repair) dilengkapi dengan widget status sinkronisasi Google Sheets.

@@ -42,7 +42,7 @@ $google_sheet_webapp_url = getenv('GOOGLE_SHEET_WEBAPP_URL') ?: 'https://script.
 $tables = [
     "cabang", "divisi", "kategori_aset", "karyawan", "users", "assets", 
     "asset_history", "maintenance", "repairs", "activity_logs", 
-    "asset_mutations", "audits", "sparepart", "penggunaan_sparepart"
+    "asset_mutations", "audits", "sparepart", "penggunaan_sparepart", "inventaris_kartu"
 ];
 
 // Cek parameter action untuk request AJAX

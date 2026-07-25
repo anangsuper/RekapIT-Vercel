@@ -61,7 +61,7 @@ function getSheetOrCreate(name) {
 var TABLES_TO_SYNC = [
   "cabang", "divisi", "kategori_aset", "karyawan", "users", "assets", 
   "asset_history", "maintenance", "repairs", "activity_logs", 
-  "asset_mutations", "audits", "sparepart", "penggunaan_sparepart"
+  "asset_mutations", "audits", "sparepart", "penggunaan_sparepart", "inventaris_kartu"
 ];
 
 function clearCache() {
