@@ -324,7 +324,7 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
                 </div>
 
                 <h6 class="fw-bold mb-3"><i class="bi bi-geo-alt-fill text-danger me-2"></i>Isi Lokasi Aset Secara Manual</h6>
-                <div class="border rounded-4 overflow-hidden mb-2" style="max-height: 220px; overflow-y: auto; border-color: var(--card-border) !important;">
+                <div class="border rounded-4 overflow-hidden mb-2" style="max-height: 220px; overflow-y: auto !important; border-color: var(--card-border) !important;">
                     <table class="table table-sm align-middle mb-0" style="font-size: 0.84rem;">
                         <thead>
                             <tr>
