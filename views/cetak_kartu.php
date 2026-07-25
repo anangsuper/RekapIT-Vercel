@@ -449,17 +449,18 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         width: 85.6mm !important;
         height: 54.0mm !important;
         box-sizing: border-box !important;
-        border: 1.5px solid #003d79 !important;
-        border-radius: 12px !important;
+        border: 1.2px solid #e2e8f0 !important;
+        border-radius: 10px !important;
         background: #ffffff !important;
-        font-family: Arial, sans-serif !important;
-        color: #000000 !important;
+        font-family: 'Plus Jakarta Sans', Arial, sans-serif !important;
+        color: #0f172a !important;
         overflow: hidden !important;
         position: relative !important;
         display: flex !important;
         flex-direction: column !important;
         padding: 0 !important;
         margin: 0 !important;
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04) !important;
     }
 
     /* Top Header Section */
@@ -467,13 +468,13 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         display: flex !important;
         width: 100% !important;
         height: 9.5mm !important;
-        border-bottom: 1.2px solid #003d79 !important;
+        border-bottom: 1.5px solid #003d79 !important;
         box-sizing: border-box !important;
     }
     .header-logo-box {
         width: 26% !important;
         height: 100% !important;
-        border-right: 1.2px solid #003d79 !important;
+        border-right: 1px solid #e2e8f0 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -482,7 +483,7 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         padding: 0.5mm !important;
     }
     .header-logo-box img {
-        max-height: 8.5mm !important;
+        max-height: 8.0mm !important;
         max-width: 95% !important;
         object-fit: contain !important;
     }
@@ -496,13 +497,13 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
     .header-main-title {
         background-color: #003d79 !important;
         color: #ffffff !important;
-        font-weight: bold !important;
+        font-weight: 800 !important;
         font-size: 7.2pt !important;
         text-align: center !important;
         height: 4.5mm !important;
         line-height: 4.5mm !important;
         text-transform: uppercase !important;
-        letter-spacing: 0.1px !important;
+        letter-spacing: 0.2px !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
@@ -519,15 +520,15 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
     .header-sub-title {
         background: linear-gradient(90deg, #8dc63f 0%, #003d79 100%) !important;
         color: #ffffff !important;
-        font-weight: bold !important;
-        font-size: 7.5pt !important;
+        font-weight: 800 !important;
+        font-size: 7.2pt !important;
         text-align: center !important;
         height: 4.0mm !important;
         line-height: 4.0mm !important;
         padding: 0 4mm 0 2mm !important;
         border-radius: 0 10px 10px 0 !important;
         text-transform: uppercase !important;
-        letter-spacing: 0.2px !important;
+        letter-spacing: 0.3px !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
@@ -559,21 +560,21 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         display: flex !important;
         width: 100% !important;
         height: 6.0mm !important;
-        border-bottom: 1.2px solid #003d79 !important;
+        border-bottom: 1px solid #e2e8f0 !important;
         box-sizing: border-box !important;
     }
     .field-label {
         width: 26% !important;
         height: 100% !important;
-        background-color: #003d79 !important;
-        color: #ffffff !important;
-        font-weight: bold !important;
-        font-size: 7.2pt !important;
+        background-color: #f8fafc !important;
+        color: #475569 !important;
+        font-weight: 700 !important;
+        font-size: 7.0pt !important;
         display: flex !important;
         align-items: center !important;
-        padding-left: 1.5mm !important;
+        padding-left: 2.0mm !important;
         box-sizing: border-box !important;
-        border-right: 1.2px solid #003d79 !important;
+        border-right: 1px solid #e2e8f0 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
@@ -588,11 +589,11 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
     .field-icon {
         width: 6.5mm !important;
         height: 100% !important;
-        border-right: 1.2px solid #003d79 !important;
+        border-right: 1px solid #f1f5f9 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        color: #003d79 !important;
+        color: #64748b !important;
         box-sizing: border-box !important;
     }
     .field-svg-icon {
@@ -602,15 +603,15 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
     }
     .field-value {
         font-size: 7.2pt !important;
-        color: #000000 !important;
-        padding-left: 1.5mm !important;
-        font-weight: normal !important;
+        color: #0f172a !important;
+        padding-left: 2.0mm !important;
+        font-weight: 500 !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
     }
     .field-value.value-bold {
-        font-weight: bold !important;
+        font-weight: 700 !important;
     }
 
     /* Bottom Section */
@@ -618,19 +619,22 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         display: flex !important;
         width: 100% !important;
         height: 20.5mm !important; /* Locked to precise height to fit 54mm card */
-        border-top: 1.5px solid #8dc63f !important; /* Green divider line */
+        border-top: 1.5px solid #8dc63f !important;
+        background-color: #f8fafc !important;
         box-sizing: border-box !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
     .bottom-left-attention {
         width: 68% !important;
         height: 100% !important;
         display: flex !important;
         align-items: center !important;
-        padding: 1.0mm 1.5mm !important;
+        padding: 1.0mm 2.0mm !important;
         box-sizing: border-box !important;
     }
     .attention-icon {
-        margin-right: 1.5mm !important;
+        margin-right: 2.0mm !important;
         display: flex !important;
         align-items: center !important;
     }
@@ -639,16 +643,18 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         flex-direction: column !important;
     }
     .attention-title {
-        font-weight: bold !important;
-        font-size: 6.5pt !important;
-        color: #003d79 !important;
+        font-weight: 800 !important;
+        font-size: 6.2pt !important;
+        color: #dc2626 !important;
         margin-bottom: 0.2mm !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.3px !important;
     }
     .attention-desc {
         font-size: 4.8pt !important;
-        line-height: 1.1 !important;
-        color: #000000 !important;
-        font-weight: bold !important;
+        line-height: 1.2 !important;
+        color: #475569 !important;
+        font-weight: 600 !important;
     }
     .bottom-right-qr {
         width: 32% !important;
@@ -656,18 +662,22 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        background: #ffffff !important;
+        background: #f8fafc !important;
         box-sizing: border-box !important;
         padding: 1.0mm !important;
+        border-left: 1px solid #e2e8f0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
     .qr-border-box {
-        border: 1px solid #d1d5db !important;
-        border-radius: 2mm !important;
-        padding: 0.5mm !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 6px !important;
+        padding: 0.8mm !important;
         background: #ffffff !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
     }
     .card-qr-img {
         width: 13.5mm !important;
