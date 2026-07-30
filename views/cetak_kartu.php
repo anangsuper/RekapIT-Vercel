@@ -786,15 +786,22 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         align-items: center !important;
     }
     .field-val {
-        font-size: 7.5pt !important;
+        font-size: 7.0pt !important;
         color: #1e293b !important;
         font-weight: 800 !important;
         padding-left: 2.0mm !important;
-        white-space: nowrap !important;
+        white-space: normal !important;
+        line-height: 1.05 !important;
         overflow: hidden !important;
-        text-overflow: ellipsis !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
         text-transform: uppercase !important;
         flex-grow: 1;
+        align-self: center !important;
+        padding-top: 0.1mm !important;
+        padding-bottom: 0.1mm !important;
+        word-break: break-word !important;
     }
 
     /* Bottom Section */
