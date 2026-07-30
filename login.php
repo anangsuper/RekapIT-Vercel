@@ -66,7 +66,7 @@ if (isset($_POST['login'])) {
                 save_session_to_cookie();
             }
             if ($user['role'] === 'karyawan') {
-                header('Location: index.php?page=helpdesk');
+                header('Location: helpdesk.php');
             } else {
                 header('Location: index.php?page=dashboard');
             }

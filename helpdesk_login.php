@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && (isset($_GET['reason']) || isset($_G
 
 // Jika sudah login, redirect ke helpdesk
 if (isset($_SESSION['user_id'])) {
-    header('Location: index.php?page=helpdesk');
+    header('Location: helpdesk.php');
     exit();
 }
 
@@ -58,7 +58,7 @@ if (isset($_POST['login_helpdesk'])) {
                 save_session_to_cookie();
             }
 
-            header('Location: index.php?page=helpdesk');
+            header('Location: helpdesk.php');
             exit();
         } else {
             $error = 'Username atau password yang Anda masukkan salah!';

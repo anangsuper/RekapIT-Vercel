@@ -17,6 +17,14 @@ if (isset($_SESSION['user_id'])) {
     $_SESSION['last_activity'] = $now;
 }
 
+if (isset($_SESSION['user_id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'karyawan') {
+    $requestedPage = $_GET['page'] ?? '';
+    if ($requestedPage !== 'tiket_helpdesk') {
+        header('Location: helpdesk.php');
+        exit();
+    }
+}
+
 if (!isset($_SESSION['user_id'])) {
     $currentPage = basename($_SERVER['PHP_SELF']);
     $requestedPage = $_GET['page'] ?? '';
@@ -31,6 +39,10 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
+if ($page === 'helpdesk') {
+    header('Location: helpdesk.php');
+    exit();
+}
 if ($page === 'helpdesk_login') {
     header('Location: helpdesk_login.php');
     exit();
