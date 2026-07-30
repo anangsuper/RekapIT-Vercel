@@ -42,7 +42,7 @@ if (isset($_SERVER['HTTP_HOST']) && ($_SERVER['HTTP_HOST'] === 'localhost' || $_
 
 // 6. Redirect based on role / target
 if ($redirectTarget === 'helpdesk' || $userRoleBefore === 'karyawan') {
-    header('Location: ' . $base_path . 'helpdesk_login.php?logged_out=1');
+    header('Location: ' . $base_path . 'index.php?page=helpdesk&logged_out=1');
 } else {
     header('Location: ' . $base_path . 'login.php?logged_out=1');
 }

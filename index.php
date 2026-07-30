@@ -17,35 +17,14 @@ if (isset($_SESSION['user_id'])) {
     $_SESSION['last_activity'] = $now;
 }
 
-if (isset($_SESSION['user_id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'karyawan') {
-    $requestedPage = $_GET['page'] ?? '';
-    if ($requestedPage !== 'tiket_helpdesk') {
-        header('Location: helpdesk.php');
-        exit();
-    }
-}
+$page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
 
 if (!isset($_SESSION['user_id'])) {
     $currentPage = basename($_SERVER['PHP_SELF']);
-    $requestedPage = $_GET['page'] ?? '';
-    if ($requestedPage === 'helpdesk' || $requestedPage === 'helpdesk_login') {
-        header('Location: helpdesk_login.php');
-        exit();
-    }
-    if ($currentPage != 'login.php' && $currentPage != 'helpdesk_login.php' && !isset($_GET['page'])) {
+    if ($page !== 'helpdesk' && $currentPage != 'login.php') {
         header('Location: login.php');
         exit();
     }
-}
-
-$page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
-if ($page === 'helpdesk') {
-    header('Location: helpdesk.php');
-    exit();
-}
-if ($page === 'helpdesk_login') {
-    header('Location: helpdesk_login.php');
-    exit();
 }
 $file = __DIR__ . '/views/' . $page . '.php';
 

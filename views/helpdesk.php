@@ -61,10 +61,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['helpdesk_login'])) {
 
 // Check Login State
 $isLoggedIn = isset($_SESSION['user_id']);
-if (!$isLoggedIn) {
-    header("Location: helpdesk_login.php");
-    exit();
-}
 $userNama = $_SESSION['nama'] ?? '';
 $userRole = $_SESSION['role'] ?? '';
 
