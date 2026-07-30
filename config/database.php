@@ -800,10 +800,17 @@ class GoogleSheetsSync {
             ]);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-            curl_exec($ch);
+            $res = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             @curl_close($ch);
+            
+            if ($httpCode !== 200 && $httpCode !== 201) {
+                throw new Exception("Google Sheets API returned HTTP " . $httpCode);
+            }
         } catch (Exception $e) {
             error_log("Gagal append ke Google Sheets: " . $e->getMessage());
+            $_SESSION['sync_error'] = "Gagal sinkronisasi data ke Google Sheets: " . $e->getMessage() . ". Silakan bagikan Google Sheet Anda ke email Service Account berikut sebagai Editor: <strong>" . htmlspecialchars($this->getServiceAccountEmail()) . "</strong>";
+            $_SESSION['needs_sync'] = false;
         }
     }
 
@@ -875,10 +882,17 @@ class GoogleSheetsSync {
             ]);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-            curl_exec($ch);
+            $res = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             @curl_close($ch);
+            
+            if ($httpCode !== 200) {
+                throw new Exception("Google Sheets API returned HTTP " . $httpCode);
+            }
         } catch (Exception $e) {
             error_log("Gagal update Google Sheets: " . $e->getMessage());
+            $_SESSION['sync_error'] = "Gagal sinkronisasi update ke Google Sheets: " . $e->getMessage() . ". Silakan bagikan Google Sheet Anda ke email Service Account berikut sebagai Editor: <strong>" . htmlspecialchars($this->getServiceAccountEmail()) . "</strong>";
+            $_SESSION['needs_sync'] = false;
         }
     }
 
@@ -939,10 +953,17 @@ class GoogleSheetsSync {
             ]);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-            curl_exec($ch);
+            $res = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             @curl_close($ch);
+            
+            if ($httpCode !== 200) {
+                throw new Exception("Google Sheets API returned HTTP " . $httpCode);
+            }
         } catch (Exception $e) {
             error_log("Gagal delete dari Google Sheets: " . $e->getMessage());
+            $_SESSION['sync_error'] = "Gagal sinkronisasi delete ke Google Sheets: " . $e->getMessage() . ". Silakan bagikan Google Sheet Anda ke email Service Account berikut sebagai Editor: <strong>" . htmlspecialchars($this->getServiceAccountEmail()) . "</strong>";
+            $_SESSION['needs_sync'] = false;
         }
     }
 
@@ -989,6 +1010,16 @@ class GoogleSheetsSync {
             return $matches[1];
         }
         return null;
+    }
+
+    public function getServiceAccountEmail() {
+        $creds = null;
+        if (file_exists($this->credentialsPath)) {
+            $creds = json_decode(file_get_contents($this->credentialsPath), true);
+        } elseif (getenv('GOOGLE_SERVICE_ACCOUNT_JSON')) {
+            $creds = json_decode(getenv('GOOGLE_SERVICE_ACCOUNT_JSON'), true);
+        }
+        return $creds['client_email'] ?? 'Tidak ditemukan';
     }
 
     private function extractId($query, $params) {

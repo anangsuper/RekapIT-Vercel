@@ -146,6 +146,7 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
         </div>
     </div>
 
+
     <!-- Notification Alert -->
     <?php if (isset($_GET['status'])): 
         $status = $_GET['status'];

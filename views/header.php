@@ -1244,6 +1244,21 @@ $pendingTicketCount = $hModel->countPending();
 <div class="main-content">
     <div class="content-body">
         <div class="animate-fade-in">
+            <!-- Global Sync Error Warning -->
+            <?php if (isset($_SESSION['sync_error'])): ?>
+                <div class="alert alert-warning alert-dismissible fade show mb-4 border-0 shadow-sm rounded-4 animate-fade-in" role="alert" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.25) !important;">
+                    <div class="d-flex align-items-start gap-2.5">
+                        <i class="bi bi-exclamation-triangle-fill fs-5 mt-0.5 me-2"></i>
+                        <div>
+                            <span class="small fw-bold d-block text-warning"><?= $_SESSION['sync_error'] ?></span>
+                            <span class="small opacity-75 d-block mt-1" style="font-size: 0.78rem;">Catatan: Data sementara disimpan secara lokal di browser/server agar tidak hilang, namun belum terkirim ke Google Sheets cloud.</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <?php unset($_SESSION['sync_error']); ?>
+            <?php endif; ?>
+
             <!-- Global Sync Alert -->
             <?php if (isset($_GET['sync_status'])): ?>
                 <?php if ($_GET['sync_status'] === 'success'): ?>
