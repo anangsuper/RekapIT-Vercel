@@ -682,143 +682,117 @@ document.addEventListener("DOMContentLoaded", function() {
 <!-- Floating Interactive Tour Elements -->
 <style>
 /* Styling Tour Panduan Interaktif */
-.tour-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(5, 7, 15, 0.6);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
-    z-index: 99999;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
-.tour-backdrop.active {
-    opacity: 1;
-    pointer-events: auto;
-}
 .tour-card {
-    position: fixed;
-    z-index: 100000;
-    background: #0f172a;
-    border: 1px solid rgba(99, 102, 241, 0.4);
-    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 15px rgba(99, 102, 241, 0.1);
-    border-radius: 16px;
-    padding: 20px;
-    width: 320px;
-    color: #f8fafc;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    position: absolute !important;
+    z-index: 100000 !important;
+    background: #0f172a !important;
+    border: 1px solid rgba(99, 102, 241, 0.5) !important;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 15px rgba(99, 102, 241, 0.2) !important;
+    border-radius: 16px !important;
+    padding: 20px !important;
+    width: 320px !important;
+    color: #f8fafc !important;
+    font-family: 'Plus Jakarta Sans', Arial, sans-serif !important;
     opacity: 0;
     pointer-events: none;
     transform: scale(0.95);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 .tour-card.active {
-    opacity: 1;
-    pointer-events: auto;
-    transform: scale(1);
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: scale(1) !important;
 }
 .tour-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 12px !important;
 }
 .tour-step-badge {
-    background: rgba(99, 102, 241, 0.15);
-    color: #818cf8;
-    border: 1px solid rgba(99, 102, 241, 0.25);
-    padding: 2px 8px;
-    border-radius: 99px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
+    background: rgba(99, 102, 241, 0.15) !important;
+    color: #818cf8 !important;
+    border: 1px solid rgba(99, 102, 241, 0.25) !important;
+    padding: 2px 8px !important;
+    border-radius: 99px !important;
+    font-size: 0.7rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
 }
 .tour-close-btn {
-    background: transparent;
-    border: none;
-    color: #94a3b8;
-    font-size: 1.1rem;
-    cursor: pointer;
-    line-height: 1;
-    padding: 0;
-    transition: color 0.2s ease;
+    background: transparent !important;
+    border: none !important;
+    color: #94a3b8 !important;
+    font-size: 1.2rem !important;
+    cursor: pointer !important;
+    line-height: 1 !important;
+    padding: 0 !important;
+    transition: color 0.2s ease !important;
 }
 .tour-close-btn:hover {
-    color: #ef4444;
+    color: #ef4444 !important;
 }
 .tour-title {
-    font-size: 0.95rem;
-    font-weight: 800;
-    color: #ffffff;
-    margin-bottom: 8px;
+    font-size: 0.95rem !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    margin-bottom: 8px !important;
 }
 .tour-desc {
-    font-size: 0.8rem;
-    line-height: 1.5;
-    color: #94a3b8;
-    margin-bottom: 16px;
+    font-size: 0.8rem !important;
+    line-height: 1.5 !important;
+    color: #94a3b8 !important;
+    margin-bottom: 16px !important;
 }
 .tour-card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
 }
 .tour-dots {
-    display: flex;
-    gap: 4px;
+    display: flex !important;
+    gap: 4px !important;
 }
 .tour-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #475569;
-    transition: all 0.2s ease;
+    width: 6px !important;
+    height: 6px !important;
+    border-radius: 50% !important;
+    background: #475569 !important;
+    transition: all 0.2s ease !important;
 }
 .tour-dot.active {
-    background: #6366f1;
-    width: 12px;
-    border-radius: 3px;
+    background: #6366f1 !important;
+    width: 12px !important;
+    border-radius: 3px !important;
 }
 .tour-nav-btns {
-    display: flex;
-    gap: 6px;
+    display: flex !important;
+    gap: 6px !important;
 }
 .tour-nav-btns button {
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    padding: 6px 12px !important;
+    border-radius: 8px !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
 }
 .tour-btn-prev {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #cbd5e1 !important;
 }
 .tour-btn-prev:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
 }
 .tour-btn-next {
-    background: #6366f1;
-    border: 1px solid #6366f1;
-    color: #ffffff;
+    background: #6366f1 !important;
+    border: 1px solid #6366f1 !important;
+    color: #ffffff !important;
 }
 .tour-btn-next:hover {
-    background: #4f46e5;
-}
-.tour-highlighted {
-    position: relative !important;
-    z-index: 100000 !important;
-    box-shadow: 0 0 0 9999px rgba(5, 7, 15, 0.7), 0 0 25px rgba(99, 102, 241, 0.7) !important;
-    border-color: rgba(99, 102, 241, 0.7) !important;
-    pointer-events: none !important;
-    transition: box-shadow 0.3s ease, border-color 0.3s ease !important;
+    background: #4f46e5 !important;
 }
 </style>
 
@@ -852,17 +826,12 @@ const tourSteps = [
 ];
 
 function startInteractiveTour() {
-    // Create elements if not exist
-    let backdrop = document.getElementById('tourBackdrop');
+    // Ensure existing overlay is cleared
+    let oldOverlay = document.getElementById('tourOverlay');
+    if (oldOverlay) oldOverlay.remove();
+    
+    // Create Tour Card if not exist
     let tourCard = document.getElementById('tourCard');
-    
-    if (!backdrop) {
-        backdrop = document.createElement('div');
-        backdrop.id = 'tourBackdrop';
-        backdrop.className = 'tour-backdrop';
-        document.body.appendChild(backdrop);
-    }
-    
     if (!tourCard) {
         tourCard = document.createElement('div');
         tourCard.id = 'tourCard';
@@ -871,23 +840,24 @@ function startInteractiveTour() {
     }
     
     currentTourStep = 0;
-    backdrop.classList.add('active');
-    backdrop.addEventListener('click', endInteractiveTour);
-    
     showTourStep(0);
 }
 
 function showTourStep(stepIndex) {
     const step = tourSteps[stepIndex];
-    const targetElement = document.getElementById(step.target);
+    let targetElement = document.getElementById(step.target);
     
-    // Remove previous highlights
-    document.querySelectorAll('.tour-highlighted').forEach(el => {
-        el.classList.remove('tour-highlighted');
-    });
+    // Handle mobile view sidebar (might be collapsed)
+    if (step.target === 'sidebarContainer' && window.innerWidth < 1024) {
+        // If sidebar is hidden/collapsed on mobile, target the mobile toggle button instead
+        const mobileToggle = document.getElementById('sidebarToggleBtn');
+        if (mobileToggle) targetElement = mobileToggle;
+    }
+    
+    // Update spotlight viewport panels
+    updateTourSpotlight(targetElement);
     
     if (targetElement) {
-        targetElement.classList.add('tour-highlighted');
         // Scroll target into view gently
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
@@ -895,13 +865,13 @@ function showTourStep(stepIndex) {
     const card = document.getElementById('tourCard');
     card.classList.add('active');
     
-    // Generate dots
+    // Generate dots progress indicator
     let dotsHtml = '';
     for (let i = 0; i < tourSteps.length; i++) {
         dotsHtml += `<span class="tour-dot ${i === stepIndex ? 'active' : ''}"></span>`;
     }
     
-    // Set Next button label
+    // Set Next/Finish button
     const isLastStep = stepIndex === tourSteps.length - 1;
     const nextBtnText = isLastStep ? 'Selesai' : 'Lanjut <i class="bi bi-chevron-right ms-1"></i>';
     
@@ -921,51 +891,145 @@ function showTourStep(stepIndex) {
         </div>
     `;
     
-    // Position the card relative to target
-    positionTourCard(card, targetElement, step.position);
+    // Wait for DOM layout adjustment before positioning
+    setTimeout(() => {
+        positionTourCard(card, targetElement, step.position);
+    }, 50);
+}
+
+function updateTourSpotlight(target) {
+    let overlay = document.getElementById('tourOverlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'tourOverlay';
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100vw';
+        overlay.style.height = '100vh';
+        overlay.style.pointerEvents = 'none';
+        overlay.style.zIndex = '99999';
+        
+        // Create 4 shadow panels covering viewport except target area
+        const panels = ['top', 'left', 'right', 'bottom'];
+        panels.forEach(p => {
+            const div = document.createElement('div');
+            div.id = `tour-panel-${p}`;
+            div.style.position = 'fixed';
+            div.style.backgroundColor = 'rgba(5, 7, 15, 0.65)';
+            div.style.backdropFilter = 'blur(2px)';
+            div.style.webkitBackdropFilter = 'blur(2px)';
+            div.style.transition = 'all 0.3s ease';
+            div.style.pointerEvents = 'auto'; // clicking panels can trigger close
+            
+            div.addEventListener('click', endInteractiveTour);
+            overlay.appendChild(div);
+        });
+        
+        // Spotlight glow border box
+        const glow = document.createElement('div');
+        glow.id = 'tour-spotlight-glow';
+        glow.style.position = 'absolute';
+        glow.style.border = '2.5px solid #6366f1';
+        glow.style.borderRadius = '18px';
+        glow.style.boxShadow = '0 0 15px rgba(99, 102, 241, 0.5)';
+        glow.style.pointerEvents = 'none';
+        glow.style.transition = 'all 0.3s ease';
+        glow.style.zIndex = '100000';
+        overlay.appendChild(glow);
+        
+        document.body.appendChild(overlay);
+    }
+    
+    const topPanel = document.getElementById('tour-panel-top');
+    const leftPanel = document.getElementById('tour-panel-left');
+    const rightPanel = document.getElementById('tour-panel-right');
+    const bottomPanel = document.getElementById('tour-panel-bottom');
+    const glow = document.getElementById('tour-spotlight-glow');
+    
+    if (!target) {
+        // Spotlight hidden, black out viewport
+        topPanel.style.left = '0'; topPanel.style.top = '0'; topPanel.style.width = '100vw'; topPanel.style.height = '100vh';
+        leftPanel.style.width = '0'; rightPanel.style.width = '0'; bottomPanel.style.height = '0';
+        glow.style.display = 'none';
+        return;
+    }
+    
+    glow.style.display = 'block';
+    const rect = target.getBoundingClientRect();
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Position glow outline box on target
+    glow.style.top = (rect.top + scrollTop - 2.5) + 'px';
+    glow.style.left = (rect.left + scrollLeft - 2.5) + 'px';
+    glow.style.width = (rect.width + 5) + 'px';
+    glow.style.height = (rect.height + 5) + 'px';
+    
+    // Position the 4 viewport panels surrounding target bounding rect
+    topPanel.style.left = '0';
+    topPanel.style.top = '0';
+    topPanel.style.width = '100vw';
+    topPanel.style.height = rect.top + 'px';
+    
+    leftPanel.style.left = '0';
+    leftPanel.style.top = rect.top + 'px';
+    leftPanel.style.width = rect.left + 'px';
+    leftPanel.style.height = rect.height + 'px';
+    
+    rightPanel.style.left = rect.right + 'px';
+    rightPanel.style.top = rect.top + 'px';
+    rightPanel.style.width = (window.innerWidth - rect.right) + 'px';
+    rightPanel.style.height = rect.height + 'px';
+    
+    bottomPanel.style.left = '0';
+    bottomPanel.style.top = rect.bottom + 'px';
+    bottomPanel.style.width = '100vw';
+    bottomPanel.style.height = (window.innerHeight - rect.bottom) + 'px';
 }
 
 function positionTourCard(card, target, position) {
     if (!target) {
-        // Center of screen
+        // Centered fallback if target is not found
+        card.style.position = 'fixed';
         card.style.top = '50%';
         card.style.left = '50%';
         card.style.transform = 'translate(-50%, -50%) scale(1)';
         return;
     }
     
+    card.style.position = 'absolute';
     const rect = target.getBoundingClientRect();
     const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     
     let top, left;
     const margin = 15;
+    const cardWidth = 320;
+    const cardHeight = card.offsetHeight || 160;
     
     if (position === 'bottom') {
         top = rect.bottom + scrollTop + margin;
-        left = rect.left + scrollLeft + (rect.width / 2) - 160; // 160 is half of card width
+        left = rect.left + scrollLeft + (rect.width / 2) - (cardWidth / 2);
     } else if (position === 'top') {
-        top = rect.top + scrollTop - card.offsetHeight - margin;
-        left = rect.left + scrollLeft + (rect.width / 2) - 160;
+        top = rect.top + scrollTop - cardHeight - margin;
+        left = rect.left + scrollLeft + (rect.width / 2) - (cardWidth / 2);
     } else if (position === 'left') {
-        top = rect.top + scrollTop + (rect.height / 2) - 80;
-        left = rect.left + scrollLeft - 320 - margin;
+        top = rect.top + scrollTop + (rect.height / 2) - (cardHeight / 2);
+        left = rect.left + scrollLeft - cardWidth - margin;
     } else if (position === 'right') {
-        top = rect.top + scrollTop + (rect.height / 2) - 80;
+        top = rect.top + scrollTop + (rect.height / 2) - (cardHeight / 2);
         left = rect.right + scrollLeft + margin;
     }
     
-    // Adjust bounds to keep card on screen
+    // Bounds check to prevent bleeding off edge of document viewport
     const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
-    
     if (left < 10) left = 10;
-    if (left + 320 > screenWidth - 10) left = screenWidth - 330;
+    if (left + cardWidth > screenWidth - 10) left = screenWidth - cardWidth - 10;
     if (top < 10) top = 10;
     
     card.style.top = top + 'px';
     card.style.left = left + 'px';
-    card.style.transform = 'scale(1)';
 }
 
 function nextTourStep() {
@@ -985,14 +1049,16 @@ function prevTourStep() {
 }
 
 function endInteractiveTour() {
-    const backdrop = document.getElementById('tourBackdrop');
+    const overlay = document.getElementById('tourOverlay');
     const card = document.getElementById('tourCard');
     
-    if (backdrop) backdrop.classList.remove('active');
-    if (card) card.classList.remove('active');
-    
-    document.querySelectorAll('.tour-highlighted').forEach(el => {
-        el.classList.remove('tour-highlighted');
-    });
+    if (overlay) overlay.remove();
+    if (card) {
+        card.classList.remove('active');
+        // Let transition complete then remove card from DOM
+        setTimeout(() => {
+            if (!card.classList.contains('active')) card.remove();
+        }, 300);
+    }
 }
 </script>
