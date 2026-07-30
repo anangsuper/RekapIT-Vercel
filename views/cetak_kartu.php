@@ -450,7 +450,7 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         height: 54.0mm !important;
         box-sizing: border-box !important;
         border: 1.2px solid #e2e8f0 !important;
-        border-radius: 10px !important;
+        border-radius: 8px !important;
         background: #ffffff !important;
         font-family: 'Plus Jakarta Sans', Arial, sans-serif !important;
         color: #0f172a !important;
@@ -467,12 +467,12 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
     .card-header-sec {
         display: flex !important;
         width: 100% !important;
-        height: 9.5mm !important;
-        border-bottom: 1.5px solid #003d79 !important;
+        height: 11.5mm !important;
+        border-bottom: 1.5px solid #003b73 !important;
         box-sizing: border-box !important;
     }
     .header-logo-box {
-        width: 26% !important;
+        width: 27% !important;
         height: 100% !important;
         border-right: 1px solid #e2e8f0 !important;
         display: flex !important;
@@ -480,67 +480,97 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         justify-content: center !important;
         background: #ffffff !important;
         box-sizing: border-box !important;
-        padding: 0.5mm !important;
+        padding: 0.8mm !important;
     }
     .header-logo-box img {
-        max-height: 8.0mm !important;
+        max-height: 9.8mm !important;
         max-width: 95% !important;
         object-fit: contain !important;
     }
     .header-title-box {
-        width: 74% !important;
+        width: 73% !important;
         height: 100% !important;
         display: flex !important;
         flex-direction: column !important;
         box-sizing: border-box !important;
     }
     .header-main-title {
-        background-color: #003d79 !important;
+        background-color: #003b73 !important;
         color: #ffffff !important;
         font-weight: 800 !important;
-        font-size: 7.2pt !important;
+        font-size: 7.8pt !important;
         text-align: center !important;
-        height: 4.5mm !important;
-        line-height: 4.5mm !important;
+        height: 5.5mm !important;
+        line-height: 5.5mm !important;
         text-transform: uppercase !important;
         letter-spacing: 0.2px !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
     .header-sub-sec {
-        height: 5.0mm !important;
+        height: 6.0mm !important;
         background: #ffffff !important;
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
-        padding: 0 2mm 0 1.5mm !important;
+        padding: 0 !important;
         box-sizing: border-box !important;
         position: relative !important;
     }
-    .header-sub-title {
-        background: linear-gradient(90deg, #8dc63f 0%, #003d79 100%) !important;
+    
+    /* Green Banner with Teal Accent and Slant */
+    .green-banner-wrapper {
+        position: relative !important;
+        display: flex !important;
+        height: 100% !important;
+        width: 75% !important;
+    }
+    .teal-stripe {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background-color: #009ca6 !important;
+        clip-path: polygon(0 0, 78% 0, 71% 100%, 0 100%) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    .green-banner {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 92% !important;
+        height: 100% !important;
+        background: #7ac142 !important;
+        clip-path: polygon(0 0, 78% 0, 71% 100%, 0 100%) !important;
         color: #ffffff !important;
         font-weight: 800 !important;
         font-size: 7.2pt !important;
-        text-align: center !important;
-        height: 4.0mm !important;
-        line-height: 4.0mm !important;
-        padding: 0 4mm 0 2mm !important;
-        border-radius: 0 10px 10px 0 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.3px !important;
+        letter-spacing: 0.5px !important;
+        display: flex !important;
+        align-items: center !important;
+        padding-left: 2.5mm !important;
+        box-sizing: border-box !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+    }
+    
+    .header-dots-container {
+        display: flex !important;
+        align-items: center !important;
+        padding-right: 3mm !important;
+        height: 100% !important;
     }
     .header-dots {
         display: grid !important;
         grid-template-columns: repeat(3, 1mm) !important;
-        grid-gap: 0.5mm !important;
+        grid-gap: 0.8mm !important;
     }
     .header-dots span {
-        width: 0.8mm !important;
-        height: 0.8mm !important;
-        background-color: #8dc63f !important;
+        width: 0.9mm !important;
+        height: 0.9mm !important;
+        background-color: #7ac142 !important;
         border-radius: 50% !important;
         display: block !important;
         -webkit-print-color-adjust: exact !important;
@@ -559,84 +589,109 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
     .card-field-row {
         display: flex !important;
         width: 100% !important;
-        height: 6.0mm !important;
+        height: 6.125mm !important;
         border-bottom: 1px solid #e2e8f0 !important;
         box-sizing: border-box !important;
     }
-    .field-label {
-        width: 26% !important;
+    .field-icon-box {
+        width: 8.5mm !important;
         height: 100% !important;
-        background-color: #f8fafc !important;
-        color: #475569 !important;
-        font-weight: 700 !important;
-        font-size: 7.0pt !important;
-        display: flex !important;
-        align-items: center !important;
-        padding-left: 2.0mm !important;
-        box-sizing: border-box !important;
-        border-right: 1px solid #e2e8f0 !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-    .field-value-container {
-        width: 74% !important;
-        height: 100% !important;
-        display: flex !important;
-        align-items: center !important;
-        background: #ffffff !important;
-        box-sizing: border-box !important;
-    }
-    .field-icon {
-        width: 6.5mm !important;
-        height: 100% !important;
-        border-right: 1px solid #f1f5f9 !important;
+        background-color: #003b73 !important;
+        color: #ffffff !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        color: #64748b !important;
         box-sizing: border-box !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
     .field-svg-icon {
-        width: 3.2mm !important;
-        height: 3.2mm !important;
-        color: #003d79 !important;
+        width: 3.5mm !important;
+        height: 3.5mm !important;
+        color: #ffffff !important;
     }
-    .field-value {
-        font-size: 7.2pt !important;
-        color: #0f172a !important;
+    .field-content-box {
+        display: flex !important;
+        align-items: center !important;
+        width: 77.1mm !important;
+        height: 100% !important;
+        background: #ffffff !important;
+        box-sizing: border-box !important;
+    }
+    .field-lbl {
+        width: 25.5mm !important;
+        color: #003b73 !important;
+        font-weight: 800 !important;
+        font-size: 7.0pt !important;
+        display: flex !important;
+        align-items: center !important;
+        padding-left: 3.0mm !important;
+        box-sizing: border-box !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.2px !important;
+    }
+    .field-sep {
+        color: #7ac142 !important;
+        font-weight: 800 !important;
+        font-size: 9.0pt !important;
+        margin: 0 1.0mm 0 2.0mm !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    .field-val {
+        font-size: 7.5pt !important;
+        color: #1e293b !important;
+        font-weight: 800 !important;
         padding-left: 2.0mm !important;
-        font-weight: 500 !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-    }
-    .field-value.value-bold {
-        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        flex-grow: 1;
     }
 
     /* Bottom Section */
     .card-bottom-sec {
         display: flex !important;
         width: 100% !important;
-        height: 20.5mm !important; /* Locked to precise height to fit 54mm card */
-        border-top: 1.5px solid #8dc63f !important;
-        background-color: #f8fafc !important;
+        height: 18.0mm !important;
+        border-top: 1.5px solid #7ac142 !important;
+        background-color: #ffffff !important;
         box-sizing: border-box !important;
+        position: relative !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
+    
+    /* Decorative Waves */
+    .card-waves {
+        position: absolute !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 85.6mm !important;
+        height: 7.5mm !important;
+        z-index: 1 !important;
+        pointer-events: none !important;
+    }
+    
     .bottom-left-attention {
-        width: 68% !important;
+        width: 66% !important;
         height: 100% !important;
         display: flex !important;
         align-items: center !important;
-        padding: 1.0mm 2.0mm !important;
+        padding: 1.0mm 1.5mm 1.0mm 3.0mm !important;
         box-sizing: border-box !important;
+        z-index: 2 !important;
     }
     .attention-icon {
         margin-right: 2.0mm !important;
         display: flex !important;
         align-items: center !important;
+    }
+    .attention-svg-icon {
+        width: 7.0mm !important;
+        height: 7.0mm !important;
+        color: #003b73 !important;
     }
     .attention-text-box {
         display: flex !important;
@@ -644,30 +699,37 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
     }
     .attention-title {
         font-weight: 800 !important;
-        font-size: 6.2pt !important;
+        font-size: 6.8pt !important;
         color: #dc2626 !important;
-        margin-bottom: 0.2mm !important;
+        margin-bottom: 0.3mm !important;
         text-transform: uppercase !important;
         letter-spacing: 0.3px !important;
     }
     .attention-desc {
-        font-size: 4.8pt !important;
-        line-height: 1.2 !important;
+        font-size: 4.6pt !important;
+        line-height: 1.25 !important;
         color: #475569 !important;
         font-weight: 600 !important;
     }
+    
+    .attention-qr-separator {
+        width: 1px !important;
+        height: 13.0mm !important;
+        background-color: #e2e8f0 !important;
+        align-self: center !important;
+        z-index: 2 !important;
+    }
+    
     .bottom-right-qr {
-        width: 32% !important;
+        width: 34% !important;
         height: 100% !important;
         display: flex !important;
+        flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
-        background: #f8fafc !important;
         box-sizing: border-box !important;
-        padding: 1.0mm !important;
-        border-left: 1px solid #e2e8f0 !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
+        padding: 1.0mm 1.0mm 2.0mm 1.0mm !important;
+        z-index: 2 !important;
     }
     .qr-border-box {
         border: 1px solid #e2e8f0 !important;
@@ -678,15 +740,44 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         align-items: center !important;
         justify-content: center !important;
         box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
+        margin-bottom: 0.8mm !important;
     }
     .card-qr-img {
-        width: 13.5mm !important;
-        height: 13.5mm !important;
+        width: 13.0mm !important;
+        height: 13.0mm !important;
     }
     .card-qr-img canvas, .card-qr-img img {
-        width: 13.5mm !important;
-        height: 13.5mm !important;
+        width: 13.0mm !important;
+        height: 13.0mm !important;
         margin: 0 auto !important;
+    }
+    
+    /* Green Scan Info Capsule */
+    .scan-info-capsule {
+        background-color: #008744 !important;
+        color: #ffffff !important;
+        border-radius: 12px !important;
+        padding: 0.5mm 1.8mm !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.6mm !important;
+        height: 3.2mm !important;
+        width: 20.0mm !important;
+        box-sizing: border-box !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    .scan-icon {
+        width: 2.2mm !important;
+        height: 2.2mm !important;
+        color: #ffffff !important;
+    }
+    .scan-info-capsule span {
+        font-size: 3.8pt !important;
+        font-weight: 800 !important;
+        white-space: nowrap !important;
+        letter-spacing: 0.1px !important;
     }
 }
 </style>
@@ -877,10 +968,15 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="header-title-box">
                                 <div class="header-main-title">PT BPR MITRATAMA ARTHABUANA</div>
                                 <div class="header-sub-sec">
-                                    <div class="header-sub-title">ASSET TETAP</div>
-                                    <div class="header-dots">
-                                        <span></span><span></span><span></span>
-                                        <span></span><span></span><span></span>
+                                    <div class="green-banner-wrapper">
+                                        <div class="teal-stripe"></div>
+                                        <div class="green-banner">ASSET TETAP</div>
+                                    </div>
+                                    <div class="header-dots-container">
+                                        <div class="header-dots">
+                                            <span></span><span></span><span></span>
+                                            <span></span><span></span><span></span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -890,60 +986,88 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="card-fields-sec">
                             <!-- Nomor Asset -->
                             <div class="card-field-row">
-                                <div class="field-label">Nomor Asset</div>
-                                <div class="field-value-container">
-                                    <div class="field-icon">
-                                        <svg viewBox="0 0 16 16" fill="currentColor" class="field-svg-icon"><path d="M2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 8.586V2zm3.5 3.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg>
-                                    </div>
-                                    <div class="field-value">${item.assetnum}</div>
+                                <div class="field-icon-box">
+                                    <svg viewBox="0 0 16 16" fill="currentColor" class="field-svg-icon"><path d="M2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 8.586V2zm3.5 3.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg>
+                                </div>
+                                <div class="field-content-box">
+                                    <span class="field-lbl">NOMOR ASSET</span>
+                                    <span class="field-sep">|</span>
+                                    <span class="field-val">${item.assetnum}</span>
                                 </div>
                             </div>
                             <!-- Nama Asset -->
                             <div class="card-field-row">
-                                <div class="field-label">Nama Asset</div>
-                                <div class="field-value-container">
-                                    <div class="field-icon">
-                                        <svg viewBox="0 0 16 16" fill="currentColor" class="field-svg-icon"><path d="M12 1H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zM4 2h8a1 1 0 0 1 1 1v7H3V3a1 1 0 0 1 1-1z"/><path d="M8 12a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
-                                    </div>
-                                    <div class="field-value value-bold">${item.nama}</div>
+                                <div class="field-icon-box">
+                                    <svg viewBox="0 0 16 16" fill="currentColor" class="field-svg-icon"><path d="M12 1H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zM4 2h8a1 1 0 0 1 1 1v7H3V3a1 1 0 0 1 1-1z"/><path d="M8 12a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
+                                </div>
+                                <div class="field-content-box">
+                                    <span class="field-lbl">NAMA ASSET</span>
+                                    <span class="field-sep">|</span>
+                                    <span class="field-val">${item.nama}</span>
                                 </div>
                             </div>
                             <!-- Tgl Perolehan -->
                             <div class="card-field-row">
-                                <div class="field-label">Tgl Perolehan</div>
-                                <div class="field-value-container">
-                                    <div class="field-icon">
-                                        <svg viewBox="0 0 16 16" fill="currentColor" class="field-svg-icon"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>
-                                    </div>
-                                    <div class="field-value">${item.tanggal}</div>
+                                <div class="field-icon-box">
+                                    <svg viewBox="0 0 16 16" fill="currentColor" class="field-svg-icon"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>
+                                </div>
+                                <div class="field-content-box">
+                                    <span class="field-lbl">TGL PEROLEHAN</span>
+                                    <span class="field-sep">|</span>
+                                    <span class="field-val">${item.tanggal}</span>
                                 </div>
                             </div>
                             <!-- Lokasi -->
                             <div class="card-field-row">
-                                <div class="field-label">Lokasi</div>
-                                <div class="field-value-container">
-                                    <div class="field-icon">
-                                        <svg viewBox="0 0 16 16" fill="currentColor" class="field-svg-icon"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
-                                    </div>
-                                    <div class="field-value">${manualLoc}</div>
+                                <div class="field-icon-box">
+                                    <svg viewBox="0 0 16 16" fill="currentColor" class="field-svg-icon"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
+                                </div>
+                                <div class="field-content-box">
+                                    <span class="field-lbl">LOKASI</span>
+                                    <span class="field-sep">|</span>
+                                    <span class="field-val">${manualLoc}</span>
                                 </div>
                             </div>
                         </div>
                         
                         <!-- Bottom Section (Attention & QR) -->
                         <div class="card-bottom-sec">
+                            <!-- Background Wave Graphics -->
+                            <div class="card-waves">
+                                <svg viewBox="0 0 85.6 7.5" preserveAspectRatio="none" style="width: 100%; height: 100%; display: block;">
+                                    <!-- Green Wave (Bottom Left) -->
+                                    <path d="M 0 3 C 8 2.5, 18 5, 24 7.5 L 0 7.5 Z" fill="#7ac142" />
+                                    <!-- Blue Wave (Bottom Center & Right) -->
+                                    <path d="M 5 7.5 Q 32 3, 58 6.5 T 85.6 3.5 L 85.6 7.5 Z" fill="#003b73" />
+                                </svg>
+                            </div>
+                            
                             <div class="bottom-left-attention">
                                 <div class="attention-icon">
-                                    <svg viewBox="0 0 16 16" fill="currentColor" class="attention-svg-icon" style="color: #003d79; width: 20px; height: 20px;"><path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.117.773 7.537 2.527 9.578 1.158 1.348 2.63 2.106 3.292 2.402a.474.474 0 0 0 .416 0c.662-.296 2.134-1.054 3.292-2.402 1.754-2.04 3.081-5.461 2.527-9.578a.48.48 0 0 0-.328-.39 61.44 61.44 0 0 0-2.837-.856.481.481 0 0 0-.415.118L8 2.22l-2.247-1.512a.48.48 0 0 0-.415-.119zm0-1.59a1.48 1.48 0 0 1 .825.248L8 1.44l2.163-1.455a1.48 1.48 0 0 1 1.255-.078c1.373.486 2.536 1.058 3.524 1.402a1.48 1.48 0 0 1 .98 1.2c.706 5.253-1.05 9.475-3.328 12.124-1.523 1.772-3.468 2.684-4.224 3.022a1.475 1.475 0 0 1-1.34 0c-.756-.338-2.7-1.25-4.224-3.022C1.756 12.115-.002 7.893.704 2.64a1.48 1.48 0 0 1 .98-1.2c.988-.344 2.15-.916 3.524-1.402a1.48 1.48 0 0 1 .13-.048z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/></svg>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#003b73" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="attention-svg-icon">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                        <line x1="12" y1="8" x2="12" y2="13" />
+                                        <line x1="12" y1="16.5" x2="12.01" y2="16.5" stroke-width="3" />
+                                    </svg>
                                 </div>
                                 <div class="attention-text-box">
                                     <div class="attention-title">Perhatian</div>
                                     <div class="attention-desc">${attentionText}</div>
                                 </div>
                             </div>
+                            
+                            <div class="attention-qr-separator"></div>
+                            
                             <div class="bottom-right-qr">
                                 <div class="qr-border-box">
                                     <div id="${cardId}" class="card-qr-img"></div>
+                                </div>
+                                <div class="scan-info-capsule">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="scan-icon">
+                                        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                                        <line x1="12" y1="18" x2="12.01" y2="18"/>
+                                    </svg>
+                                    <span>SCAN UNTUK INFO</span>
                                 </div>
                             </div>
                         </div>
@@ -966,8 +1090,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Generate QR Code
                 new QRCode(elem, {
                     text: item.barcode,
-                    width: 38,
-                    height: 38,
+                    width: 60,
+                    height: 60,
                     correctLevel: QRCode.CorrectLevel.M
                 });
             }
