@@ -7,11 +7,53 @@ $cabangModel = new Cabang($conn);
 
 $branches = $cabangModel->getAll();
 
+// Map branch ID to branch name for autofill
+$branchMap = [];
+foreach ($branches as $b) {
+    $code = str_pad($b['id'], 2, '0', STR_PAD_LEFT);
+    $branchMap[$code] = $b['nama_cabang'];
+}
+
 // Proses Hapus
 if (isset($_POST['hapus'])) {
     $id = $_POST['id'];
     if ($inventarisModel->delete($id)) {
         header("Location: index.php?page=cetak_kartu&status=deleted");
+        exit();
+    }
+}
+
+// Proses Impor dari Aset IT
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['import_assets'])) {
+    $selectedAssetIds = $_POST['asset_ids'] ?? [];
+    if (!empty($selectedAssetIds)) {
+        $placeholders = implode(',', array_fill(0, count($selectedAssetIds), '?'));
+        $stmt = $conn->prepare("
+            SELECT a.kode_aset, a.nama_aset, a.created_at
+            FROM assets a
+            WHERE a.id IN ($placeholders)
+        ");
+        $stmt->execute($selectedAssetIds);
+        $imported = $stmt->fetchAll();
+        
+        $stmtInsert = $conn->prepare("
+            INSERT INTO inventaris_kartu (nomor_rekening, nama_barang, tanggal_perolehan, barcode_data)
+            VALUES (?, ?, ?, ?)
+        ");
+        
+        $successCount = 0;
+        foreach ($imported as $imp) {
+            $tanggal = date('Y-m-d', strtotime($imp['created_at']));
+            $stmtInsert->execute([
+                $imp['kode_aset'],
+                $imp['nama_aset'],
+                $tanggal,
+                $imp['kode_aset']
+            ]);
+            $successCount++;
+        }
+        
+        header("Location: index.php?page=cetak_kartu&status=success_import&count=" . $successCount);
         exit();
     }
 }
@@ -48,6 +90,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
 // Hanya ambil data input manual khusus dari tabel inventaris_kartu
 $items = $inventarisModel->getAll();
 
+// Ambil daftar aset IT untuk modal impor
+try {
+    $stmtAssetsList = $conn->query("
+        SELECT a.id, a.kode_aset, a.nama_aset, a.kondisi, a.created_at, 
+               c.nama_cabang, d.nama_divisi, k.nama_kategori
+        FROM assets a
+        LEFT JOIN cabang c ON a.id_cabang = c.id
+        LEFT JOIN divisi d ON a.id_divisi = d.id
+        LEFT JOIN kategori_aset k ON a.id_kategori = k.id
+        ORDER BY a.created_at DESC
+    ");
+    $assetsList = $stmtAssetsList->fetchAll();
+} catch (PDOException $e) {
+    $assetsList = [];
+}
+
 // Path preloading logo kustom
 $base_dir_path = dirname($_SERVER['SCRIPT_NAME']);
 $base_dir_path = str_replace('\\', '/', $base_dir_path);
@@ -79,6 +137,9 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
             <button id="btnCetakMassal" class="btn btn-outline-primary shadow-sm" disabled>
                 <i class="bi bi-printer me-2"></i> Cetak Kartu Pilihan (<span id="selectedCount">0</span>)
             </button>
+            <button class="btn btn-outline-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalImportAsset">
+                <i class="bi bi-box-seam me-2"></i> Pilih dari Aset IT
+            </button>
             <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambah">
                 <i class="bi bi-plus-lg me-2"></i> Tambah Data Kartu
             </button>
@@ -90,6 +151,10 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
         $status = $_GET['status'];
         $msg = "Berhasil memproses data!";
         if ($status === 'success') $msg = "Data kartu inventaris baru berhasil ditambahkan!";
+        if ($status === 'success_import') {
+            $count = isset($_GET['count']) ? intval($_GET['count']) : 0;
+            $msg = "Berhasil mengimpor $count data aset dari database Aset IT secara otomatis!";
+        }
         if ($status === 'updated') $msg = "Perubahan data kartu berhasil disimpan!";
         if ($status === 'deleted') $msg = "Data kartu inventaris berhasil dihapus!";
     ?>
@@ -164,6 +229,7 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
                                 }
                                 $combinedAssetNum = $cleanRek . $cleanTgl;
                                 $branchCode = substr($item['nomor_rekening'], 0, 2);
+                                $branchName = isset($branchMap[$branchCode]) ? $branchMap[$branchCode] : '';
                             ?>
                             <tr class="card-row-item" data-rekening="<?= htmlspecialchars($item['nomor_rekening']) ?>" data-branch-code="<?= $branchCode ?>">
                                 <td class="ps-4">
@@ -173,7 +239,8 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
                                                data-nama="<?= htmlspecialchars($item['nama_barang']) ?>"
                                                data-tanggal="<?= date('d/m/Y', strtotime($item['tanggal_perolehan'])) ?>"
                                                data-assetnum="<?= htmlspecialchars($combinedAssetNum) ?>"
-                                               data-barcode="<?= htmlspecialchars($item['barcode_data']) ?>">
+                                               data-barcode="<?= htmlspecialchars($item['barcode_data']) ?>"
+                                               data-cabang="<?= htmlspecialchars($branchName) ?>">
                                     </div>
                                 </td>
                                 <td><strong><?= htmlspecialchars($item['nomor_rekening']) ?></strong></td>
@@ -213,6 +280,82 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Import dari Aset IT -->
+<div class="modal fade" id="modalImportAsset" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+            <form method="POST">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="fw-800 m-0"><i class="bi bi-box-seam-fill text-primary me-2"></i>Impor dari Aset IT</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted small mb-3">Pilih aset dari database utama untuk ditambahkan secara otomatis ke daftar kartu inventaris.</p>
+                    
+                    <div class="position-relative mb-3">
+                        <i class="bi bi-search position-absolute top-50 start-3 translate-middle-y text-muted" style="left: 12px; transform: translateY(-50%); pointer-events: none;"></i>
+                        <input type="text" id="importSearchInput" class="form-control ps-5" placeholder="Cari Kode Aset, Nama, Merk, Model, Cabang..." style="font-size: 0.85rem; height: 38px;">
+                    </div>
+
+                    <div class="border rounded-4 overflow-hidden" style="max-height: 350px; overflow-y: auto !important; border-color: var(--card-border) !important;">
+                        <table class="table table-hover align-middle mb-0" style="font-size: 0.84rem;">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3" style="width: 50px;">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="importCheckAll">
+                                        </div>
+                                    </th>
+                                    <th>Kode Aset</th>
+                                    <th>Nama Aset</th>
+                                    <th>Cabang - Divisi</th>
+                                    <th>Kondisi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($assetsList)): ?>
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-muted small">Tidak ada data aset IT tersedia.</td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($assetsList as $asset): ?>
+                                        <tr class="import-asset-row" data-search="<?= htmlspecialchars(strtolower($asset['kode_aset'] . ' ' . $asset['nama_aset'] . ' ' . ($asset['nama_cabang'] ?? '') . ' ' . ($asset['nama_kategori'] ?? ''))) ?>">
+                                            <td class="ps-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input import-item-checkbox" type="checkbox" name="asset_ids[]" value="<?= $asset['id'] ?>">
+                                                </div>
+                                            </td>
+                                            <td><strong><?= htmlspecialchars($asset['kode_aset']) ?></strong></td>
+                                            <td><?= htmlspecialchars($asset['nama_aset']) ?></td>
+                                            <td><small class="text-muted"><?= htmlspecialchars(($asset['nama_cabang'] ?: '-') . ' - ' . ($asset['nama_divisi'] ?: '-')) ?></small></td>
+                                            <td>
+                                                <?php 
+                                                $condColor = 'success';
+                                                if ($asset['kondisi'] === 'Rusak Ringan') $condColor = 'warning';
+                                                if ($asset['kondisi'] === 'Rusak Berat') $condColor = 'danger';
+                                                ?>
+                                                <span class="badge bg-<?= $condColor ?> bg-opacity-10 text-<?= $condColor ?> rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.65rem;">
+                                                    <?= $asset['kondisi'] ?>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" name="import_assets" class="btn btn-primary px-4" id="btnSubmitImport" disabled>
+                        Impor Terpilih (<span id="importSelectedCount">0</span>)
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -461,6 +604,9 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         padding: 0 !important;
         margin: 0 !important;
         box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04) !important;
+        /* Garis bantu gunting / crop marks */
+        outline: 0.8px dashed #cbd5e1 !important;
+        outline-offset: 1.5mm !important;
     }
 
     /* Top Header Section */
@@ -889,6 +1035,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const id = cb.value;
             const rekening = cb.getAttribute('data-rekening');
             const nama = cb.getAttribute('data-nama');
+            const cabang = cb.getAttribute('data-cabang') || '';
             
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -897,6 +1044,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td class="pe-3 py-2">
                     <input type="text" class="form-control form-control-sm print-location-input" 
                            data-id="${id}" 
+                           value="${cabang}"
                            placeholder="Contoh: KC.BTL/Lt-2/Ruang-AO">
                 </td>
             `;
@@ -1149,6 +1297,65 @@ document.addEventListener('DOMContentLoaded', function() {
             filterRekening.value = '';
             filterCabang.value = '';
             applyFilters();
+        });
+    }
+
+    // Modal Import JS logic
+    const importCheckAll = document.getElementById('importCheckAll');
+    const importCheckboxes = document.querySelectorAll('.import-item-checkbox');
+    const btnSubmitImport = document.getElementById('btnSubmitImport');
+    const importSelectedCount = document.getElementById('importSelectedCount');
+    const importSearchInput = document.getElementById('importSearchInput');
+    const importAssetRows = document.querySelectorAll('.import-asset-row');
+
+    function updateImportSelectionState() {
+        const checked = document.querySelectorAll('.import-item-checkbox:checked');
+        importSelectedCount.innerText = checked.length;
+        btnSubmitImport.disabled = (checked.length === 0);
+    }
+
+    if (importCheckAll) {
+        importCheckAll.addEventListener('change', function() {
+            importCheckboxes.forEach(cb => {
+                const row = cb.closest('tr');
+                if (row.style.display !== 'none') {
+                    cb.checked = importCheckAll.checked;
+                }
+            });
+            updateImportSelectionState();
+        });
+    }
+
+    importCheckboxes.forEach(cb => {
+        cb.addEventListener('change', function() {
+            if (!cb.checked) {
+                importCheckAll.checked = false;
+            } else {
+                const visibleCheckboxes = Array.from(importCheckboxes).filter(c => c.closest('tr').style.display !== 'none');
+                const visibleChecked = visibleCheckboxes.filter(c => c.checked);
+                importCheckAll.checked = (visibleChecked.length === visibleCheckboxes.length);
+            }
+            updateImportSelectionState();
+        });
+    });
+
+    if (importSearchInput) {
+        importSearchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            importAssetRows.forEach(row => {
+                const text = row.getAttribute('data-search');
+                if (text.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                    const cb = row.querySelector('.import-item-checkbox');
+                    if (cb && cb.checked) {
+                        cb.checked = false;
+                    }
+                }
+            });
+            importCheckAll.checked = false;
+            updateImportSelectionState();
         });
     }
 });
