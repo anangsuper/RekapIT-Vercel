@@ -16,6 +16,19 @@ $branches = $cabangModel->getAll();
 $divisis = $divisiModel->getAll();
 $assets = $assetModel->getAll();
 
+// Handle Logout Cleanup if logged_out param is set
+if (isset($_GET['logged_out'])) {
+    $_SESSION = [];
+    if (isset($_COOKIE['REKAPIT_SESSION'])) {
+        unset($_COOKIE['REKAPIT_SESSION']);
+    }
+    $isSecure = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || 
+                (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+    if (!headers_sent()) {
+        setcookie('REKAPIT_SESSION', '', time() - 3600, '/', '', $isSecure, true);
+    }
+}
+
 $loginError = null;
 
 // Handle Inline Helpdesk Login
@@ -48,6 +61,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['helpdesk_login'])) {
 
 // Check Login State
 $isLoggedIn = isset($_SESSION['user_id']);
+if (!$isLoggedIn) {
+    header("Location: helpdesk_login.php");
+    exit();
+}
 $userNama = $_SESSION['nama'] ?? '';
 $userRole = $_SESSION['role'] ?? '';
 

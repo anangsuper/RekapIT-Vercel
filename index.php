@@ -19,13 +19,22 @@ if (isset($_SESSION['user_id'])) {
 
 if (!isset($_SESSION['user_id'])) {
     $currentPage = basename($_SERVER['PHP_SELF']);
-    if ($currentPage != 'login.php' && !isset($_GET['page'])) {
+    $requestedPage = $_GET['page'] ?? '';
+    if ($requestedPage === 'helpdesk' || $requestedPage === 'helpdesk_login') {
+        header('Location: helpdesk_login.php');
+        exit();
+    }
+    if ($currentPage != 'login.php' && $currentPage != 'helpdesk_login.php' && !isset($_GET['page'])) {
         header('Location: login.php');
         exit();
     }
 }
 
 $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
+if ($page === 'helpdesk_login') {
+    header('Location: helpdesk_login.php');
+    exit();
+}
 $file = __DIR__ . '/views/' . $page . '.php';
 
 // Restricted pages for teknisi
