@@ -288,7 +288,7 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
         if (file_exists($metaFile)) {
             $meta = json_decode(file_get_contents($metaFile), true);
             if (isset($meta['last_sync'])) {
-                $lastSync = date('d M Y, H:i:s', $meta['last_sync']);
+                $lastSync = format_tanggal_indonesia($meta['last_sync']) . ', ' . date('H:i:s', $meta['last_sync']);
             }
         }
         ?>

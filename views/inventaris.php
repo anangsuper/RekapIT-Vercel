@@ -431,7 +431,7 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                                             $w_text = 'Habis';
                                         }
                                         ?>
-                                        <span class="badge bg-<?= $w_color ?> bg-opacity-10 text-<?= $w_color ?> rounded px-2.5 py-1.5 fw-bold" style="font-size: 0.68rem;" title="Hingga: <?= date('d M Y', $exp_date) ?>">
+                                        <span class="badge bg-<?= $w_color ?> bg-opacity-10 text-<?= $w_color ?> rounded px-2.5 py-1.5 fw-bold" style="font-size: 0.68rem;" title="Hingga: <?= format_tanggal_indonesia($exp_date) ?>">
                                             🛡️ <?= $w_text ?>
                                         </span>
                                         <?php
@@ -473,7 +473,7 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                                                        data-divisi="<?= htmlspecialchars($a['nama_divisi']) ?>"
                                                        data-karyawan="<?= htmlspecialchars($a['nama_karyawan'] ?: 'Unassigned') ?>"
                                                        data-kondisi="<?= $a['kondisi'] ?>"
-                                                       data-garansi="<?= !empty($a['tanggal_kadaluarsa_garansi']) ? date('d M Y', strtotime($a['tanggal_kadaluarsa_garansi'])) : '-' ?>"
+                                                       data-garansi="<?= !empty($a['tanggal_kadaluarsa_garansi']) ? format_tanggal_indonesia($a['tanggal_kadaluarsa_garansi']) : '-' ?>"
                                                        data-spesifikasi="<?= htmlspecialchars($a['spesifikasi'] ?: '') ?>"
                                                        data-foto="<?= htmlspecialchars($a['foto'] ?? '') ?>">
                                                     <i class="bi bi-eye me-2 text-info"></i> Lihat Detail</a></li>
