@@ -152,7 +152,7 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
 
 <div class="row g-4 mb-5 animate-fade-in">
     <!-- Stat Card 1 -->
-    <div class="col-12 col-sm-6 col-lg-3">
+    <div class="col-12 col-sm-6 col-lg-3" id="tour-step-stats">
         <div class="card border-0 h-100 shadow-sm" style="border-radius: 18px;">
             <div class="card-body p-4 d-flex align-items-center justify-content-between">
                 <div>
@@ -221,7 +221,7 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
 <div class="row g-4 mb-5 animate-fade-in" style="animation-delay: 0.1s;">
     <!-- Welcome Card -->
     <div class="col-md-8">
-        <div class="card p-4 border-0 mb-4 h-100 shadow-sm">
+        <div class="card p-4 border-0 mb-4 h-100 shadow-sm" id="tour-step-welcome">
             <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
                 <div class="d-flex align-items-center">
                     <div class="bg-dark text-white p-3 rounded-4 me-3">
@@ -232,9 +232,14 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
                         <p class="text-muted small m-0">Kelola aset, maintenance, dan repair dari satu tempat.</p>
                     </div>
                 </div>
-                <a href="index.php?page=logs" class="btn btn-secondary btn-sm px-3 shadow-sm" style="border-radius: 20px;">
-                    <i class="bi bi-clock-history me-1 text-primary"></i> Log Aktivitas
-                </a>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary btn-sm px-3 shadow-sm" style="border-radius: 20px;" onclick="startInteractiveTour()">
+                        <i class="bi bi-compass me-1"></i> Tur Panduan
+                    </button>
+                    <a href="index.php?page=logs" class="btn btn-secondary btn-sm px-3 shadow-sm" style="border-radius: 20px;">
+                        <i class="bi bi-clock-history me-1 text-primary"></i> Log Aktivitas
+                    </a>
+                </div>
             </div>
 
             <div class="row g-3">
@@ -288,7 +293,7 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
         }
         ?>
         <!-- Google Sheets Card -->
-        <div class="card p-4 border-0 mb-4 shadow-sm h-100" style="border-radius: 18px;">
+        <div class="card p-4 border-0 mb-4 shadow-sm h-100" style="border-radius: 18px;" id="tour-step-sheets">
             <div class="d-flex align-items-center mb-3">
                 <div class="bg-success bg-opacity-10 p-2.5 rounded-3 me-3 text-success d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
                     <i class="bi bi-cloud-check fs-4"></i>
@@ -673,3 +678,321 @@ document.addEventListener("DOMContentLoaded", function() {
         </div>
     </div>
 </div>
+
+<!-- Floating Interactive Tour Elements -->
+<style>
+/* Styling Tour Panduan Interaktif */
+.tour-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(5, 7, 15, 0.6);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 99999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.tour-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+.tour-card {
+    position: fixed;
+    z-index: 100000;
+    background: #0f172a;
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 15px rgba(99, 102, 241, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    width: 320px;
+    color: #f8fafc;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.95);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tour-card.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+}
+.tour-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.tour-step-badge {
+    background: rgba(99, 102, 241, 0.15);
+    color: #818cf8;
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.tour-close-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.1rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    transition: color 0.2s ease;
+}
+.tour-close-btn:hover {
+    color: #ef4444;
+}
+.tour-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 8px;
+}
+.tour-desc {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: #94a3b8;
+    margin-bottom: 16px;
+}
+.tour-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.tour-dots {
+    display: flex;
+    gap: 4px;
+}
+.tour-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #475569;
+    transition: all 0.2s ease;
+}
+.tour-dot.active {
+    background: #6366f1;
+    width: 12px;
+    border-radius: 3px;
+}
+.tour-nav-btns {
+    display: flex;
+    gap: 6px;
+}
+.tour-nav-btns button {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.tour-btn-prev {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+}
+.tour-btn-prev:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+.tour-btn-next {
+    background: #6366f1;
+    border: 1px solid #6366f1;
+    color: #ffffff;
+}
+.tour-btn-next:hover {
+    background: #4f46e5;
+}
+.tour-highlighted {
+    position: relative !important;
+    z-index: 100000 !important;
+    box-shadow: 0 0 0 9999px rgba(5, 7, 15, 0.7), 0 0 25px rgba(99, 102, 241, 0.7) !important;
+    border-color: rgba(99, 102, 241, 0.7) !important;
+    pointer-events: none !important;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease !important;
+}
+</style>
+
+<script>
+let currentTourStep = 0;
+const tourSteps = [
+    {
+        target: 'tour-step-stats',
+        title: 'Statistik Sistem Utama',
+        desc: 'Di sini Anda dapat memantau indikator operasional secara real-time, seperti total aset terdaftar, jumlah perawatan terjadwal, aset bermasalah (perlu tindakan), serta total biaya perbaikan bulan ini.',
+        position: 'bottom'
+    },
+    {
+        target: 'tour-step-welcome',
+        title: 'Pintasan Operasional Cepat',
+        desc: 'Gunakan tombol aksi cepat ini untuk langsung mendaftarkan aset baru, mengisi laporan pemeriksaan maintenance rutin, atau membuka daftar tiket perbaikan.',
+        position: 'bottom'
+    },
+    {
+        target: 'tour-step-sheets',
+        title: 'Konektivitas Google Sheets',
+        desc: 'Semua perubahan data langsung disimpan ke Google Sheets (write-through). Data dibaca dari SQLite cache lokal (super cepat). Klik tombol "Sinkronisasi" di sini jika Anda melakukan perubahan manual di Google Sheets agar data lokal ter-update.',
+        position: 'left'
+    },
+    {
+        target: 'sidebarContainer',
+        title: 'Navigasi Menu Utama',
+        desc: 'Menu navigasi di sisi kiri mengelompokkan fitur aplikasi: Monitoring (Dashboard & Log), Operasional (Maintenance, Perbaikan, Helpdesk, Audit), dan Manajemen Aset (Inventaris, Cetak Kartu, Kategori, Mutasi).',
+        position: 'right'
+    }
+];
+
+function startInteractiveTour() {
+    // Create elements if not exist
+    let backdrop = document.getElementById('tourBackdrop');
+    let tourCard = document.getElementById('tourCard');
+    
+    if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.id = 'tourBackdrop';
+        backdrop.className = 'tour-backdrop';
+        document.body.appendChild(backdrop);
+    }
+    
+    if (!tourCard) {
+        tourCard = document.createElement('div');
+        tourCard.id = 'tourCard';
+        tourCard.className = 'tour-card';
+        document.body.appendChild(tourCard);
+    }
+    
+    currentTourStep = 0;
+    backdrop.classList.add('active');
+    backdrop.addEventListener('click', endInteractiveTour);
+    
+    showTourStep(0);
+}
+
+function showTourStep(stepIndex) {
+    const step = tourSteps[stepIndex];
+    const targetElement = document.getElementById(step.target);
+    
+    // Remove previous highlights
+    document.querySelectorAll('.tour-highlighted').forEach(el => {
+        el.classList.remove('tour-highlighted');
+    });
+    
+    if (targetElement) {
+        targetElement.classList.add('tour-highlighted');
+        // Scroll target into view gently
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    
+    const card = document.getElementById('tourCard');
+    card.classList.add('active');
+    
+    // Generate dots
+    let dotsHtml = '';
+    for (let i = 0; i < tourSteps.length; i++) {
+        dotsHtml += `<span class="tour-dot ${i === stepIndex ? 'active' : ''}"></span>`;
+    }
+    
+    // Set Next button label
+    const isLastStep = stepIndex === tourSteps.length - 1;
+    const nextBtnText = isLastStep ? 'Selesai' : 'Lanjut <i class="bi bi-chevron-right ms-1"></i>';
+    
+    card.innerHTML = `
+        <div class="tour-card-header">
+            <span class="tour-step-badge">Langkah ${stepIndex + 1} dari ${tourSteps.length}</span>
+            <button class="tour-close-btn" onclick="endInteractiveTour()">&times;</button>
+        </div>
+        <div class="tour-title">${step.title}</div>
+        <div class="tour-desc">${step.desc}</div>
+        <div class="tour-card-footer">
+            <div class="tour-dots">${dotsHtml}</div>
+            <div class="tour-nav-btns">
+                ${stepIndex > 0 ? `<button class="tour-btn-prev" onclick="prevTourStep()"><i class="bi bi-chevron-left me-1"></i> Kembali</button>` : ''}
+                <button class="tour-btn-next" onclick="nextTourStep()">${nextBtnText}</button>
+            </div>
+        </div>
+    `;
+    
+    // Position the card relative to target
+    positionTourCard(card, targetElement, step.position);
+}
+
+function positionTourCard(card, target, position) {
+    if (!target) {
+        // Center of screen
+        card.style.top = '50%';
+        card.style.left = '50%';
+        card.style.transform = 'translate(-50%, -50%) scale(1)';
+        return;
+    }
+    
+    const rect = target.getBoundingClientRect();
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    let top, left;
+    const margin = 15;
+    
+    if (position === 'bottom') {
+        top = rect.bottom + scrollTop + margin;
+        left = rect.left + scrollLeft + (rect.width / 2) - 160; // 160 is half of card width
+    } else if (position === 'top') {
+        top = rect.top + scrollTop - card.offsetHeight - margin;
+        left = rect.left + scrollLeft + (rect.width / 2) - 160;
+    } else if (position === 'left') {
+        top = rect.top + scrollTop + (rect.height / 2) - 80;
+        left = rect.left + scrollLeft - 320 - margin;
+    } else if (position === 'right') {
+        top = rect.top + scrollTop + (rect.height / 2) - 80;
+        left = rect.right + scrollLeft + margin;
+    }
+    
+    // Adjust bounds to keep card on screen
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    
+    if (left < 10) left = 10;
+    if (left + 320 > screenWidth - 10) left = screenWidth - 330;
+    if (top < 10) top = 10;
+    
+    card.style.top = top + 'px';
+    card.style.left = left + 'px';
+    card.style.transform = 'scale(1)';
+}
+
+function nextTourStep() {
+    if (currentTourStep < tourSteps.length - 1) {
+        currentTourStep++;
+        showTourStep(currentTourStep);
+    } else {
+        endInteractiveTour();
+    }
+}
+
+function prevTourStep() {
+    if (currentTourStep > 0) {
+        currentTourStep--;
+        showTourStep(currentTourStep);
+    }
+}
+
+function endInteractiveTour() {
+    const backdrop = document.getElementById('tourBackdrop');
+    const card = document.getElementById('tourCard');
+    
+    if (backdrop) backdrop.classList.remove('active');
+    if (card) card.classList.remove('active');
+    
+    document.querySelectorAll('.tour-highlighted').forEach(el => {
+        el.classList.remove('tour-highlighted');
+    });
+}
+</script>
