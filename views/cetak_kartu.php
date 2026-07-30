@@ -882,27 +882,27 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         align-items: center !important;
         justify-content: center !important;
         box-sizing: border-box !important;
-        padding: 1.0mm 1.0mm 2.0mm 1.0mm !important;
+        padding: 0.8mm 1.0mm !important;
         z-index: 2 !important;
     }
     .qr-border-box {
         border: 1px solid #e2e8f0 !important;
-        border-radius: 6px !important;
-        padding: 0.8mm !important;
+        border-radius: 5px !important;
+        padding: 0.5mm !important;
         background: #ffffff !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
-        margin-bottom: 0.8mm !important;
+        margin-bottom: 0.6mm !important;
     }
     .card-qr-img {
-        width: 13.0mm !important;
-        height: 13.0mm !important;
+        width: 10.5mm !important;
+        height: 10.5mm !important;
     }
     .card-qr-img canvas, .card-qr-img img {
-        width: 13.0mm !important;
-        height: 13.0mm !important;
+        width: 10.5mm !important;
+        height: 10.5mm !important;
         margin: 0 auto !important;
     }
     
@@ -911,24 +911,24 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         background-color: #008744 !important;
         color: #ffffff !important;
         border-radius: 12px !important;
-        padding: 0.5mm 1.8mm !important;
+        padding: 0.4mm 1.6mm !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 0.6mm !important;
-        height: 3.2mm !important;
-        width: 20.0mm !important;
+        gap: 0.5mm !important;
+        height: 2.8mm !important;
+        width: 19.0mm !important;
         box-sizing: border-box !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
     .scan-icon {
-        width: 2.2mm !important;
-        height: 2.2mm !important;
+        width: 1.8mm !important;
+        height: 1.8mm !important;
         color: #ffffff !important;
     }
     .scan-info-capsule span {
-        font-size: 3.8pt !important;
+        font-size: 3.5pt !important;
         font-weight: 800 !important;
         white-space: nowrap !important;
         letter-spacing: 0.1px !important;
