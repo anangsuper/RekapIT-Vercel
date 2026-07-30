@@ -248,7 +248,7 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
                                 <td>
                                     <div class="small text-muted">
                                         <i class="bi bi-calendar3 me-1 text-primary"></i>
-                                        <?= date('d M Y', strtotime($item['tanggal_perolehan'])) ?>
+                                        <?= format_tanggal_indonesia($item['tanggal_perolehan']) ?>
                                     </div>
                                 </td>
                                 <td>
