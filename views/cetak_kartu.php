@@ -673,7 +673,7 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         position: relative !important;
         display: flex !important;
         height: 100% !important;
-        width: 86% !important;
+        width: 75% !important;
     }
     .teal-stripe {
         position: absolute !important;
@@ -682,7 +682,7 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         width: 100% !important;
         height: 100% !important;
         background-color: #009ca6 !important;
-        clip-path: polygon(0 0, 88% 0, 80% 100%, 0 100%) !important;
+        clip-path: polygon(0 0, 78% 0, 71% 100%, 0 100%) !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
@@ -690,21 +690,20 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         position: absolute !important;
         top: 0 !important;
         left: 0 !important;
-        width: 96% !important;
+        width: 92% !important;
         height: 100% !important;
         background: #7ac142 !important;
-        clip-path: polygon(0 0, 88% 0, 80% 100%, 0 100%) !important;
+        clip-path: polygon(0 0, 78% 0, 71% 100%, 0 100%) !important;
         color: #ffffff !important;
         font-weight: 800 !important;
-        font-size: 5.4pt !important;
-        letter-spacing: 0.2px !important;
+        font-size: 7.2pt !important;
+        letter-spacing: 0.5px !important;
         display: flex !important;
         align-items: center !important;
-        padding-left: 2.0mm !important;
+        padding-left: 2.5mm !important;
         box-sizing: border-box !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        white-space: nowrap !important;
     }
     
     .header-dots-container {
@@ -1130,7 +1129,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <div class="header-sub-sec">
                                     <div class="green-banner-wrapper">
                                         <div class="teal-stripe"></div>
-                                        <div class="green-banner">ASSET TETAP | REKAP IT - ASSET MANAGEMENT</div>
+                                        <div class="green-banner">ASSET TETAP</div>
                                     </div>
                                     <div class="header-dots-container">
                                         <div class="header-dots">
@@ -1426,7 +1425,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         </td>
                                         <td>
                                             <div class="c-title-main">PT BPR MITRATAMA ARTHABUANA</div>
-                                            <div class="c-title-sub">ASSET TETAP | REKAP IT - ASSET MANAGEMENT</div>
+                                            <div class="c-title-sub">ASSET TETAP</div>
                                         </td>
                                     </tr>
                                 </table>
