@@ -1364,7 +1364,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
 
-            // Build Word HTML Document
+            // Build Word HTML Document with strict MS Word table layout compatibility
             let wordHtml = `
             <html xmlns:o='urn:schemas-microsoft-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
             <head>
@@ -1380,95 +1380,80 @@ document.addEventListener('DOMContentLoaded', function() {
                 </xml>
                 <![endif]-->
                 <style>
-                    @page { size: A4; margin: 10mm; }
-                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 8pt; background: #ffffff; color: #000000; margin: 0; padding: 0; }
-                    table.grid-table { border-collapse: separate; border-spacing: 12px; width: 100%; margin: 0 auto; }
-                    td.card-box { width: 310px; border: 1.5pt solid #cbd5e1; border-radius: 8px; vertical-align: top; padding: 0; background: #ffffff; }
-                    
-                    table.c-header { width: 100%; border-collapse: collapse; border-bottom: 1.5pt solid #003b73; background: #ffffff; }
-                    table.c-header td { vertical-align: middle; }
-                    .c-logo-cell { width: 75px; padding: 4px; text-align: center; border-right: 1px solid #e2e8f0; }
-                    .c-logo-cell img { max-height: 32px; max-width: 70px; }
-                    .c-title-main { background-color: #003b73; color: #ffffff; font-weight: bold; font-size: 7.5pt; text-align: center; padding: 3px 0; text-transform: uppercase; }
-                    .c-title-sub { background-color: #7ac142; color: #ffffff; font-weight: bold; font-size: 5.5pt; padding: 2px 4px; text-transform: uppercase; }
-                    
-                    table.field-tbl { width: 100%; border-collapse: collapse; margin-top: 0; }
-                    table.field-tbl td { padding: 3px 6px; border-bottom: 1px solid #e2e8f0; font-size: 7.5pt; }
-                    .lbl-col { width: 85px; font-weight: bold; color: #003b73; text-transform: uppercase; background: #f8fafc; }
-                    .val-col { color: #1e293b; font-weight: bold; }
-                    
-                    table.bottom-tbl { width: 100%; border-collapse: collapse; margin-top: 2px; border-top: 1.5pt solid #7ac142; background: #ffffff; }
-                    table.bottom-tbl td { vertical-align: middle; padding: 4px; }
-                    .att-title { color: #dc2626; font-weight: bold; font-size: 6.5pt; text-transform: uppercase; }
-                    .att-desc { color: #475569; font-size: 5pt; line-height: 1.2; }
-                    .qr-cell { width: 75px; text-align: center; border-left: 1px solid #e2e8f0; }
-                    .qr-cell img { width: 45px; height: 45px; }
-                    .scan-tag { background-color: #008744; color: #ffffff; font-size: 4.5pt; font-weight: bold; padding: 1px 4px; border-radius: 6px; display: inline-block; margin-top: 2px; }
+                    @page { size: A4; margin: 8mm; }
+                    body { font-family: Arial, sans-serif; font-size: 8pt; background: #ffffff; color: #000000; margin: 0; padding: 0; }
+                    table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+                    td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
                 </style>
             </head>
             <body>
-                <table class="grid-table">
+                <table width="100%" border="0" cellpadding="0" cellspacing="8" style="width:100%;">
             `;
 
             const cols = (limitPerPage === 12) ? 3 : 2;
+            const cardCellWidth = (cols === 3) ? "220" : "320";
+
             for (let i = 0; i < cardDataList.length; i += cols) {
                 wordHtml += `<tr>`;
                 for (let j = 0; j < cols; j++) {
                     const item = cardDataList[i + j];
                     if (item) {
                         wordHtml += `
-                            <td class="card-box">
-                                <table class="c-header" cellpadding="0" cellspacing="0">
+                            <td width="${cardCellWidth}" valign="top" style="width:${cardCellWidth}px; border:1px solid #cbd5e1; background:#ffffff; vertical-align:top; padding:0;">
+                                <!-- Card Header -->
+                                <table width="100%" border="0" cellpadding="0" cellspacing="0" style="width:100%; border-collapse:collapse; border-bottom:1.5pt solid #003b73;">
                                     <tr>
-                                        <td class="c-logo-cell">
-                                            ${logoBase64 ? `<img src="${logoBase64}" alt="Logo">` : '<strong style="color:#003b73; font-size:7pt;">BANK MITRA</strong>'}
+                                        <td width="75" align="center" valign="middle" style="width:75px; padding:4px; text-align:center; border-right:1px solid #e2e8f0; vertical-align:middle;">
+                                            ${logoBase64 ? `<img src="${logoBase64}" width="65" height="26" border="0" style="display:block; margin:0 auto; width:65px; height:26px;">` : '<strong style="color:#003b73; font-size:7pt;">BANK MITRA</strong>'}
                                         </td>
-                                        <td>
-                                            <div class="c-title-main">PT BPR MITRATAMA ARTHABUANA</div>
-                                            <div class="c-title-sub">ASSET TETAP</div>
+                                        <td valign="middle" style="vertical-align:middle; padding:0;">
+                                            <div style="background-color:#003b73; color:#ffffff; font-weight:bold; font-size:7.5pt; text-align:center; padding:3px 2px; text-transform:uppercase; margin:0;">PT BPR MITRATAMA ARTHABUANA</div>
+                                            <div style="background-color:#7ac142; color:#ffffff; font-weight:bold; font-size:6.5pt; text-align:left; padding:2px 6px; text-transform:uppercase; margin:0;">ASSET TETAP</div>
                                         </td>
                                     </tr>
                                 </table>
                                 
-                                <table class="field-tbl" cellpadding="0" cellspacing="0">
+                                <!-- Fields Table -->
+                                <table width="100%" border="0" cellpadding="0" cellspacing="0" style="width:100%; border-collapse:collapse;">
                                     <tr>
-                                        <td class="lbl-col">NOMOR ASSET</td>
-                                        <td style="width:5px; color:#7ac142; font-weight:bold;">|</td>
-                                        <td class="val-col">${item.assetnum}</td>
+                                        <td width="85" style="width:85px; font-weight:bold; color:#003b73; font-size:7.5pt; padding:3px 6px; border-bottom:1px solid #e2e8f0; background:#f8fafc; text-transform:uppercase;">NOMOR ASSET</td>
+                                        <td width="10" align="center" style="width:10px; color:#7ac142; font-weight:bold; font-size:8pt; padding:3px 0; border-bottom:1px solid #e2e8f0;">|</td>
+                                        <td style="font-weight:bold; color:#1e293b; font-size:7.5pt; padding:3px 6px; border-bottom:1px solid #e2e8f0;">${item.assetnum}</td>
                                     </tr>
                                     <tr>
-                                        <td class="lbl-col">NAMA ASSET</td>
-                                        <td style="width:5px; color:#7ac142; font-weight:bold;">|</td>
-                                        <td class="val-col">${item.nama}</td>
+                                        <td width="85" style="width:85px; font-weight:bold; color:#003b73; font-size:7.5pt; padding:3px 6px; border-bottom:1px solid #e2e8f0; background:#f8fafc; text-transform:uppercase;">NAMA ASSET</td>
+                                        <td width="10" align="center" style="width:10px; color:#7ac142; font-weight:bold; font-size:8pt; padding:3px 0; border-bottom:1px solid #e2e8f0;">|</td>
+                                        <td style="font-weight:bold; color:#1e293b; font-size:7.5pt; padding:3px 6px; border-bottom:1px solid #e2e8f0;">${item.nama}</td>
                                     </tr>
                                     <tr>
-                                        <td class="lbl-col">TGL PEROLEHAN</td>
-                                        <td style="width:5px; color:#7ac142; font-weight:bold;">|</td>
-                                        <td class="val-col">${item.tanggal}</td>
+                                        <td width="85" style="width:85px; font-weight:bold; color:#003b73; font-size:7.5pt; padding:3px 6px; border-bottom:1px solid #e2e8f0; background:#f8fafc; text-transform:uppercase;">TGL PEROLEHAN</td>
+                                        <td width="10" align="center" style="width:10px; color:#7ac142; font-weight:bold; font-size:8pt; padding:3px 0; border-bottom:1px solid #e2e8f0;">|</td>
+                                        <td style="font-weight:bold; color:#1e293b; font-size:7.5pt; padding:3px 6px; border-bottom:1px solid #e2e8f0;">${item.tanggal}</td>
                                     </tr>
                                     <tr>
-                                        <td class="lbl-col">LOKASI</td>
-                                        <td style="width:5px; color:#7ac142; font-weight:bold;">|</td>
-                                        <td class="val-col">${item.location}</td>
+                                        <td width="85" style="width:85px; font-weight:bold; color:#003b73; font-size:7.5pt; padding:3px 6px; border-bottom:1px solid #e2e8f0; background:#f8fafc; text-transform:uppercase;">LOKASI</td>
+                                        <td width="10" align="center" style="width:10px; color:#7ac142; font-weight:bold; font-size:8pt; padding:3px 0; border-bottom:1px solid #e2e8f0;">|</td>
+                                        <td style="font-weight:bold; color:#1e293b; font-size:7.5pt; padding:3px 6px; border-bottom:1px solid #e2e8f0;">${item.location}</td>
                                     </tr>
                                 </table>
 
-                                <table class="bottom-tbl" cellpadding="0" cellspacing="0">
+                                <!-- Bottom Section -->
+                                <table width="100%" border="0" cellpadding="0" cellspacing="0" style="width:100%; border-collapse:collapse; border-top:1.5pt solid #7ac142; background:#ffffff;">
                                     <tr>
-                                        <td>
-                                            <div class="att-title">Perhatian</div>
-                                            <div class="att-desc">${attentionText}</div>
+                                        <td valign="top" style="padding:4px 6px; vertical-align:top;">
+                                            <div style="color:#dc2626; font-weight:bold; font-size:6.5pt; text-transform:uppercase; margin-bottom:2px;">PERHATIAN</div>
+                                            <div style="color:#475569; font-size:5pt; line-height:1.2; font-weight:normal;">${attentionText}</div>
                                         </td>
-                                        <td class="qr-cell">
-                                            ${item.qrBase64 ? `<img src="${item.qrBase64}" alt="QR">` : ''}
-                                            <br><span class="scan-tag">SCAN INFO</span>
+                                        <td width="75" align="center" valign="middle" style="width:75px; padding:4px; text-align:center; border-left:1px solid #e2e8f0; vertical-align:middle;">
+                                            ${item.qrBase64 ? `<img src="${item.qrBase64}" width="45" height="45" border="0" style="display:block; margin:0 auto; width:45px; height:45px;">` : ''}
+                                            <div style="background-color:#008744; color:#ffffff; font-size:4.5pt; font-weight:bold; padding:1px 4px; border-radius:4px; display:inline-block; margin-top:2px;">SCAN UNTUK INFO</div>
                                         </td>
                                     </tr>
                                 </table>
                             </td>
                         `;
                     } else {
-                        wordHtml += `<td style="border:none;"></td>`;
+                        wordHtml += `<td width="${cardCellWidth}" style="width:${cardCellWidth}px; border:none;"></td>`;
                     }
                 }
                 wordHtml += `</tr>`;
