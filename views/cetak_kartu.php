@@ -483,8 +483,11 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
                     </table>
                 </div>
             </div>
-            <div class="modal-footer border-0 p-4 pt-0">
+            <div class="modal-footer border-0 p-4 pt-0 gap-2">
                 <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Batal</button>
+                <button type="button" id="btnEksporWord" class="btn btn-success px-4">
+                    <i class="bi bi-file-earmark-word me-2"></i> Ekspor Word (.doc)
+                </button>
                 <button type="button" id="btnProsesCetak" class="btn btn-primary px-4">
                     <i class="bi bi-printer me-2"></i> Cetak Sekarang
                 </button>
@@ -1268,6 +1271,231 @@ document.addEventListener('DOMContentLoaded', function() {
             window.print();
         }, 300);
     });
+
+    // Handle Ekspor ke MS Word (.doc)
+    const btnEksporWord = document.getElementById('btnEksporWord');
+    if (btnEksporWord) {
+        btnEksporWord.addEventListener('click', async function() {
+            const checked = document.querySelectorAll('.item-checkbox:checked');
+            if (checked.length === 0) return;
+
+            const originalBtnHtml = btnEksporWord.innerHTML;
+            btnEksporWord.disabled = true;
+            btnEksporWord.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Mengolah Data...';
+
+            // Get manual locations
+            const locationsMap = {};
+            document.querySelectorAll('.print-location-input').forEach(input => {
+                const id = input.getAttribute('data-id');
+                locationsMap[id] = input.value.trim() || '-';
+            });
+
+            const limitPerPage = parseInt(printLayout.value);
+            const attentionText = printAttention.value.trim();
+
+            const currentPath = window.location.pathname;
+            const baseDir = currentPath.substring(0, currentPath.lastIndexOf('/'));
+            const logoUrl = (baseDir ? baseDir : '') + '/assets/LOGO TYPE 2.png';
+
+            // Convert logo to Base64
+            let logoBase64 = '';
+            try {
+                logoBase64 = await new Promise((resolve) => {
+                    const img = new Image();
+                    img.crossOrigin = 'Anonymous';
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        resolve(canvas.toDataURL('image/png'));
+                    };
+                    img.onerror = () => resolve('');
+                    img.src = logoUrl;
+                });
+            } catch (e) {
+                console.error(e);
+            }
+
+            const selectedItems = Array.from(checked).map(cb => ({
+                id: cb.value,
+                rekening: cb.getAttribute('data-rekening'),
+                nama: cb.getAttribute('data-nama'),
+                tanggal: cb.getAttribute('data-tanggal'),
+                assetnum: cb.getAttribute('data-assetnum'),
+                barcode: cb.getAttribute('data-barcode')
+            }));
+
+            // Generate QR codes as base64
+            const cardDataList = [];
+            for (const item of selectedItems) {
+                const manualLoc = locationsMap[item.id] || '-';
+                
+                // Create temporary div for QR code
+                const tempQrDiv = document.createElement('div');
+                tempQrDiv.style.position = 'absolute';
+                tempQrDiv.style.left = '-9999px';
+                document.body.appendChild(tempQrDiv);
+
+                new QRCode(tempQrDiv, {
+                    text: item.barcode,
+                    width: 100,
+                    height: 100,
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+
+                // Wait for canvas / image inside tempQrDiv
+                await new Promise(r => setTimeout(r, 100));
+
+                let qrBase64 = '';
+                const canvas = tempQrDiv.querySelector('canvas');
+                if (canvas) {
+                    qrBase64 = canvas.toDataURL('image/png');
+                } else {
+                    const img = tempQrDiv.querySelector('img');
+                    if (img && img.src) qrBase64 = img.src;
+                }
+                document.body.removeChild(tempQrDiv);
+
+                cardDataList.push({
+                    ...item,
+                    location: manualLoc,
+                    qrBase64: qrBase64
+                });
+            }
+
+            // Build Word HTML Document
+            let wordHtml = `
+            <html xmlns:o='urn:schemas-microsoft-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+            <head>
+                <meta charset='utf-8'>
+                <title>Kartu Inventaris - Rekap IT</title>
+                <!--[if gte mso 9]>
+                <xml>
+                <w:WordDocument>
+                    <w:View>Print</w:View>
+                    <w:Zoom>100</w:Zoom>
+                    <w:DoNotOptimizeForBrowser/>
+                </w:WordDocument>
+                </xml>
+                <![endif]-->
+                <style>
+                    @page { size: A4; margin: 10mm; }
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 8pt; background: #ffffff; color: #000000; margin: 0; padding: 0; }
+                    table.grid-table { border-collapse: separate; border-spacing: 12px; width: 100%; margin: 0 auto; }
+                    td.card-box { width: 310px; border: 1.5pt solid #cbd5e1; border-radius: 8px; vertical-align: top; padding: 0; background: #ffffff; }
+                    
+                    table.c-header { width: 100%; border-collapse: collapse; border-bottom: 1.5pt solid #003b73; background: #ffffff; }
+                    table.c-header td { vertical-align: middle; }
+                    .c-logo-cell { width: 75px; padding: 4px; text-align: center; border-right: 1px solid #e2e8f0; }
+                    .c-logo-cell img { max-height: 32px; max-width: 70px; }
+                    .c-title-main { background-color: #003b73; color: #ffffff; font-weight: bold; font-size: 7.5pt; text-align: center; padding: 3px 0; text-transform: uppercase; }
+                    .c-title-sub { background-color: #7ac142; color: #ffffff; font-weight: bold; font-size: 5.5pt; padding: 2px 4px; text-transform: uppercase; }
+                    
+                    table.field-tbl { width: 100%; border-collapse: collapse; margin-top: 0; }
+                    table.field-tbl td { padding: 3px 6px; border-bottom: 1px solid #e2e8f0; font-size: 7.5pt; }
+                    .lbl-col { width: 85px; font-weight: bold; color: #003b73; text-transform: uppercase; background: #f8fafc; }
+                    .val-col { color: #1e293b; font-weight: bold; }
+                    
+                    table.bottom-tbl { width: 100%; border-collapse: collapse; margin-top: 2px; border-top: 1.5pt solid #7ac142; background: #ffffff; }
+                    table.bottom-tbl td { vertical-align: middle; padding: 4px; }
+                    .att-title { color: #dc2626; font-weight: bold; font-size: 6.5pt; text-transform: uppercase; }
+                    .att-desc { color: #475569; font-size: 5pt; line-height: 1.2; }
+                    .qr-cell { width: 75px; text-align: center; border-left: 1px solid #e2e8f0; }
+                    .qr-cell img { width: 45px; height: 45px; }
+                    .scan-tag { background-color: #008744; color: #ffffff; font-size: 4.5pt; font-weight: bold; padding: 1px 4px; border-radius: 6px; display: inline-block; margin-top: 2px; }
+                </style>
+            </head>
+            <body>
+                <table class="grid-table">
+            `;
+
+            const cols = (limitPerPage === 12) ? 3 : 2;
+            for (let i = 0; i < cardDataList.length; i += cols) {
+                wordHtml += `<tr>`;
+                for (let j = 0; j < cols; j++) {
+                    const item = cardDataList[i + j];
+                    if (item) {
+                        wordHtml += `
+                            <td class="card-box">
+                                <table class="c-header" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td class="c-logo-cell">
+                                            ${logoBase64 ? `<img src="${logoBase64}" alt="Logo">` : '<strong style="color:#003b73; font-size:7pt;">BANK MITRA</strong>'}
+                                        </td>
+                                        <td>
+                                            <div class="c-title-main">PT BPR MITRATAMA ARTHABUANA</div>
+                                            <div class="c-title-sub">ASSET TETAP | REKAP IT - ASSET MANAGEMENT</div>
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                                <table class="field-tbl" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td class="lbl-col">NOMOR ASSET</td>
+                                        <td style="width:5px; color:#7ac142; font-weight:bold;">|</td>
+                                        <td class="val-col">${item.assetnum}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="lbl-col">NAMA ASSET</td>
+                                        <td style="width:5px; color:#7ac142; font-weight:bold;">|</td>
+                                        <td class="val-col">${item.nama}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="lbl-col">TGL PEROLEHAN</td>
+                                        <td style="width:5px; color:#7ac142; font-weight:bold;">|</td>
+                                        <td class="val-col">${item.tanggal}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="lbl-col">LOKASI</td>
+                                        <td style="width:5px; color:#7ac142; font-weight:bold;">|</td>
+                                        <td class="val-col">${item.location}</td>
+                                    </tr>
+                                </table>
+
+                                <table class="bottom-tbl" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td>
+                                            <div class="att-title">Perhatian</div>
+                                            <div class="att-desc">${attentionText}</div>
+                                        </td>
+                                        <td class="qr-cell">
+                                            ${item.qrBase64 ? `<img src="${item.qrBase64}" alt="QR">` : ''}
+                                            <br><span class="scan-tag">SCAN INFO</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        `;
+                    } else {
+                        wordHtml += `<td style="border:none;"></td>`;
+                    }
+                }
+                wordHtml += `</tr>`;
+            }
+
+            wordHtml += `
+                </table>
+            </body>
+            </html>
+            `;
+
+            // Trigger Download as .doc
+            const blob = new Blob(['\ufeff' + wordHtml], { type: 'application/msword' });
+            const downloadUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = `Kartu_Inventaris_RekapIT_${new Date().toISOString().slice(0, 10)}.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(downloadUrl);
+
+            btnEksporWord.disabled = false;
+            btnEksporWord.innerHTML = originalBtnHtml;
+        });
+    }
 
     // Client-side Filtering for Nomor Rekening and Cabang
     const filterRekening = document.getElementById('filterRekening');
