@@ -152,11 +152,17 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
             </div>
         </div>
         <div class="d-flex gap-2 flex-wrap">
+            <button type="button" id="btnClearSelection" class="btn btn-outline-secondary shadow-sm" style="display: none;" title="Batalkan semua pilihan kartu">
+                <i class="bi bi-x-circle me-1"></i> Batalkan Pilihan
+            </button>
             <button type="button" id="btnHapusMassal" class="btn btn-outline-danger shadow-sm" disabled title="Hapus kartu terpilih secara sekaligus">
                 <i class="bi bi-trash me-1"></i> Hapus Terpilih (<span id="deleteSelectedCount">0</span>)
             </button>
             <button type="button" id="btnCetakMassal" class="btn btn-outline-primary shadow-sm" disabled>
                 <i class="bi bi-printer me-2"></i> Cetak Kartu Pilihan (<span id="selectedCount">0</span>)
+            </button>
+            <button type="button" id="btnExportCsv" class="btn btn-outline-success shadow-sm" title="Ekspor data kartu terpilih/terfilter ke CSV / Excel">
+                <i class="bi bi-file-earmark-excel me-2"></i> Ekspor CSV / Excel
             </button>
             <button class="btn btn-outline-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalImportAsset">
                 <i class="bi bi-box-seam me-2"></i> Pilih dari Aset IT
@@ -183,10 +189,16 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
             $count = isset($_GET['count']) ? intval($_GET['count']) : 0;
             $msg = "Berhasil menghapus $count data kartu inventaris secara massal!";
         }
+        if ($status === 'error_delete') {
+            $msg = "Gagal menghapus data kartu inventaris! Silakan coba lagi.";
+        }
+        if ($status === 'no_selection') {
+            $msg = "Tidak ada data kartu yang dipilih untuk dihapus!";
+        }
     ?>
-        <div class="alert alert-success border-0 shadow-sm rounded-4 p-3 mb-4 d-flex align-items-center justify-content-between animate-fade-in" role="alert" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-            <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-check-circle-fill fs-5"></i>
+        <div class="alert alert-info alert-dismissible fade show rounded-4 border-0 shadow-sm d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-check-circle-fill fs-5 me-3 text-info"></i>
+            <div>
                 <span class="small fw-semibold"><?= htmlspecialchars($msg) ?></span>
             </div>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -197,12 +209,12 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
         <!-- Table Toolbar / Filters (Integrated & Sleek) -->
         <div class="p-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-3" style="border-color: var(--card-border) !important;">
-            <div class="d-flex align-items-center gap-2 flex-grow-1 flex-md-grow-0">
+            <div class="d-flex align-items-center gap-2 flex-grow-1 flex-md-grow-0 flex-wrap">
                 <div class="position-relative flex-grow-1" style="min-width: 240px;">
                     <i class="bi bi-search position-absolute top-50 start-3 translate-middle-y text-muted" style="left: 12px; transform: translateY(-50%); pointer-events: none;"></i>
-                    <input type="text" id="filterRekening" class="form-control ps-5" placeholder="Cari nomor rekening..." style="font-size: 0.85rem; height: 38px;">
+                    <input type="text" id="filterRekening" class="form-control ps-5" placeholder="Cari nomor rekening / nama..." style="font-size: 0.85rem; height: 38px;">
                 </div>
-                <select id="filterCabang" class="form-select" style="width: 200px; font-size: 0.85rem; height: 38px;">
+                <select id="filterCabang" class="form-select" style="width: 180px; font-size: 0.85rem; height: 38px;">
                     <option value="">Semua Cabang</option>
                     <?php foreach ($branches as $branch): 
                         $code = str_pad($branch['id'], 2, '0', STR_PAD_LEFT);
@@ -214,11 +226,21 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
                     <i class="bi bi-arrow-counterclockwise"></i>
                 </button>
             </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="small text-muted fw-semibold">Tampilkan:</span>
+                <select id="pageSizeSelect" class="form-select form-select-sm" style="width: 110px; font-size: 0.85rem; height: 38px;">
+                    <option value="10">10 baris</option>
+                    <option value="25" selected>25 baris</option>
+                    <option value="50">50 baris</option>
+                    <option value="100">100 baris</option>
+                    <option value="all">Semua</option>
+                </select>
+            </div>
         </div>
 
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover align-middle mb-0" id="mainInventoryTable">
                     <thead>
                         <tr>
                             <th class="ps-4" style="width: 50px;">
@@ -226,9 +248,15 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
                                     <input class="form-check-input" type="checkbox" id="checkAll">
                                 </div>
                             </th>
-                            <th>Nomor Rekening</th>
-                            <th>Nama Barang</th>
-                            <th>Tanggal Perolehan</th>
+                            <th class="sortable-header" data-sort-key="rekening" style="cursor: pointer; user-select: none;" title="Klik untuk mengurutkan Nomor Rekening">
+                                Nomor Rekening <i class="bi bi-arrow-down-up ms-1 text-muted sort-icon"></i>
+                            </th>
+                            <th class="sortable-header" data-sort-key="nama" style="cursor: pointer; user-select: none;" title="Klik untuk mengurutkan Nama Barang">
+                                Nama Barang <i class="bi bi-arrow-down-up ms-1 text-muted sort-icon"></i>
+                            </th>
+                            <th class="sortable-header" data-sort-key="tanggal" style="cursor: pointer; user-select: none;" title="Klik untuk mengurutkan Tanggal Perolehan">
+                                Tanggal Perolehan <i class="bi bi-arrow-down-up ms-1 text-muted sort-icon"></i>
+                            </th>
                             <th>Nomor Asset (Gabungan)</th>
                             <th>Kode QR / Barcode</th>
                             <th class="text-end pe-4" style="width: 150px;">Aksi</th>
@@ -305,6 +333,20 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
                         <?php endif; ?>
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="p-3 border-top d-flex align-items-center justify-content-between flex-wrap gap-2" style="border-color: var(--card-border) !important;">
+            <div class="small text-muted fw-semibold" id="paginationInfo">
+                Menampilkan 0 - 0 dari 0 data
+            </div>
+            <div class="btn-group btn-group-sm" id="paginationControls">
+                <button type="button" class="btn btn-outline-secondary" id="btnPageFirst" title="Halaman Pertama"><i class="bi bi-chevron-double-left"></i></button>
+                <button type="button" class="btn btn-outline-secondary" id="btnPagePrev" title="Halaman Sebelumnya"><i class="bi bi-chevron-left"></i></button>
+                <span class="btn btn-light disabled px-3 text-dark fw-bold" id="pageIndicator">1 / 1</span>
+                <button type="button" class="btn btn-outline-secondary" id="btnPageNext" title="Halaman Selanjutnya"><i class="bi bi-chevron-right"></i></button>
+                <button type="button" class="btn btn-outline-secondary" id="btnPageLast" title="Halaman Terakhir"><i class="bi bi-chevron-double-right"></i></button>
             </div>
         </div>
     </div>
@@ -512,7 +554,15 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
                             </div>
                         </div>
 
-                        <h6 class="fw-bold mb-3"><i class="bi bi-geo-alt-fill text-danger me-2"></i>Isi Lokasi Aset Secara Manual</h6>
+                        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                            <h6 class="fw-bold m-0"><i class="bi bi-geo-alt-fill text-danger me-2"></i>Isi Lokasi Aset Secara Manual</h6>
+                            <div class="d-flex gap-2 align-items-center">
+                                <input type="text" id="inputBatchLocation" class="form-control form-control-sm" placeholder="Isi lokasi semua kartu..." style="width: 220px;">
+                                <button type="button" id="btnApplyBatchLocation" class="btn btn-sm btn-outline-primary text-nowrap">
+                                    <i class="bi bi-check2-all me-1"></i> Terapkan ke Semua
+                                </button>
+                            </div>
+                        </div>
                         <div class="border rounded-4 overflow-hidden mb-2" style="max-height: 220px; overflow-y: auto !important; border-color: var(--card-border) !important;">
                             <table class="table table-sm align-middle mb-0" style="font-size: 0.84rem;">
                                 <thead>
@@ -1769,36 +1819,192 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Client-side Filtering for Nomor Rekening and Cabang
+    // -------------------------------------------------------------
+    // FEATURE 1: Clear Selection & Batch Location
+    // -------------------------------------------------------------
+    const btnClearSelection = document.getElementById('btnClearSelection');
+    if (btnClearSelection) {
+        btnClearSelection.addEventListener('click', function() {
+            checkboxes.forEach(cb => cb.checked = false);
+            if (checkAll) checkAll.checked = false;
+            updateSelectionState();
+        });
+    }
+
+    const btnApplyBatchLocation = document.getElementById('btnApplyBatchLocation');
+    const inputBatchLocation = document.getElementById('inputBatchLocation');
+    if (btnApplyBatchLocation && inputBatchLocation) {
+        btnApplyBatchLocation.addEventListener('click', function() {
+            const locVal = inputBatchLocation.value.trim();
+            if (!locVal) {
+                alert('Silakan ketik lokasi aset terlebih dahulu.');
+                return;
+            }
+            document.querySelectorAll('.print-location-input').forEach(inp => {
+                inp.value = locVal;
+            });
+            const activeTab = document.querySelector('#printModalTab .nav-link.active');
+            if (activeTab && activeTab.getAttribute('id') === 'tab-preview-link') {
+                renderLiveCardPreview(currentPreviewIndex);
+            }
+        });
+    }
+
+    // -------------------------------------------------------------
+    // FEATURE 2: CSV / Excel Export
+    // -------------------------------------------------------------
+    const btnExportCsv = document.getElementById('btnExportCsv');
+    if (btnExportCsv) {
+        btnExportCsv.addEventListener('click', function() {
+            const visibleCbs = Array.from(checkboxes).filter(cb => cb.closest('tr').style.display !== 'none');
+            const checkedCbs = visibleCbs.filter(cb => cb.checked);
+            const itemsToExport = (checkedCbs.length > 0) ? checkedCbs : visibleCbs;
+
+            if (itemsToExport.length === 0) {
+                alert('Tidak ada data kartu yang tersedia untuk diekspor.');
+                return;
+            }
+
+            let csvContent = '\ufeff"No","Nomor Rekening","Nama Barang","Tanggal Perolehan","Nomor Asset","Barcode Data","Cabang"\n';
+
+            itemsToExport.forEach((cb, idx) => {
+                const rek = (cb.getAttribute('data-rekening') || '').replace(/"/g, '""');
+                const nama = (cb.getAttribute('data-nama') || '').replace(/"/g, '""');
+                const tgl = (cb.getAttribute('data-tanggal') || '').replace(/"/g, '""');
+                const assetnum = (cb.getAttribute('data-assetnum') || '').replace(/"/g, '""');
+                const barcode = (cb.getAttribute('data-barcode') || '').replace(/"/g, '""');
+                const cabang = (cb.getAttribute('data-cabang') || '').replace(/"/g, '""');
+
+                csvContent += `"${idx + 1}","${rek}","${nama}","${tgl}","${assetnum}","${barcode}","${cabang}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const downloadUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = `Data_Kartu_Inventaris_${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(downloadUrl);
+        });
+    }
+
+    // Wrap updateSelectionState to toggle btnClearSelection visibility
+    const originalUpdateSelectionState = updateSelectionState;
+    updateSelectionState = function() {
+        originalUpdateSelectionState();
+        const visibleCbs = getVisibleCheckboxes();
+        const checked = visibleCbs.filter(cb => cb.checked);
+        if (btnClearSelection) {
+            btnClearSelection.style.display = checked.length > 0 ? 'inline-flex' : 'none';
+        }
+    };
+
+    // -------------------------------------------------------------
+    // FEATURE 3 & 4: Pagination & Table Sorting Engine
+    // -------------------------------------------------------------
+    let currentPage = 1;
+    let pageSize = 25;
+    let currentSortKey = '';
+    let isSortAsc = true;
+
     const filterRekening = document.getElementById('filterRekening');
     const filterCabang = document.getElementById('filterCabang');
     const btnClearFilters = document.getElementById('btnClearFilters');
-    const cardRows = document.querySelectorAll('.card-row-item');
 
-    function applyFilters() {
+    const pageSizeSelect = document.getElementById('pageSizeSelect');
+    const paginationInfo = document.getElementById('paginationInfo');
+    const pageIndicator = document.getElementById('pageIndicator');
+    const btnPageFirst = document.getElementById('btnPageFirst');
+    const btnPagePrev = document.getElementById('btnPagePrev');
+    const btnPageNext = document.getElementById('btnPageNext');
+    const btnPageLast = document.getElementById('btnPageLast');
+    const tableBody = document.querySelector('#mainInventoryTable tbody');
+
+    function renderTablePage() {
         const searchVal = filterRekening ? filterRekening.value.toLowerCase().trim() : '';
         const branchVal = filterCabang ? filterCabang.value : '';
 
-        cardRows.forEach(row => {
-            const rek = row.getAttribute('data-rekening').toLowerCase();
-            const branchCode = row.getAttribute('data-branch-code');
+        const allRows = Array.from(document.querySelectorAll('.card-row-item'));
 
-            const matchesRek = rek.includes(searchVal) || rek.replace(/\D/g, '').includes(searchVal);
+        // 1. Filter rows
+        let matchingRows = allRows.filter(row => {
+            const rek = (row.getAttribute('data-rekening') || '').toLowerCase();
+            const branchCode = row.getAttribute('data-branch-code') || '';
+            const namaEl = row.children[2];
+            const namaText = namaEl ? namaEl.innerText.toLowerCase() : '';
+
+            const matchesSearch = !searchVal || rek.includes(searchVal) || rek.replace(/\D/g, '').includes(searchVal) || namaText.includes(searchVal);
             const matchesBranch = (branchVal === '' || branchCode === branchVal);
 
-            if (matchesRek && matchesBranch) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-                const cb = row.querySelector('.item-checkbox');
-                if (cb && cb.checked) {
-                    cb.checked = false;
-                }
-            }
+            return matchesSearch && matchesBranch;
         });
+
+        // 2. Sort matching rows if sortKey active
+        if (currentSortKey) {
+            matchingRows.sort((a, b) => {
+                let valA = '', valB = '';
+                if (currentSortKey === 'rekening') {
+                    valA = a.getAttribute('data-rekening') || '';
+                    valB = b.getAttribute('data-rekening') || '';
+                } else if (currentSortKey === 'nama') {
+                    valA = a.children[2] ? a.children[2].innerText : '';
+                    valB = b.children[2] ? b.children[2].innerText : '';
+                } else if (currentSortKey === 'tanggal') {
+                    valA = a.children[3] ? a.children[3].innerText : '';
+                    valB = b.children[3] ? b.children[3].innerText : '';
+                }
+                const cmp = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
+                return isSortAsc ? cmp : -cmp;
+            });
+
+            if (tableBody) {
+                matchingRows.forEach(row => tableBody.appendChild(row));
+            }
+        }
+
+        const totalItems = matchingRows.length;
+        const actualPageSize = (pageSize === 'all') ? totalItems : parseInt(pageSize, 10);
+        const totalPages = Math.max(1, Math.ceil(totalItems / (actualPageSize || 1)));
+
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        const startIndex = (currentPage - 1) * actualPageSize;
+        const endIndex = (pageSize === 'all') ? totalItems : Math.min(startIndex + actualPageSize, totalItems);
+
+        // 3. Toggle row visibility based on page slice
+        allRows.forEach(row => row.style.display = 'none');
+        for (let i = startIndex; i < endIndex; i++) {
+            if (matchingRows[i]) {
+                matchingRows[i].style.display = '';
+            }
+        }
+
+        // 4. Update Pagination Controls UI
+        if (paginationInfo) {
+            if (totalItems === 0) {
+                paginationInfo.innerText = 'Menampilkan 0 - 0 dari 0 data';
+            } else {
+                paginationInfo.innerText = `Menampilkan ${startIndex + 1} - ${endIndex} dari ${totalItems} data`;
+            }
+        }
+        if (pageIndicator) {
+            pageIndicator.innerText = `${currentPage} / ${totalPages}`;
+        }
+        if (btnPageFirst) btnPageFirst.disabled = (currentPage <= 1);
+        if (btnPagePrev) btnPagePrev.disabled = (currentPage <= 1);
+        if (btnPageNext) btnPageNext.disabled = (currentPage >= totalPages);
+        if (btnPageLast) btnPageLast.disabled = (currentPage >= totalPages);
 
         if (checkAll) checkAll.checked = false;
         updateSelectionState();
+    }
+
+    function applyFilters() {
+        currentPage = 1;
+        renderTablePage();
     }
 
     if (filterRekening && filterCabang) {
@@ -1808,11 +2014,54 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (btnClearFilters) {
         btnClearFilters.addEventListener('click', function() {
-            filterRekening.value = '';
-            filterCabang.value = '';
+            if (filterRekening) filterRekening.value = '';
+            if (filterCabang) filterCabang.value = '';
             applyFilters();
         });
     }
+
+    if (pageSizeSelect) {
+        pageSizeSelect.addEventListener('change', function() {
+            pageSize = this.value;
+            currentPage = 1;
+            renderTablePage();
+        });
+    }
+
+    if (btnPageFirst) btnPageFirst.addEventListener('click', function() { currentPage = 1; renderTablePage(); });
+    if (btnPagePrev) btnPagePrev.addEventListener('click', function() { if (currentPage > 1) { currentPage--; renderTablePage(); } });
+    if (btnPageNext) btnPageNext.addEventListener('click', function() { currentPage++; renderTablePage(); });
+    if (btnPageLast) btnPageLast.addEventListener('click', function() { currentPage = 999999; renderTablePage(); });
+
+    // Table Header Click Handler for Sorting
+    document.querySelectorAll('.sortable-header').forEach(th => {
+        th.addEventListener('click', function() {
+            const key = this.getAttribute('data-sort-key');
+            if (currentSortKey === key) {
+                isSortAsc = !isSortAsc;
+            } else {
+                currentSortKey = key;
+                isSortAsc = true;
+            }
+
+            // Update Header Sort Icons UI
+            document.querySelectorAll('.sortable-header').forEach(header => {
+                const icon = header.querySelector('.sort-icon');
+                if (icon) {
+                    icon.className = 'bi bi-arrow-down-up ms-1 text-muted sort-icon';
+                }
+            });
+            const activeIcon = this.querySelector('.sort-icon');
+            if (activeIcon) {
+                activeIcon.className = `bi bi-arrow-${isSortAsc ? 'up' : 'down'}-short ms-1 text-primary fw-bold sort-icon`;
+            }
+
+            renderTablePage();
+        });
+    });
+
+    // Initial table render
+    renderTablePage();
 
     // Modal Import JS logic
     const importCheckAll = document.getElementById('importCheckAll');
