@@ -23,6 +23,18 @@ if (isset($_POST['hapus'])) {
     }
 }
 
+// Proses Hapus Massal
+if (isset($_POST['hapus_massal'])) {
+    $ids = $_POST['ids'] ?? [];
+    if (!empty($ids) && is_array($ids)) {
+        $deletedCount = count($ids);
+        if ($inventarisModel->deleteMultiple($ids)) {
+            header("Location: index.php?page=cetak_kartu&status=deleted_massal&count=" . $deletedCount);
+            exit();
+        }
+    }
+}
+
 // Proses Impor dari Aset IT
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['import_assets'])) {
     $selectedAssetIds = $_POST['asset_ids'] ?? [];
@@ -115,6 +127,12 @@ if ($base_dir_path === '/') {
 $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
 ?>
 
+<!-- Form Hidden Hapus Massal -->
+<form id="formHapusMassal" method="POST" style="display: none;">
+    <input type="hidden" name="hapus_massal" value="1">
+    <div id="hapusMassalInputs"></div>
+</form>
+
 <!-- Preload logo to browser cache to ensure it prints instantly -->
 <img src="<?= htmlspecialchars($preload_logo_path) ?>" style="display: none;">
 
@@ -133,7 +151,10 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
                 <p class="text-muted small m-0">Kelola dan cetak kartu inventaris berukuran ATM (CR80) secara massal - Rekap IT - Asset Management.</p>
             </div>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
+            <button id="btnHapusMassal" class="btn btn-outline-danger shadow-sm" disabled title="Hapus kartu terpilih secara sekaligus">
+                <i class="bi bi-trash me-1"></i> Hapus Terpilih (<span id="deleteSelectedCount">0</span>)
+            </button>
             <button id="btnCetakMassal" class="btn btn-outline-primary shadow-sm" disabled>
                 <i class="bi bi-printer me-2"></i> Cetak Kartu Pilihan (<span id="selectedCount">0</span>)
             </button>
@@ -158,6 +179,10 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
         }
         if ($status === 'updated') $msg = "Perubahan data kartu berhasil disimpan!";
         if ($status === 'deleted') $msg = "Data kartu inventaris berhasil dihapus!";
+        if ($status === 'deleted_massal') {
+            $count = isset($_GET['count']) ? intval($_GET['count']) : 0;
+            $msg = "Berhasil menghapus $count data kartu inventaris secara massal!";
+        }
     ?>
         <div class="alert alert-success border-0 shadow-sm rounded-4 p-3 mb-4 d-flex align-items-center justify-content-between animate-fade-in" role="alert" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
             <div class="d-flex align-items-center gap-2">
@@ -436,51 +461,89 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
 
 <!-- Modal Cetak Setup -->
 <div class="modal fade" id="modalCetak" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header border-0 p-4 pb-0">
-                <h5 class="fw-800 m-0"><i class="bi bi-printer-fill text-primary me-2"></i>Konfigurasi Cetak Kartu A4 (CR80)</h5>
+            <div class="modal-header border-0 p-4 pb-0 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-800 m-0"><i class="bi bi-printer-fill text-primary me-2"></i>Konfigurasi & Cetak Kartu A4 (CR80)</h5>
+                    <p class="text-muted small m-0">Sesuaikan lokasi aset, layout cetak, dan tinjau pratinjau kartu secara real-time.</p>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
-                <div class="row g-3 mb-4">
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold text-muted">Layout Grid Kertas A4</label>
-                        <select id="printLayout" class="form-select">
-                            <option value="8">8 Kartu per Lembar (2x4 - Portrait)</option>
-                            <option value="10">10 Kartu per Lembar (2x5 - Portrait)</option>
-                            <option value="12">12 Kartu per Lembar (3x4 - Landscape)</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold text-muted">Teks Perhatian (Bagian Bawah Kartu)</label>
-                        <textarea id="printAttention" class="form-control" rows="2">Perhatian
+                <!-- Nav Tabs for Configuration vs Live Preview -->
+                <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3" id="printModalTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active px-4 py-2 rounded-3 fw-bold small" id="tab-config-tab" data-bs-toggle="pill" data-bs-target="#tab-config" type="button" role="tab">
+                            <i class="bi bi-sliders me-2"></i> 1. Pengaturan Lokasi & Layout
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link px-4 py-2 rounded-3 fw-bold small" id="tab-preview-tab" data-bs-toggle="pill" data-bs-target="#tab-preview" type="button" role="tab">
+                            <i class="bi bi-eye me-2"></i> 2. Pratinjau Kartu Fisik (Live Preview)
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="printModalTabContent">
+                    <!-- Tab 1: Config -->
+                    <div class="tab-pane fade show active" id="tab-config" role="tabpanel">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">Layout Grid Kertas A4</label>
+                                <select id="printLayout" class="form-select">
+                                    <option value="8">8 Kartu per Lembar (2x4 - Portrait)</option>
+                                    <option value="10">10 Kartu per Lembar (2x5 - Portrait)</option>
+                                    <option value="12">12 Kartu per Lembar (3x4 - Landscape)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">Teks Perhatian (Bagian Bawah Kartu)</label>
+                                <textarea id="printAttention" class="form-control" rows="2">Perhatian
 Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departement (HRD) Bank Mitra</textarea>
-                    </div>
-                </div>
+                            </div>
+                        </div>
 
-                <!-- Tips Alert Placed Safely Above Table -->
-                <div class="alert alert-info border-0 rounded-4 p-3 mb-4 d-flex align-items-start gap-2">
-                    <i class="bi bi-info-circle-fill fs-5 mt-0.5"></i>
-                    <div class="small">
-                        <strong>Tips Menyimpan PDF:</strong> Untuk menyimpan hasil cetak sebagai file PDF, pilih opsi <b>"Simpan sebagai PDF" / "Save as PDF"</b> pada pilihan <b>Tujuan / Destination</b> di jendela cetak browser Anda.
-                    </div>
-                </div>
+                        <!-- Tips Alert -->
+                        <div class="alert alert-info border-0 rounded-4 p-3 mb-4 d-flex align-items-start gap-2">
+                            <i class="bi bi-info-circle-fill fs-5 mt-0.5"></i>
+                            <div class="small">
+                                <strong>Tips Menyimpan PDF:</strong> Untuk menyimpan hasil cetak sebagai file PDF, pilih opsi <b>"Simpan sebagai PDF" / "Save as PDF"</b> pada pilihan <b>Tujuan / Destination</b> di jendela cetak browser Anda.
+                            </div>
+                        </div>
 
-                <h6 class="fw-bold mb-3"><i class="bi bi-geo-alt-fill text-danger me-2"></i>Isi Lokasi Aset Secara Manual</h6>
-                <div class="border rounded-4 overflow-hidden mb-2" style="max-height: 220px; overflow-y: auto !important; border-color: var(--card-border) !important;">
-                    <table class="table table-sm align-middle mb-0" style="font-size: 0.84rem;">
-                        <thead>
-                            <tr>
-                                <th class="ps-3">Nomor Rekening</th>
-                                <th>Nama Barang</th>
-                                <th class="pe-3" style="width: 320px;">Lokasi Aset (Ketik Manual)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="printLocationsList">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
+                        <h6 class="fw-bold mb-3"><i class="bi bi-geo-alt-fill text-danger me-2"></i>Isi Lokasi Aset Secara Manual</h6>
+                        <div class="border rounded-4 overflow-hidden mb-2" style="max-height: 220px; overflow-y: auto !important; border-color: var(--card-border) !important;">
+                            <table class="table table-sm align-middle mb-0" style="font-size: 0.84rem;">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-3">Nomor Rekening</th>
+                                        <th>Nama Barang</th>
+                                        <th class="pe-3" style="width: 320px;">Lokasi Aset (Ketik Manual)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="printLocationsList">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Live Preview -->
+                    <div class="tab-pane fade" id="tab-preview" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="small text-muted fw-semibold" id="previewCardInfo">Menampilkan pratinjau kartu 1 dari 1</span>
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-outline-secondary" id="btnPrevCard"><i class="bi bi-chevron-left"></i> Sblm</button>
+                                <button type="button" class="btn btn-outline-secondary" id="btnNextCard">Slanjut <i class="bi bi-chevron-right"></i></button>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-center align-items-center p-4 bg-light bg-opacity-50 rounded-4 border overflow-hidden" style="min-height: 300px;">
+                            <div id="liveCardPreviewContainer" class="position-relative shadow-lg rounded-3 overflow-hidden bg-white" style="width: 85.6mm; min-height: 54.0mm; transform: scale(1.35); transform-origin: center center; margin: 30px 0;">
+                                <!-- Rendered dynamically by JS -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer border-0 p-4 pt-0 gap-2">
@@ -558,28 +621,33 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
     /* Grid A4 Layout */
     .print-page {
         page-break-after: always !important;
+        break-after: page !important;
         box-sizing: border-box !important;
         margin: 0 !important;
         padding: 0 !important;
         width: 100% !important;
-        height: 100vh !important;
         display: grid !important;
         justify-content: center !important;
         align-content: start !important;
+        overflow: hidden !important;
     }
     
     /* Layout 8 Kartu (Portrait) */
     .print-page.layout-8 {
         grid-template-columns: repeat(2, 85.6mm) !important;
-        grid-gap: 12mm 14mm !important;
-        padding-top: 15mm !important; /* Margin atas agar tidak terlalu rapat di pojok */
+        grid-gap: 10mm 14mm !important;
+        padding-top: 12mm !important;
+        height: 297mm !important;
+        max-height: 297mm !important;
     }
     
     /* Layout 10 Kartu (Portrait) */
     .print-page.layout-10 {
         grid-template-columns: repeat(2, 85.6mm) !important;
-        grid-gap: 5mm 14mm !important;
-        padding-top: 8mm !important; /* Margin atas untuk 10 kartu */
+        grid-gap: 4mm 14mm !important;
+        padding-top: 6mm !important;
+        height: 297mm !important;
+        max-height: 297mm !important;
     }
 
     /* Layout 12 Kartu (Landscape) */
@@ -587,8 +655,10 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         grid-template-columns: repeat(3, 85.6mm) !important;
         grid-gap: 4mm 6mm !important;
         transform: scale(0.92) !important;
-        transform-origin: center center !important;
-        padding-top: 10mm !important; /* Margin atas untuk 12 kartu landscape */
+        transform-origin: center top !important;
+        padding-top: 8mm !important;
+        height: 210mm !important;
+        max-height: 210mm !important;
     }
 
     /* Ukuran ATM Card (CR80) */
@@ -977,11 +1047,44 @@ document.addEventListener('DOMContentLoaded', function() {
     const checkAll = document.getElementById('checkAll');
     const checkboxes = document.querySelectorAll('.item-checkbox');
     const btnCetakMassal = document.getElementById('btnCetakMassal');
+    const btnHapusMassal = document.getElementById('btnHapusMassal');
     const selectedCount = document.getElementById('selectedCount');
+    const deleteSelectedCount = document.getElementById('deleteSelectedCount');
     const printLocationsList = document.getElementById('printLocationsList');
     const btnProsesCetak = document.getElementById('btnProsesCetak');
     const printLayout = document.getElementById('printLayout');
     const printAttention = document.getElementById('printAttention');
+
+    // Helper: Async QR Code Generator (Base64)
+    function generateQrBase64(text) {
+        return new Promise((resolve) => {
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
+            tempDiv.style.top = '-9999px';
+            document.body.appendChild(tempDiv);
+            
+            new QRCode(tempDiv, {
+                text: text || 'REKAPIT',
+                width: 120,
+                height: 120,
+                correctLevel: QRCode.CorrectLevel.M
+            });
+
+            setTimeout(() => {
+                let imgData = '';
+                const canvas = tempDiv.querySelector('canvas');
+                if (canvas) {
+                    imgData = canvas.toDataURL('image/png');
+                } else {
+                    const img = tempDiv.querySelector('img');
+                    if (img && img.src) imgData = img.src;
+                }
+                document.body.removeChild(tempDiv);
+                resolve(imgData);
+            }, 80);
+        });
+    }
 
     // Handle Edit Button Click
     document.querySelectorAll('.btn-edit').forEach(btn => {
@@ -1002,73 +1105,300 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Helper for visible checkboxes
+    function getVisibleCheckboxes() {
+        return Array.from(document.querySelectorAll('.item-checkbox')).filter(cb => {
+            const row = cb.closest('tr');
+            return row && row.style.display !== 'none';
+        });
+    }
+
     // Checkbox logic for selection
     function updateSelectionState() {
-        const checked = document.querySelectorAll('.item-checkbox:checked');
-        selectedCount.innerText = checked.length;
-        if (checked.length > 0) {
-            btnCetakMassal.disabled = false;
-            btnCetakMassal.classList.remove('btn-outline-primary');
-            btnCetakMassal.classList.add('btn-primary');
+        const visibleCbs = getVisibleCheckboxes();
+        const checked = visibleCbs.filter(cb => cb.checked);
+        const count = checked.length;
+
+        if (selectedCount) selectedCount.innerText = count;
+        if (deleteSelectedCount) deleteSelectedCount.innerText = count;
+
+        if (count > 0) {
+            if (btnCetakMassal) {
+                btnCetakMassal.disabled = false;
+                btnCetakMassal.classList.remove('btn-outline-primary');
+                btnCetakMassal.classList.add('btn-primary');
+            }
+            if (btnHapusMassal) {
+                btnHapusMassal.disabled = false;
+                btnHapusMassal.classList.remove('btn-outline-danger');
+                btnHapusMassal.classList.add('btn-danger');
+            }
         } else {
-            btnCetakMassal.disabled = true;
-            btnCetakMassal.classList.add('btn-outline-primary');
-            btnCetakMassal.classList.remove('btn-primary');
+            if (btnCetakMassal) {
+                btnCetakMassal.disabled = true;
+                btnCetakMassal.classList.add('btn-outline-primary');
+                btnCetakMassal.classList.remove('btn-primary');
+            }
+            if (btnHapusMassal) {
+                btnHapusMassal.disabled = true;
+                btnHapusMassal.classList.add('btn-outline-danger');
+                btnHapusMassal.classList.remove('btn-danger');
+            }
         }
     }
 
     if (checkAll) {
         checkAll.addEventListener('change', function() {
-            checkboxes.forEach(cb => cb.checked = checkAll.checked);
+            const visibleCbs = getVisibleCheckboxes();
+            visibleCbs.forEach(cb => cb.checked = checkAll.checked);
             updateSelectionState();
         });
     }
 
     checkboxes.forEach(cb => {
         cb.addEventListener('change', function() {
-            if (!cb.checked) {
-                checkAll.checked = false;
-            } else if (document.querySelectorAll('.item-checkbox:checked').length === checkboxes.length) {
-                checkAll.checked = true;
+            const visibleCbs = getVisibleCheckboxes();
+            const checkedVisible = visibleCbs.filter(c => c.checked);
+            if (checkAll) {
+                checkAll.checked = (visibleCbs.length > 0 && checkedVisible.length === visibleCbs.length);
             }
             updateSelectionState();
         });
     });
 
+    // Handle Bulk Delete
+    if (btnHapusMassal) {
+        btnHapusMassal.addEventListener('click', function() {
+            const visibleCbs = getVisibleCheckboxes();
+            const checked = visibleCbs.filter(c => c.checked);
+            if (checked.length === 0) return;
+
+            if (confirm(`Apakah Anda yakin ingin menghapus ${checked.length} data kartu inventaris terpilih secara massal? Action ini tidak dapat dibatalkan.`)) {
+                const container = document.getElementById('hapusMassalInputs');
+                container.innerHTML = '';
+                checked.forEach(cb => {
+                    const inp = document.createElement('input');
+                    inp.type = 'hidden';
+                    inp.name = 'ids[]';
+                    inp.value = cb.value;
+                    container.appendChild(inp);
+                });
+                document.getElementById('formHapusMassal').submit();
+            }
+        });
+    }
+
+    // Live Card Preview Logic
+    let currentPreviewIndex = 0;
+    let previewItemsList = [];
+
+    async function renderLiveCardPreview(index) {
+        const container = document.getElementById('liveCardPreviewContainer');
+        const infoSpan = document.getElementById('previewCardInfo');
+        if (!container || previewItemsList.length === 0) return;
+
+        if (index < 0) index = 0;
+        if (index >= previewItemsList.length) index = previewItemsList.length - 1;
+        currentPreviewIndex = index;
+
+        if (infoSpan) {
+            infoSpan.innerText = `Menampilkan pratinjau kartu ${currentPreviewIndex + 1} dari ${previewItemsList.length}`;
+        }
+
+        const item = previewItemsList[currentPreviewIndex];
+        const locationInput = document.querySelector(`.print-location-input[data-id="${item.id}"]`);
+        const manualLoc = locationInput ? (locationInput.value.trim() || '-') : (item.cabang || '-');
+        const attentionText = printAttention ? printAttention.value.trim() : '';
+
+        const currentPath = window.location.pathname;
+        const baseDir = currentPath.substring(0, currentPath.lastIndexOf('/'));
+        const logoUrl = (baseDir ? baseDir : '') + '/assets/LOGO TYPE 2.png';
+
+        const qrBase64 = await generateQrBase64(item.barcode);
+
+        container.innerHTML = `
+            <div class="atm-card" style="width:100%; height:100%; display:flex; flex-direction:column;">
+                <!-- Top Header -->
+                <div class="card-header-sec">
+                    <div class="header-logo-box">
+                        <img src="${logoUrl}" alt="Logo">
+                    </div>
+                    <div class="header-title-box">
+                        <div class="header-main-title">PT BPR MITRATAMA ARTHABUANA</div>
+                        <div class="header-sub-sec">
+                            <div class="green-banner-wrapper">
+                                <div class="teal-stripe"></div>
+                                <div class="green-banner">ASSET TETAP</div>
+                            </div>
+                            <div class="header-dots-container">
+                                <div class="header-dots">
+                                    <span></span><span></span><span></span>
+                                    <span></span><span></span><span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Data Fields Section -->
+                <div class="card-fields-sec">
+                    <!-- Nomor Asset -->
+                    <div class="card-field-row">
+                        <div class="field-icon-box">
+                            <svg viewBox="0 0 16 16" fill="currentColor" class="field-svg-icon"><path d="M2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 8.586V2zm3.5 3.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg>
+                        </div>
+                        <div class="field-content-box">
+                            <span class="field-lbl">NOMOR ASSET</span>
+                            <span class="field-sep">|</span>
+                            <span class="field-val">${item.assetnum}</span>
+                        </div>
+                    </div>
+                    <!-- Nama Asset -->
+                    <div class="card-field-row">
+                        <div class="field-icon-box">
+                            <svg viewBox="0 0 16 16" fill="currentColor" class="field-svg-icon"><path d="M12 1H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zM4 2h8a1 1 0 0 1 1 1v7H3V3a1 1 0 0 1 1-1z"/><path d="M8 12a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
+                        </div>
+                        <div class="field-content-box">
+                            <span class="field-lbl">NAMA ASSET</span>
+                            <span class="field-sep">|</span>
+                            <span class="field-val">${item.nama}</span>
+                        </div>
+                    </div>
+                    <!-- Tgl Perolehan -->
+                    <div class="card-field-row">
+                        <div class="field-icon-box">
+                            <svg viewBox="0 0 16 16" fill="currentColor" class="field-svg-icon"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>
+                        </div>
+                        <div class="field-content-box">
+                            <span class="field-lbl">TGL PEROLEHAN</span>
+                            <span class="field-sep">|</span>
+                            <span class="field-val">${item.tanggal}</span>
+                        </div>
+                    </div>
+                    <!-- Lokasi -->
+                    <div class="card-field-row">
+                        <div class="field-icon-box">
+                            <svg viewBox="0 0 16 16" fill="currentColor" class="field-svg-icon"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
+                        </div>
+                        <div class="field-content-box">
+                            <span class="field-lbl">LOKASI</span>
+                            <span class="field-sep">|</span>
+                            <span class="field-val">${manualLoc}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bottom Section -->
+                <div class="card-bottom-sec">
+                    <div class="card-waves">
+                        <svg viewBox="0 0 85.6 7.5" preserveAspectRatio="none" style="width: 100%; height: 100%; display: block;">
+                            <path d="M 0 3 C 8 2.5, 18 5, 24 7.5 L 0 7.5 Z" fill="#7ac142" />
+                            <path d="M 5 7.5 Q 32 3, 58 6.5 T 85.6 3.5 L 85.6 7.5 Z" fill="#003b73" />
+                        </svg>
+                    </div>
+                    
+                    <div class="bottom-left-attention">
+                        <div class="attention-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#003b73" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="attention-svg-icon">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                <line x1="12" y1="8" x2="12" y2="13" />
+                                <line x1="12" y1="16.5" x2="12.01" y2="16.5" stroke-width="3" />
+                            </svg>
+                        </div>
+                        <div class="attention-text-box">
+                            <div class="attention-title">Perhatian</div>
+                            <div class="attention-desc">${attentionText}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="attention-qr-separator"></div>
+                    
+                    <div class="bottom-right-qr">
+                        <div class="qr-border-box">
+                            <img src="${qrBase64}" class="card-qr-img" alt="QR Code">
+                        </div>
+                        <div class="scan-info-capsule">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="scan-icon">
+                                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                                <line x1="12" y1="18" x2="12.01" y2="18"/>
+                            </svg>
+                            <span>SCAN UNTUK INFO</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    const btnPrevCard = document.getElementById('btnPrevCard');
+    const btnNextCard = document.getElementById('btnNextCard');
+    if (btnPrevCard) {
+        btnPrevCard.addEventListener('click', () => renderLiveCardPreview(currentPreviewIndex - 1));
+    }
+    if (btnNextCard) {
+        btnNextCard.addEventListener('click', () => renderLiveCardPreview(currentPreviewIndex + 1));
+    }
+
     // When clicking Cetak Kartu Pilihan
     btnCetakMassal.addEventListener('click', function() {
-        // Clear list
         printLocationsList.innerHTML = '';
         
-        // Find all selected items
-        const checked = document.querySelectorAll('.item-checkbox:checked');
-        checked.forEach(cb => {
-            const id = cb.value;
-            const rekening = cb.getAttribute('data-rekening');
-            const nama = cb.getAttribute('data-nama');
-            const cabang = cb.getAttribute('data-cabang') || '';
-            
+        const visibleCbs = getVisibleCheckboxes();
+        const checked = visibleCbs.filter(c => c.checked);
+
+        previewItemsList = checked.map(cb => ({
+            id: cb.value,
+            rekening: cb.getAttribute('data-rekening'),
+            nama: cb.getAttribute('data-nama'),
+            tanggal: cb.getAttribute('data-tanggal'),
+            assetnum: cb.getAttribute('data-assetnum'),
+            barcode: cb.getAttribute('data-barcode'),
+            cabang: cb.getAttribute('data-cabang') || ''
+        }));
+
+        previewItemsList.forEach(item => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td class="ps-3"><strong>${rekening}</strong></td>
-                <td>${nama}</td>
+                <td class="ps-3"><strong>${item.rekening}</strong></td>
+                <td>${item.nama}</td>
                 <td class="pe-3 py-2">
                     <input type="text" class="form-control form-control-sm print-location-input" 
-                           data-id="${id}" 
-                           value="${cabang}"
+                           data-id="${item.id}" 
+                           value="${item.cabang}"
                            placeholder="Contoh: KC.BTL/Lt-2/Ruang-AO">
                 </td>
             `;
             printLocationsList.appendChild(tr);
         });
 
+        // Add event listener to update preview when location input changes
+        printLocationsList.querySelectorAll('.print-location-input').forEach(input => {
+            input.addEventListener('input', () => {
+                renderLiveCardPreview(currentPreviewIndex);
+            });
+        });
+
+        currentPreviewIndex = 0;
+        renderLiveCardPreview(0);
+
         new bootstrap.Modal(document.getElementById('modalCetak')).show();
     });
 
+    if (printAttention) {
+        printAttention.addEventListener('input', () => {
+            renderLiveCardPreview(currentPreviewIndex);
+        });
+    }
+
     // Handle Printing
-    btnProsesCetak.addEventListener('click', function() {
-        const checked = document.querySelectorAll('.item-checkbox:checked');
+    btnProsesCetak.addEventListener('click', async function() {
+        const visibleCbs = getVisibleCheckboxes();
+        const checked = visibleCbs.filter(c => c.checked);
         if (checked.length === 0) return;
+
+        const origText = btnProsesCetak.innerHTML;
+        btnProsesCetak.disabled = true;
+        btnProsesCetak.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Menyiapkan Cetak...';
 
         // Get manual locations
         const locationsMap = {};
@@ -1077,7 +1407,6 @@ document.addEventListener('DOMContentLoaded', function() {
             locationsMap[id] = input.value.trim() || '-';
         });
 
-        // Get options
         const limitPerPage = parseInt(printLayout.value);
         const attentionText = printAttention.value.trim();
         const orientationClass = (limitPerPage === 12) ? 'layout-12' : (limitPerPage === 10 ? 'layout-10' : 'layout-8');
@@ -1093,20 +1422,25 @@ document.addEventListener('DOMContentLoaded', function() {
         printContainer.id = 'print-container';
         document.body.appendChild(printContainer);
 
-        // Get logo absolute path dynamically to prevent subfolder issues
         const currentPath = window.location.pathname;
         const baseDir = currentPath.substring(0, currentPath.lastIndexOf('/'));
         const logoUrl = (baseDir ? baseDir : '') + '/assets/LOGO TYPE 2.png';
 
-        // Group selected items into pages
-        const selectedItems = Array.from(checked).map(cb => ({
-            id: cb.value,
-            rekening: cb.getAttribute('data-rekening'),
-            nama: cb.getAttribute('data-nama'),
-            tanggal: cb.getAttribute('data-tanggal'),
-            assetnum: cb.getAttribute('data-assetnum'),
-            barcode: cb.getAttribute('data-barcode')
-        }));
+        // Pre-generate items with Base64 QR code
+        const selectedItems = [];
+        for (const cb of checked) {
+            const barcodeData = cb.getAttribute('data-barcode');
+            const qrBase64 = await generateQrBase64(barcodeData);
+            selectedItems.push({
+                id: cb.value,
+                rekening: cb.getAttribute('data-rekening'),
+                nama: cb.getAttribute('data-nama'),
+                tanggal: cb.getAttribute('data-tanggal'),
+                assetnum: cb.getAttribute('data-assetnum'),
+                barcode: barcodeData,
+                qrBase64: qrBase64
+            });
+        }
 
         let pageHtml = '';
         for (let i = 0; i < selectedItems.length; i += limitPerPage) {
@@ -1115,7 +1449,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             chunk.forEach(item => {
                 const manualLoc = locationsMap[item.id] || '-';
-                const cardId = `qr-card-${item.id}`;
                 
                 pageHtml += `
                     <div class="atm-card">
@@ -1191,12 +1524,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         <!-- Bottom Section (Attention & QR) -->
                         <div class="card-bottom-sec">
-                            <!-- Background Wave Graphics -->
                             <div class="card-waves">
                                 <svg viewBox="0 0 85.6 7.5" preserveAspectRatio="none" style="width: 100%; height: 100%; display: block;">
-                                    <!-- Green Wave (Bottom Left) -->
                                     <path d="M 0 3 C 8 2.5, 18 5, 24 7.5 L 0 7.5 Z" fill="#7ac142" />
-                                    <!-- Blue Wave (Bottom Center & Right) -->
                                     <path d="M 5 7.5 Q 32 3, 58 6.5 T 85.6 3.5 L 85.6 7.5 Z" fill="#003b73" />
                                 </svg>
                             </div>
@@ -1219,7 +1549,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             
                             <div class="bottom-right-qr">
                                 <div class="qr-border-box">
-                                    <div id="${cardId}" class="card-qr-img"></div>
+                                    <img src="${item.qrBase64}" class="card-qr-img" alt="QR Code">
                                 </div>
                                 <div class="scan-info-capsule">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="scan-icon">
@@ -1239,23 +1569,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         printContainer.innerHTML = pageHtml;
 
-        // Generate QR Codes inside the elements
-        selectedItems.forEach(item => {
-            const cardId = `qr-card-${item.id}`;
-            const elem = document.getElementById(cardId);
-            if (elem) {
-                // Clear content
-                elem.innerHTML = '';
-                // Generate QR Code
-                new QRCode(elem, {
-                    text: item.barcode,
-                    width: 60,
-                    height: 60,
-                    correctLevel: QRCode.CorrectLevel.M
-                });
-            }
-        });
-
         // Add dynamic print style rule for orientation
         let styleSheet = document.getElementById('print-orientation-style');
         if (!styleSheet) {
@@ -1265,24 +1578,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         styleSheet.innerHTML = `@media print { @page { size: ${pageOrientationRule}; margin: 0; } }`;
 
-        // Wait brief moment for QR Code canvases to render, then print
+        btnProsesCetak.disabled = false;
+        btnProsesCetak.innerHTML = origText;
+
         setTimeout(() => {
             window.print();
-        }, 300);
+        }, 150);
     });
 
     // Handle Ekspor ke MS Word (.doc)
     const btnEksporWord = document.getElementById('btnEksporWord');
     if (btnEksporWord) {
         btnEksporWord.addEventListener('click', async function() {
-            const checked = document.querySelectorAll('.item-checkbox:checked');
+            const visibleCbs = getVisibleCheckboxes();
+            const checked = visibleCbs.filter(c => c.checked);
             if (checked.length === 0) return;
 
             const originalBtnHtml = btnEksporWord.innerHTML;
             btnEksporWord.disabled = true;
             btnEksporWord.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Mengolah Data...';
 
-            // Get manual locations
             const locationsMap = {};
             document.querySelectorAll('.print-location-input').forEach(input => {
                 const id = input.getAttribute('data-id');
@@ -1296,7 +1611,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const baseDir = currentPath.substring(0, currentPath.lastIndexOf('/'));
             const logoUrl = (baseDir ? baseDir : '') + '/assets/LOGO TYPE 2.png';
 
-            // Convert logo to Base64
             let logoBase64 = '';
             try {
                 logoBase64 = await new Promise((resolve) => {
@@ -1317,54 +1631,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error(e);
             }
 
-            const selectedItems = Array.from(checked).map(cb => ({
-                id: cb.value,
-                rekening: cb.getAttribute('data-rekening'),
-                nama: cb.getAttribute('data-nama'),
-                tanggal: cb.getAttribute('data-tanggal'),
-                assetnum: cb.getAttribute('data-assetnum'),
-                barcode: cb.getAttribute('data-barcode')
-            }));
-
-            // Generate QR codes as base64
             const cardDataList = [];
-            for (const item of selectedItems) {
-                const manualLoc = locationsMap[item.id] || '-';
-                
-                // Create temporary div for QR code
-                const tempQrDiv = document.createElement('div');
-                tempQrDiv.style.position = 'absolute';
-                tempQrDiv.style.left = '-9999px';
-                document.body.appendChild(tempQrDiv);
-
-                new QRCode(tempQrDiv, {
-                    text: item.barcode,
-                    width: 100,
-                    height: 100,
-                    correctLevel: QRCode.CorrectLevel.M
-                });
-
-                // Wait for canvas / image inside tempQrDiv
-                await new Promise(r => setTimeout(r, 100));
-
-                let qrBase64 = '';
-                const canvas = tempQrDiv.querySelector('canvas');
-                if (canvas) {
-                    qrBase64 = canvas.toDataURL('image/png');
-                } else {
-                    const img = tempQrDiv.querySelector('img');
-                    if (img && img.src) qrBase64 = img.src;
-                }
-                document.body.removeChild(tempQrDiv);
+            for (const cb of checked) {
+                const id = cb.value;
+                const barcodeData = cb.getAttribute('data-barcode');
+                const manualLoc = locationsMap[id] || '-';
+                const qrBase64 = await generateQrBase64(barcodeData);
 
                 cardDataList.push({
-                    ...item,
+                    id: id,
+                    rekening: cb.getAttribute('data-rekening'),
+                    nama: cb.getAttribute('data-nama'),
+                    tanggal: cb.getAttribute('data-tanggal'),
+                    assetnum: cb.getAttribute('data-assetnum'),
                     location: manualLoc,
                     qrBase64: qrBase64
                 });
             }
 
-            // Build Word HTML Document with strict MS Word table layout compatibility
+            const cols = (limitPerPage === 12) ? 3 : 2;
+            const cardCellWidth = (cols === 3) ? "220" : "320";
+            const orientationSetting = (cols === 3) ? "landscape" : "portrait";
+            const pageSizeSetting = (cols === 3) ? "29.7cm 21.0cm" : "21.0cm 29.7cm";
+
             let wordHtml = `
             <html xmlns:o='urn:schemas-microsoft-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
             <head>
@@ -1380,18 +1669,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 </xml>
                 <![endif]-->
                 <style>
-                    @page { size: A4; margin: 8mm; }
+                    @page Section1 { size: ${pageSizeSetting}; margin: 8mm; mso-page-orientation: ${orientationSetting}; }
+                    div.Section1 { page: Section1; }
                     body { font-family: Arial, sans-serif; font-size: 8pt; background: #ffffff; color: #000000; margin: 0; padding: 0; }
                     table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
                     td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
                 </style>
             </head>
             <body>
+                <div class="Section1">
                 <table width="100%" border="0" cellpadding="0" cellspacing="8" style="width:100%;">
             `;
-
-            const cols = (limitPerPage === 12) ? 3 : 2;
-            const cardCellWidth = (cols === 3) ? "220" : "320";
 
             for (let i = 0; i < cardDataList.length; i += cols) {
                 wordHtml += `<tr>`;
@@ -1461,6 +1749,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             wordHtml += `
                 </table>
+                </div>
             </body>
             </html>
             `;
@@ -1488,24 +1777,29 @@ document.addEventListener('DOMContentLoaded', function() {
     const cardRows = document.querySelectorAll('.card-row-item');
 
     function applyFilters() {
-        const searchVal = filterRekening.value.toLowerCase().trim();
-        const branchVal = filterCabang.value;
+        const searchVal = filterRekening ? filterRekening.value.toLowerCase().trim() : '';
+        const branchVal = filterCabang ? filterCabang.value : '';
 
         cardRows.forEach(row => {
             const rek = row.getAttribute('data-rekening').toLowerCase();
             const branchCode = row.getAttribute('data-branch-code');
 
-            // Cocokkan nomor rekening (baik dengan format titik maupun digit saja)
             const matchesRek = rek.includes(searchVal) || rek.replace(/\D/g, '').includes(searchVal);
-            // Cocokkan cabang (jika "Semua Cabang" kosong, maka true. Jika terisi, harus sama dengan kode cabang dari rekening)
             const matchesBranch = (branchVal === '' || branchCode === branchVal);
 
             if (matchesRek && matchesBranch) {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';
+                const cb = row.querySelector('.item-checkbox');
+                if (cb && cb.checked) {
+                    cb.checked = false;
+                }
             }
         });
+
+        if (checkAll) checkAll.checked = false;
+        updateSelectionState();
     }
 
     if (filterRekening && filterCabang) {
@@ -1531,8 +1825,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateImportSelectionState() {
         const checked = document.querySelectorAll('.import-item-checkbox:checked');
-        importSelectedCount.innerText = checked.length;
-        btnSubmitImport.disabled = (checked.length === 0);
+        if (importSelectedCount) importSelectedCount.innerText = checked.length;
+        if (btnSubmitImport) btnSubmitImport.disabled = (checked.length === 0);
     }
 
     if (importCheckAll) {
@@ -1550,11 +1844,11 @@ document.addEventListener('DOMContentLoaded', function() {
     importCheckboxes.forEach(cb => {
         cb.addEventListener('change', function() {
             if (!cb.checked) {
-                importCheckAll.checked = false;
+                if (importCheckAll) importCheckAll.checked = false;
             } else {
                 const visibleCheckboxes = Array.from(importCheckboxes).filter(c => c.closest('tr').style.display !== 'none');
                 const visibleChecked = visibleCheckboxes.filter(c => c.checked);
-                importCheckAll.checked = (visibleChecked.length === visibleCheckboxes.length);
+                if (importCheckAll) importCheckAll.checked = (visibleChecked.length === visibleCheckboxes.length);
             }
             updateImportSelectionState();
         });
@@ -1575,7 +1869,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             });
-            importCheckAll.checked = false;
+            if (importCheckAll) importCheckAll.checked = false;
             updateImportSelectionState();
         });
     }

@@ -50,5 +50,12 @@ class InventarisKartu {
         $stmt = $this->conn->prepare("DELETE FROM " . $this->table . " WHERE id = ?");
         return $stmt->execute([$id]);
     }
+
+    public function deleteMultiple($ids) {
+        if (empty($ids)) return false;
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = $this->conn->prepare("DELETE FROM " . $this->table . " WHERE id IN ($placeholders)");
+        return $stmt->execute($ids);
+    }
 }
 ?>
