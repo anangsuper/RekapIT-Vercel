@@ -43,6 +43,14 @@ try {
                                      LIMIT 5");
     $costlyAssets = $stmtCostlyAssets->fetchAll();
 
+    // Biaya Perbaikan per Cabang Analytics
+    $stmtBranchCosts = $conn->query("SELECT c.nama_cabang, COALESCE(SUM(r.biaya), 0) as total_biaya
+                                     FROM cabang c
+                                     LEFT JOIN assets a ON c.id = a.id_cabang
+                                     LEFT JOIN repairs r ON a.id = r.asset_id
+                                     GROUP BY c.id ORDER BY total_biaya DESC");
+    $branchCostAnalytics = $stmtBranchCosts->fetchAll();
+
 } catch (PDOException $e) {
     error_log("Dashboard PDO Error: " . $e->getMessage());
     $totalAssets = $totalMaintenance = $totalRepairs = $totalCost = $totalPerluTindakan = 0;
@@ -50,6 +58,7 @@ try {
     $recentLogs = [];
     $branchDistribution = [];
     $costlyAssets = [];
+    $branchCostAnalytics = [];
 }
 ?>
 

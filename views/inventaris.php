@@ -483,6 +483,14 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                                             🛡️ <?= $w_text ?>
                                         </span>
                                         <?php
+                                        if (!empty($a['created_at'])) {
+                                            $age_years = round((time() - strtotime($a['created_at'])) / (365 * 24 * 3600), 1);
+                                            if ($age_years >= 4.0) {
+                                                echo '<span class="badge bg-warning bg-opacity-15 text-warning border border-warning rounded px-2 py-0.5 mt-1 d-block text-truncate" style="font-size: 0.65rem;" title="Masa Pakai > 4 Tahun"><i class="bi bi-hourglass-bottom"></i> EOL (' . $age_years . ' Thn)</span>';
+                                            }
+                                        }
+                                        ?>
+                                        <?php
                                     } else {
                                         echo '<span class="text-muted small">-</span>';
                                     }
