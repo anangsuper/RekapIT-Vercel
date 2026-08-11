@@ -21,6 +21,150 @@
             </div>
         </div>
     </div>
+<!-- Modal Panduan & Tutorial Penggunaan Website -->
+<div class="modal fade" id="modalGlobalHelp" tabindex="-1" aria-labelledby="modalGlobalHelpLabel" aria-hidden="true" style="z-index: 1075;">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; background: var(--modal-bg);">
+            <div class="modal-header border-0 p-4 pb-0">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-4 text-primary">
+                        <i class="bi bi-journal-bookmark-fill fs-3"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-800 m-0 text-dark" id="modalGlobalHelpLabel">Panduan Penggunaan Website <span class="badge bg-primary bg-opacity-10 text-primary fs-6 ms-2 fw-bold">Rekap IT</span></h4>
+                        <p class="text-muted small m-0">Petunjuk praktis & tata cara penggunaan fitur-fitur pada Rekap IT - Asset Management & Helpdesk.</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body p-4">
+                <!-- Navigation Tabs -->
+                <ul class="nav nav-pills nav-fill bg-light p-1.5 rounded-4 mb-4 border" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active rounded-3 py-2.5 fw-bold" id="tab-help-dashboard" data-bs-toggle="pill" data-bs-target="#help-dashboard" type="button" role="tab">
+                            <i class="bi bi-speedometer2 me-1.5"></i> Ringkasan & Dashboard
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-3 py-2.5 fw-bold" id="tab-help-asset" data-bs-toggle="pill" data-bs-target="#help-asset" type="button" role="tab">
+                            <i class="bi bi-laptop me-1.5"></i> Manajemen Aset & Kartu
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-3 py-2.5 fw-bold" id="tab-help-maint" data-bs-toggle="pill" data-bs-target="#help-maint" type="button" role="tab">
+                            <i class="bi bi-tools me-1.5"></i> Maintenance & Servis
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-3 py-2.5 fw-bold" id="tab-help-helpdesk" data-bs-toggle="pill" data-bs-target="#help-helpdesk" type="button" role="tab">
+                            <i class="bi bi-headset me-1.5"></i> Helpdesk Tiket
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-3 py-2.5 fw-bold" id="tab-help-master" data-bs-toggle="pill" data-bs-target="#help-master" type="button" role="tab">
+                            <i class="bi bi-gear-fill me-1.5"></i> Master Data & Export
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="helpModalTabContent">
+                    <!-- Tab 1: Dashboard -->
+                    <div class="tab-pane fade show active" id="help-dashboard" role="tabpanel">
+                        <div class="card border-0 bg-light rounded-4 p-4 mb-3">
+                            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-bar-chart-line-fill me-2"></i>Fungsi Utama Dashboard</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-white rounded-3 border h-100">
+                                        <div class="fw-bold text-dark mb-1"><i class="bi bi-pie-chart text-info me-2"></i>Statistik Total & Kondisi</div>
+                                        <p class="small text-muted mb-0">Menampilkan jumlah aset total, perbaikan aktif, estimasi biaya bulan ini, serta aset yang memerlukan tindakan (Rusak Ringan/Rusak Berat).</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-white rounded-3 border h-100">
+                                        <div class="fw-bold text-dark mb-1"><i class="bi bi-bell-fill text-warning me-2"></i>Notifikasi Pemeliharaan (H-7)</div>
+                                        <p class="small text-muted mb-0">Memberikan pengingat otomatis untuk jadwal maintenance aset yang mendekati jatuh tempo dalam 7 hari ke depan.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Asset Management & Cards -->
+                    <div class="tab-pane fade" id="help-asset" role="tabpanel">
+                        <div class="card border-0 bg-light rounded-4 p-4 mb-3">
+                            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-card-heading me-2"></i>Pengelolaan Aset IT & Cetak Kartu ATM (CR80)</h6>
+                            <ol class="small text-muted ps-3 mb-0" style="line-height: 1.8;">
+                                <li><b>Tambah Aset Baru:</b> Masuk ke menu <span class="badge bg-primary">Data Aset</span>, klik <b>+ Tambah Aset</b>. Isi Kode Aset, Nama, Merk/Model, Kategori, Cabang, Divisi, dan Karyawan Penanggung Jawab.</li>
+                                <li><b>Cetak Kartu Inventaris:</b> Masuk ke menu <span class="badge bg-primary">Cetak Kartu</span>. Centang kartu yang ingin dicetak atau impor langsung dari daftar Aset IT.</li>
+                                <li><b>Pratinjau Kartu Fisik (Live Preview):</b> Klik tombol <b>Cetak Kartu Pilihan</b> untuk membuka modal interaktif. Pilih grid A4 (8, 10, atau 12 kartu/lembar), lalu gunakan tab <b>Pratinjau Kartu Fisik</b> untuk melihat hasil tampilan fisik kartu ATM (CR80).</li>
+                                <li><b>Ekspor & Cetak:</b> Klik <b>Cetak Sekarang</b> untuk mencetak ke kertas A4 / PDF, atau klik <b>Ekspor Word (.doc)</b> untuk mendownload file MS Word.</li>
+                                <li><b>Mutasi Aset:</b> Masuk ke menu <span class="badge bg-primary">Mutasi Aset</span> untuk memindahkan aset antar cabang, divisi, atau karyawan dengan mencatat tanggal & keterangan mutasi.</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Maintenance & Repairs -->
+                    <div class="tab-pane fade" id="help-maint" role="tabpanel">
+                        <div class="card border-0 bg-light rounded-4 p-4 mb-3">
+                            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-tools me-2"></i>Pemeliharaan Berkala & Servis/Sparepart</h6>
+                            <ul class="small text-muted ps-3 mb-0" style="line-height: 1.8;">
+                                <li><b>Maintenance Rutin:</b> Masuk ke <span class="badge bg-primary">Pemeliharaan (Maintenance)</span> untuk mencatat pembersihan hardware, penanganan virus, dan pengecekan fisik berkala per aset.</li>
+                                <li><b>Maintenance Massal:</b> Gunakan menu <span class="badge bg-primary">Maintenance Massal</span> untuk mencatat tindakan maintenance sekaligus untuk banyak unit aset dalam 1 formulir.</li>
+                                <li><b>Servis Perbaikan (Repairs):</b> Jika perangkat mengalami kerusakan, catat pada menu <span class="badge bg-primary">Perbaikan (Repairs)</span> lengkap dengan biaya servis, teknisi, dan penggunaan stok <b>Sparepart</b>.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Tab 4: Helpdesk -->
+                    <div class="tab-pane fade" id="help-helpdesk" role="tabpanel">
+                        <div class="card border-0 bg-light rounded-4 p-4 mb-3">
+                            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-headset me-2"></i>Sistem Helpdesk & Tiket Pengaduan</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-white rounded-3 border h-100">
+                                        <div class="fw-bold text-dark mb-1"><i class="bi bi-person-fill text-success me-2"></i>Untuk Karyawan / Pelapor</div>
+                                        <p class="small text-muted mb-0">Buka halaman portal Helpdesk, isi Nama, Kontak, Cabang/Divisi, dan deskripsi keluhan. Anda akan mendapatkan Nomor Tiket otomatis (misal: <code>TK-20260811-001</code>) untuk melacak progress penanganan.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-white rounded-3 border h-100">
+                                        <div class="fw-bold text-dark mb-1"><i class="bi bi-person-gear text-primary me-2"></i>Untuk Admin / Teknisi IT</div>
+                                        <p class="small text-muted mb-0">Masuk ke menu <span class="badge bg-primary">Tiket Helpdesk</span>. Teknisi dapat memperbarui status tiket (Menunggu -> Proses -> Selesai), membalas komentar langsung kepada pelapor, serta menerima notifikasi bot Telegram otomatis.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 5: Master Data & Reports -->
+                    <div class="tab-pane fade" id="help-master" role="tabpanel">
+                        <div class="card border-0 bg-light rounded-4 p-4 mb-3">
+                            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-file-earmark-excel me-2"></i>Pengelolaan Master Data & Laporan Export</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-white rounded-3 border h-100">
+                                        <div class="fw-bold text-dark mb-1"><i class="bi bi-database me-2"></i>Master Data Cabang & Karyawan</div>
+                                        <p class="small text-muted mb-0">Kelola master data Cabang, Divisi, Karyawan, dan Pengguna Akun pada grup menu <b>MASTER DATA</b>. Semua data terhubung otomatis saat memasukkan Aset atau Tiket Helpdesk.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-white rounded-3 border h-100">
+                                        <div class="fw-bold text-dark mb-1"><i class="bi bi-download text-success me-2"></i>Export Laporan Bulanan</div>
+                                        <p class="small text-muted mb-0">Gunakan menu <span class="badge bg-primary">Report Bulanan</span> & <span class="badge bg-primary">Export Excel</span> untuk mencetak rekapitulasi maintenance bulanan dan mendownload seluruh data aset ke dalam format spreadsheet Excel.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button type="button" class="btn btn-primary px-4 py-2 fw-bold" data-bs-dismiss="modal" style="border-radius: 12px;">Saya Mengerti</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

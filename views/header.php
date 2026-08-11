@@ -1113,6 +1113,12 @@ $pendingTicketCount = $hModel->countPending();
             <span id="sync-text">Sync</span>
         </button>
 
+        <!-- Panduan & Bantuan Button -->
+        <button type="button" class="btn btn-outline-info btn-sm px-3 py-1.5 d-flex align-items-center gap-2" style="font-size: 0.75rem; border-radius: 10px; height: 36px; border: 1px solid var(--sidebar-border); background: var(--input-bg); color: var(--text-main);" data-bs-toggle="modal" data-bs-target="#modalGlobalHelp" title="Panduan & Cara Penggunaan Website">
+            <i class="bi bi-question-circle text-info fs-6"></i>
+            <span class="d-none d-sm-inline">Panduan</span>
+        </button>
+
         <!-- Theme Toggle Button -->
         <button id="theme-toggle-btn" class="btn btn-outline-secondary btn-sm p-0 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--sidebar-border); background: var(--input-bg); color: var(--text-soft);" title="Ubah Tema">
             <i class="bi bi-moon-stars" id="theme-toggle-icon" style="font-size: 0.95rem;"></i>
