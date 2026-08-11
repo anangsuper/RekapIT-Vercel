@@ -128,7 +128,7 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
 ?>
 
 <!-- Form Hidden Hapus Massal -->
-<form id="formHapusMassal" method="POST" style="display: none;">
+<form id="formHapusMassal" action="index.php?page=cetak_kartu" method="POST" style="display: none;">
     <input type="hidden" name="hapus_massal" value="1">
     <div id="hapusMassalInputs"></div>
 </form>
@@ -152,10 +152,10 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
             </div>
         </div>
         <div class="d-flex gap-2 flex-wrap">
-            <button id="btnHapusMassal" class="btn btn-outline-danger shadow-sm" disabled title="Hapus kartu terpilih secara sekaligus">
+            <button type="button" id="btnHapusMassal" class="btn btn-outline-danger shadow-sm" disabled title="Hapus kartu terpilih secara sekaligus">
                 <i class="bi bi-trash me-1"></i> Hapus Terpilih (<span id="deleteSelectedCount">0</span>)
             </button>
-            <button id="btnCetakMassal" class="btn btn-outline-primary shadow-sm" disabled>
+            <button type="button" id="btnCetakMassal" class="btn btn-outline-primary shadow-sm" disabled>
                 <i class="bi bi-printer me-2"></i> Cetak Kartu Pilihan (<span id="selectedCount">0</span>)
             </button>
             <button class="btn btn-outline-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalImportAsset">

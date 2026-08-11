@@ -52,10 +52,24 @@ class InventarisKartu {
     }
 
     public function deleteMultiple($ids) {
-        if (empty($ids)) return false;
-        $placeholders = implode(',', array_fill(0, count($ids), '?'));
-        $stmt = $this->conn->prepare("DELETE FROM " . $this->table . " WHERE id IN ($placeholders)");
-        return $stmt->execute($ids);
+        if (empty($ids) || !is_array($ids)) return false;
+        $cleanIds = array_filter(array_map('intval', array_values($ids)), function($v) {
+            return $v > 0;
+        });
+        if (empty($cleanIds)) return false;
+
+        $stmt = $this->conn->prepare("DELETE FROM " . $this->table . " WHERE id = ?");
+        $successCount = 0;
+        foreach ($cleanIds as $id) {
+            try {
+                if ($stmt->execute([$id])) {
+                    $successCount++;
+                }
+            } catch (PDOException $e) {
+                error_log("ERROR: InventarisKartu::deleteMultiple failed for ID $id. Error: " . $e->getMessage());
+            }
+        }
+        return $successCount > 0;
     }
 }
 ?>
