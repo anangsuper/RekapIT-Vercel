@@ -37,6 +37,25 @@ if (isset($_POST['hapus'])) {
     }
 }
 
+// Proses Hapus Massal Aset
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['hapus_massal'])) {
+    $ids = $_POST['ids'] ?? [];
+    if (!empty($ids) && is_array($ids)) {
+        $count = count($ids);
+        if ($assetModel->deleteMultiple($ids)) {
+            $logModel->add($_SESSION['user_id'], 'Hapus Massal Aset', "Menghapus $count aset sekaligus.");
+            $namaUser = $_SESSION['nama'] ?? 'Admin';
+            $msg = "❌ *HAPUS MASSAL ASET*\n\n"
+                 . "*• Jumlah Aset Dihapus:* {$count} unit\n"
+                 . "*• Oleh:* {$namaUser}\n"
+                 . "*• Waktu:* " . date('d M Y, H:i:s');
+            sendTelegramNotification($msg);
+            header("Location: index.php?page=inventaris&status=deleted_massal&count=" . $count);
+            exit();
+        }
+    }
+}
+
 // Batasi akses cabang untuk teknisi
 $id_cabang_filter = ($_SESSION['role'] === 'teknisi') ? $_SESSION['id_cabang'] : (isset($_GET['filter_cabang']) ? $_GET['filter_cabang'] : null);
 $filter_kondisi = isset($_GET['filter_kondisi']) ? $_GET['filter_kondisi'] : null;
@@ -182,20 +201,34 @@ $allRusakRinganCount = $assetModel->countAll(null, 'Rusak Ringan');
 $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
 ?>
 
+<!-- Form Hidden Hapus Massal Aset -->
+<form id="formHapusMassalAssets" action="index.php?page=inventaris" method="POST" style="display: none;">
+    <input type="hidden" name="hapus_massal" value="1">
+    <div id="hapusMassalAssetInputs"></div>
+</form>
+
 <div class="container-fluid animate-fade-in">
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <div class="d-flex align-items-center">
-            <div class="bg-primary bg-opacity-10 p-2.5 rounded-3 me-3 text-primary">
-                <i class="bi bi-laptop fs-4"></i>
+    <!-- Hero Header Banner Card -->
+    <div class="card border-0 shadow-lg rounded-4 p-4 mb-4" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(6, 182, 212, 0.06) 100%) !important; border: 1px solid rgba(99, 102, 241, 0.2) !important;">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="p-3 rounded-4 text-white shadow-sm" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
+                    <i class="bi bi-laptop fs-3"></i>
+                </div>
+                <div>
+                    <h4 class="fw-800 m-0 text-dark">Inventaris Aset IT <span class="badge bg-primary bg-opacity-10 text-primary fs-6 fw-bold ms-2">Asset Management</span></h4>
+                    <p class="text-muted small m-0 mt-1">Kelola, pantau, dan lakukan pemeliharaan seluruh unit aset IT perusahaan.</p>
+                </div>
             </div>
-            <div>
-                <h4 class="fw-800 m-0">Inventaris Aset</h4>
-                <p class="text-muted small m-0">Kelola dan pantau seluruh aset hardware IT perusahaan</p>
+            <div class="d-flex gap-2 flex-wrap">
+                <button type="button" id="btnHapusMassalAssets" class="btn btn-outline-danger shadow-sm" disabled title="Hapus aset terpilih secara sekaligus">
+                    <i class="bi bi-trash me-1"></i> Hapus Terpilih (<span id="deleteSelectedAssetCount">0</span>)
+                </button>
+                <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambah">
+                    <i class="bi bi-plus-lg me-2"></i> Tambah Aset
+                </button>
             </div>
         </div>
-        <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambah">
-            <i class="bi bi-plus-lg me-2"></i> Tambah Aset
-        </button>
     </div>
 
     <!-- Alert Status -->
@@ -213,6 +246,11 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
         <?php elseif ($_GET['status'] == 'deleted'): ?>
             <div class="alert alert-warning alert-dismissible fade show mb-4 border-0 shadow-sm rounded-4 animate-fade-in" role="alert">
                 <i class="bi bi-trash-fill me-2"></i> Aset telah berhasil dihapus secara permanen!
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php elseif ($_GET['status'] == 'deleted_massal'): ?>
+            <div class="alert alert-warning alert-dismissible fade show mb-4 border-0 shadow-sm rounded-4 animate-fade-in" role="alert">
+                <i class="bi bi-trash-fill me-2"></i> Berhasil menghapus <?= intval($_GET['count'] ?? 0) ?> aset terpilih secara massal!
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
@@ -361,7 +399,12 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light border-bottom">
                         <tr>
-                            <th class="ps-4">Kode Aset</th>
+                            <th class="ps-4" style="width: 50px;">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="checkAllAssets">
+                                </div>
+                            </th>
+                            <th>Kode Aset</th>
                             <th>Detail Perangkat</th>
                             <th>Lokasi</th>
                             <th>Penanggung Jawab</th>
@@ -373,7 +416,7 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                     <tbody>
                         <?php if(empty($assets)): ?>
                             <tr>
-                                <td colspan="6" class="text-center py-5 text-muted">
+                                <td colspan="8" class="text-center py-5 text-muted">
                                     <i class="bi bi-laptop fs-2 d-block mb-2"></i> Tidak ada aset ditemukan.
                                 </td>
                             </tr>
@@ -381,6 +424,11 @@ $allRusakBeratCount = $assetModel->countAll(null, 'Rusak Berat');
                             <?php foreach ($assets as $a): ?>
                             <tr class="asset-row-item" data-search="<?= htmlspecialchars(strtolower($a['kode_aset'] . ' ' . $a['nama_aset'] . ' ' . ($a['serial_number'] ?? '') . ' ' . ($a['merk'] ?? '') . ' ' . ($a['model'] ?? '') . ' ' . $a['nama_cabang'] . ' ' . ($a['nama_karyawan'] ?? ''))) ?>">
                                 <td class="ps-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input asset-checkbox" type="checkbox" value="<?= $a['id'] ?>">
+                                    </div>
+                                </td>
+                                <td>
                                     <span class="badge bg-primary bg-opacity-10 text-primary rounded px-2.5 py-1.5 fw-bold" style="font-size: 0.72rem;">
                                         <?= $a['kode_aset'] ?>
                                     </span>
@@ -1299,3 +1347,71 @@ document.querySelectorAll('input[type="file"][name="foto"]').forEach(input => {
     .dropdown-item i { width: 20px; }
     .cursor-pointer { cursor: pointer; }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkAllAssets = document.getElementById('checkAllAssets');
+    const assetCheckboxes = document.querySelectorAll('.asset-checkbox');
+    const btnHapusMassalAssets = document.getElementById('btnHapusMassalAssets');
+    const deleteSelectedAssetCount = document.getElementById('deleteSelectedAssetCount');
+    const formHapusMassalAssets = document.getElementById('formHapusMassalAssets');
+
+    function updateAssetSelectionState() {
+        const visibleCheckboxes = Array.from(assetCheckboxes).filter(cb => {
+            const row = cb.closest('tr');
+            return row && row.style.display !== 'none';
+        });
+        const checked = visibleCheckboxes.filter(cb => cb.checked);
+        const count = checked.length;
+
+        if (deleteSelectedAssetCount) deleteSelectedAssetCount.innerText = count;
+        if (btnHapusMassalAssets) {
+            btnHapusMassalAssets.disabled = (count === 0);
+            if (count > 0) {
+                btnHapusMassalAssets.classList.remove('btn-outline-danger');
+                btnHapusMassalAssets.classList.add('btn-danger');
+            } else {
+                btnHapusMassalAssets.classList.add('btn-outline-danger');
+                btnHapusMassalAssets.classList.remove('btn-danger');
+            }
+        }
+    }
+
+    if (checkAllAssets) {
+        checkAllAssets.addEventListener('change', function() {
+            assetCheckboxes.forEach(cb => {
+                const row = cb.closest('tr');
+                if (row && row.style.display !== 'none') {
+                    cb.checked = checkAllAssets.checked;
+                }
+            });
+            updateAssetSelectionState();
+        });
+    }
+
+    assetCheckboxes.forEach(cb => {
+        cb.addEventListener('change', updateAssetSelectionState);
+    });
+
+    if (btnHapusMassalAssets) {
+        btnHapusMassalAssets.addEventListener('click', function(e) {
+            e.preventDefault();
+            const checked = Array.from(assetCheckboxes).filter(cb => cb.checked && cb.closest('tr').style.display !== 'none');
+            if (checked.length === 0) return;
+
+            if (confirm(`Apakah Anda yakin ingin menghapus ${checked.length} data aset terpilih secara massal? Tindakan ini tidak dapat dibatalkan.`)) {
+                const container = document.getElementById('hapusMassalAssetInputs');
+                container.innerHTML = '';
+                checked.forEach(cb => {
+                    const inp = document.createElement('input');
+                    inp.type = 'hidden';
+                    inp.name = 'ids[]';
+                    inp.value = cb.value;
+                    container.appendChild(inp);
+                });
+                formHapusMassalAssets.submit();
+            }
+        });
+    }
+});
+</script>

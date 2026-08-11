@@ -148,7 +148,30 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
         border: 1px solid var(--card-border) !important;
         color: var(--text-main) !important;
     }
-</style>
+<!-- Quick Search Asset Widget on Dashboard -->
+<div class="card border-0 shadow-lg rounded-4 p-4 mb-4" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(6, 182, 212, 0.06) 100%) !important; border: 1px solid rgba(99, 102, 241, 0.2) !important;">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="p-3 rounded-4 text-white shadow-sm" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
+                <i class="bi bi-search fs-4"></i>
+            </div>
+            <div>
+                <h5 class="fw-800 m-0 text-dark">Pencarian Cepat Aset IT</h5>
+                <p class="text-muted small m-0 mt-1">Cari perangkat berdasarkan Kode Aset, Serial Number, Nama, atau Penanggung Jawab</p>
+            </div>
+        </div>
+        <form action="index.php" method="GET" class="d-flex gap-2 flex-grow-1" style="max-width: 480px;">
+            <input type="hidden" name="page" value="inventaris">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-0 text-muted"><i class="bi bi-qr-code-scan"></i></span>
+                <input type="text" name="search" class="form-control border-0 shadow-sm px-3" placeholder="Ketik Kode Aset / Serial Number..." required>
+                <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm">
+                    <i class="bi bi-search me-1"></i> Cari
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <div class="row g-4 mb-5 animate-fade-in">
     <!-- Stat Card 1 -->
