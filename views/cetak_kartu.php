@@ -538,8 +538,8 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
                                 <button type="button" class="btn btn-outline-secondary" id="btnNextCard">Slanjut <i class="bi bi-chevron-right"></i></button>
                             </div>
                         </div>
-                        <div class="d-flex justify-content-center align-items-center p-4 bg-light bg-opacity-50 rounded-4 border overflow-hidden" style="min-height: 300px;">
-                            <div id="liveCardPreviewContainer" class="position-relative shadow-lg rounded-3 overflow-hidden bg-white" style="width: 85.6mm; min-height: 54.0mm; transform: scale(1.35); transform-origin: center center; margin: 30px 0;">
+                        <div class="d-flex justify-content-center align-items-center p-4 bg-light bg-opacity-50 rounded-4 border overflow-hidden" style="min-height: 320px;">
+                            <div id="liveCardPreviewContainer" class="position-relative shadow-lg rounded-3 overflow-hidden bg-white" style="width: 85.6mm; height: 54.0mm; box-sizing: border-box; transform: scale(1.35); transform-origin: center center; margin: 30px 0;">
                                 <!-- Rendered dynamically by JS -->
                             </div>
                         </div>
@@ -597,6 +597,351 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
     background: #ef4444 !important;
     color: #ffffff !important;
     transform: translateY(-1px);
+}
+
+/* Ukuran ATM Card (CR80) & Component Styling (Berlaku untuk Screen Modal Live Preview & Print) */
+.atm-card {
+    width: 85.6mm !important;
+    height: 54.0mm !important;
+    box-sizing: border-box !important;
+    border: 1.2px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    background: #ffffff !important;
+    font-family: 'Plus Jakarta Sans', Arial, sans-serif !important;
+    color: #0f172a !important;
+    overflow: hidden !important;
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04) !important;
+    outline: 0.8px dashed #cbd5e1 !important;
+    outline-offset: 1.5mm !important;
+}
+
+/* Top Header Section */
+.card-header-sec {
+    display: flex !important;
+    width: 100% !important;
+    height: 11.5mm !important;
+    border-bottom: 1.5px solid #003b73 !important;
+    box-sizing: border-box !important;
+}
+.header-logo-box {
+    width: 27% !important;
+    height: 100% !important;
+    border-right: 1px solid #e2e8f0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+    padding: 0.8mm !important;
+}
+.header-logo-box img {
+    max-height: 9.8mm !important;
+    max-width: 95% !important;
+    object-fit: contain !important;
+}
+.header-title-box {
+    width: 73% !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+}
+.header-main-title {
+    background-color: #003b73 !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    font-size: 7.8pt !important;
+    text-align: center !important;
+    height: 5.5mm !important;
+    line-height: 5.5mm !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.2px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+.header-sub-sec {
+    height: 6.0mm !important;
+    background: #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+}
+
+/* Green Banner with Teal Accent and Slant */
+.green-banner-wrapper {
+    position: relative !important;
+    display: flex !important;
+    height: 100% !important;
+    width: 75% !important;
+}
+.teal-stripe {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-color: #009ca6 !important;
+    clip-path: polygon(0 0, 78% 0, 71% 100%, 0 100%) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+.green-banner {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 92% !important;
+    height: 100% !important;
+    background: #7ac142 !important;
+    clip-path: polygon(0 0, 78% 0, 71% 100%, 0 100%) !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    font-size: 7.2pt !important;
+    letter-spacing: 0.5px !important;
+    display: flex !important;
+    align-items: center !important;
+    padding-left: 2.5mm !important;
+    box-sizing: border-box !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+.header-dots-container {
+    display: flex !important;
+    align-items: center !important;
+    padding-right: 3mm !important;
+    height: 100% !important;
+}
+.header-dots {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1mm) !important;
+    grid-gap: 0.8mm !important;
+}
+.header-dots span {
+    width: 0.9mm !important;
+    height: 0.9mm !important;
+    background-color: #7ac142 !important;
+    border-radius: 50% !important;
+    display: block !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+/* Fields Section */
+.card-fields-sec {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+.card-field-row {
+    display: flex !important;
+    width: 100% !important;
+    height: 6.125mm !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    box-sizing: border-box !important;
+}
+.field-icon-box {
+    width: 8.5mm !important;
+    height: 100% !important;
+    background-color: #003b73 !important;
+    color: #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+.field-svg-icon {
+    width: 3.5mm !important;
+    height: 3.5mm !important;
+    color: #ffffff !important;
+}
+.field-content-box {
+    display: flex !important;
+    align-items: center !important;
+    width: 77.1mm !important;
+    height: 100% !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+}
+.field-lbl {
+    width: 25.5mm !important;
+    color: #003b73 !important;
+    font-weight: 800 !important;
+    font-size: 7.0pt !important;
+    display: flex !important;
+    align-items: center !important;
+    padding-left: 3.0mm !important;
+    box-sizing: border-box !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.2px !important;
+}
+.field-sep {
+    color: #7ac142 !important;
+    font-weight: 800 !important;
+    font-size: 9.0pt !important;
+    margin: 0 1.0mm 0 2.0mm !important;
+    display: flex !important;
+    align-items: center !important;
+}
+.field-val {
+    font-size: 7.0pt !important;
+    color: #1e293b !important;
+    font-weight: 800 !important;
+    padding-left: 2.0mm !important;
+    white-space: normal !important;
+    line-height: 1.05 !important;
+    overflow: hidden !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    text-transform: uppercase !important;
+    flex-grow: 1;
+    align-self: center !important;
+    padding-top: 0.1mm !important;
+    padding-bottom: 0.1mm !important;
+    word-break: break-word !important;
+}
+
+/* Bottom Section */
+.card-bottom-sec {
+    display: flex !important;
+    width: 100% !important;
+    height: 18.0mm !important;
+    border-top: 1.5px solid #7ac142 !important;
+    background-color: #ffffff !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+/* Decorative Waves */
+.card-waves {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 85.6mm !important;
+    height: 7.5mm !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+}
+
+.bottom-left-attention {
+    width: 66% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 1.0mm 1.5mm 1.0mm 3.0mm !important;
+    box-sizing: border-box !important;
+    z-index: 2 !important;
+}
+.attention-icon {
+    margin-right: 2.0mm !important;
+    display: flex !important;
+    align-items: center !important;
+}
+.attention-svg-icon {
+    width: 7.0mm !important;
+    height: 7.0mm !important;
+    color: #003b73 !important;
+}
+.attention-text-box {
+    display: flex !important;
+    flex-direction: column !important;
+}
+.attention-title {
+    font-weight: 800 !important;
+    font-size: 6.8pt !important;
+    color: #dc2626 !important;
+    margin-bottom: 0.3mm !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.3px !important;
+}
+.attention-desc {
+    font-size: 4.6pt !important;
+    line-height: 1.25 !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+}
+
+.attention-qr-separator {
+    width: 1px !important;
+    height: 13.0mm !important;
+    background-color: #e2e8f0 !important;
+    align-self: center !important;
+    z-index: 2 !important;
+}
+
+.bottom-right-qr {
+    width: 34% !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    padding: 0.8mm 1.0mm !important;
+    z-index: 2 !important;
+}
+.qr-border-box {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 5px !important;
+    padding: 0.5mm !important;
+    background: #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
+    margin-bottom: 0.6mm !important;
+}
+.card-qr-img {
+    width: 10.5mm !important;
+    height: 10.5mm !important;
+}
+.card-qr-img canvas, .card-qr-img img {
+    width: 10.5mm !important;
+    height: 10.5mm !important;
+    margin: 0 auto !important;
+}
+
+/* Green Scan Info Capsule */
+.scan-info-capsule {
+    background-color: #008744 !important;
+    color: #ffffff !important;
+    border-radius: 12px !important;
+    padding: 0.4mm 1.6mm !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5mm !important;
+    height: 2.8mm !important;
+    width: 19.0mm !important;
+    box-sizing: border-box !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+.scan-icon {
+    width: 1.8mm !important;
+    height: 1.8mm !important;
+    color: #ffffff !important;
+}
+.scan-info-capsule span {
+    font-size: 3.5pt !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+    letter-spacing: 0.1px !important;
 }
 
 @media print {
@@ -659,352 +1004,6 @@ Dilarang memindahkan barang inventaris ini tanpa seizin Human Resource Departeme
         padding-top: 8mm !important;
         height: 210mm !important;
         max-height: 210mm !important;
-    }
-
-    /* Ukuran ATM Card (CR80) */
-    .atm-card {
-        width: 85.6mm !important;
-        height: 54.0mm !important;
-        box-sizing: border-box !important;
-        border: 1.2px solid #e2e8f0 !important;
-        border-radius: 8px !important;
-        background: #ffffff !important;
-        font-family: 'Plus Jakarta Sans', Arial, sans-serif !important;
-        color: #0f172a !important;
-        overflow: hidden !important;
-        position: relative !important;
-        display: flex !important;
-        flex-direction: column !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04) !important;
-        /* Garis bantu gunting / crop marks */
-        outline: 0.8px dashed #cbd5e1 !important;
-        outline-offset: 1.5mm !important;
-    }
-
-    /* Top Header Section */
-    .card-header-sec {
-        display: flex !important;
-        width: 100% !important;
-        height: 11.5mm !important;
-        border-bottom: 1.5px solid #003b73 !important;
-        box-sizing: border-box !important;
-    }
-    .header-logo-box {
-        width: 27% !important;
-        height: 100% !important;
-        border-right: 1px solid #e2e8f0 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        background: #ffffff !important;
-        box-sizing: border-box !important;
-        padding: 0.8mm !important;
-    }
-    .header-logo-box img {
-        max-height: 9.8mm !important;
-        max-width: 95% !important;
-        object-fit: contain !important;
-    }
-    .header-title-box {
-        width: 73% !important;
-        height: 100% !important;
-        display: flex !important;
-        flex-direction: column !important;
-        box-sizing: border-box !important;
-    }
-    .header-main-title {
-        background-color: #003b73 !important;
-        color: #ffffff !important;
-        font-weight: 800 !important;
-        font-size: 7.8pt !important;
-        text-align: center !important;
-        height: 5.5mm !important;
-        line-height: 5.5mm !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.2px !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-    .header-sub-sec {
-        height: 6.0mm !important;
-        background: #ffffff !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        padding: 0 !important;
-        box-sizing: border-box !important;
-        position: relative !important;
-    }
-    
-    /* Green Banner with Teal Accent and Slant */
-    .green-banner-wrapper {
-        position: relative !important;
-        display: flex !important;
-        height: 100% !important;
-        width: 75% !important;
-    }
-    .teal-stripe {
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        background-color: #009ca6 !important;
-        clip-path: polygon(0 0, 78% 0, 71% 100%, 0 100%) !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-    .green-banner {
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 92% !important;
-        height: 100% !important;
-        background: #7ac142 !important;
-        clip-path: polygon(0 0, 78% 0, 71% 100%, 0 100%) !important;
-        color: #ffffff !important;
-        font-weight: 800 !important;
-        font-size: 7.2pt !important;
-        letter-spacing: 0.5px !important;
-        display: flex !important;
-        align-items: center !important;
-        padding-left: 2.5mm !important;
-        box-sizing: border-box !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-    
-    .header-dots-container {
-        display: flex !important;
-        align-items: center !important;
-        padding-right: 3mm !important;
-        height: 100% !important;
-    }
-    .header-dots {
-        display: grid !important;
-        grid-template-columns: repeat(3, 1mm) !important;
-        grid-gap: 0.8mm !important;
-    }
-    .header-dots span {
-        width: 0.9mm !important;
-        height: 0.9mm !important;
-        background-color: #7ac142 !important;
-        border-radius: 50% !important;
-        display: block !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-
-    /* Fields Section */
-    .card-fields-sec {
-        display: flex !important;
-        flex-direction: column !important;
-        width: 100% !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        box-sizing: border-box !important;
-    }
-    .card-field-row {
-        display: flex !important;
-        width: 100% !important;
-        height: 6.125mm !important;
-        border-bottom: 1px solid #e2e8f0 !important;
-        box-sizing: border-box !important;
-    }
-    .field-icon-box {
-        width: 8.5mm !important;
-        height: 100% !important;
-        background-color: #003b73 !important;
-        color: #ffffff !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        box-sizing: border-box !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-    .field-svg-icon {
-        width: 3.5mm !important;
-        height: 3.5mm !important;
-        color: #ffffff !important;
-    }
-    .field-content-box {
-        display: flex !important;
-        align-items: center !important;
-        width: 77.1mm !important;
-        height: 100% !important;
-        background: #ffffff !important;
-        box-sizing: border-box !important;
-    }
-    .field-lbl {
-        width: 25.5mm !important;
-        color: #003b73 !important;
-        font-weight: 800 !important;
-        font-size: 7.0pt !important;
-        display: flex !important;
-        align-items: center !important;
-        padding-left: 3.0mm !important;
-        box-sizing: border-box !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.2px !important;
-    }
-    .field-sep {
-        color: #7ac142 !important;
-        font-weight: 800 !important;
-        font-size: 9.0pt !important;
-        margin: 0 1.0mm 0 2.0mm !important;
-        display: flex !important;
-        align-items: center !important;
-    }
-    .field-val {
-        font-size: 7.0pt !important;
-        color: #1e293b !important;
-        font-weight: 800 !important;
-        padding-left: 2.0mm !important;
-        white-space: normal !important;
-        line-height: 1.05 !important;
-        overflow: hidden !important;
-        display: -webkit-box !important;
-        -webkit-line-clamp: 2 !important;
-        -webkit-box-orient: vertical !important;
-        text-transform: uppercase !important;
-        flex-grow: 1;
-        align-self: center !important;
-        padding-top: 0.1mm !important;
-        padding-bottom: 0.1mm !important;
-        word-break: break-word !important;
-    }
-
-    /* Bottom Section */
-    .card-bottom-sec {
-        display: flex !important;
-        width: 100% !important;
-        height: 18.0mm !important;
-        border-top: 1.5px solid #7ac142 !important;
-        background-color: #ffffff !important;
-        box-sizing: border-box !important;
-        position: relative !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-    
-    /* Decorative Waves */
-    .card-waves {
-        position: absolute !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        width: 85.6mm !important;
-        height: 7.5mm !important;
-        z-index: 1 !important;
-        pointer-events: none !important;
-    }
-    
-    .bottom-left-attention {
-        width: 66% !important;
-        height: 100% !important;
-        display: flex !important;
-        align-items: center !important;
-        padding: 1.0mm 1.5mm 1.0mm 3.0mm !important;
-        box-sizing: border-box !important;
-        z-index: 2 !important;
-    }
-    .attention-icon {
-        margin-right: 2.0mm !important;
-        display: flex !important;
-        align-items: center !important;
-    }
-    .attention-svg-icon {
-        width: 7.0mm !important;
-        height: 7.0mm !important;
-        color: #003b73 !important;
-    }
-    .attention-text-box {
-        display: flex !important;
-        flex-direction: column !important;
-    }
-    .attention-title {
-        font-weight: 800 !important;
-        font-size: 6.8pt !important;
-        color: #dc2626 !important;
-        margin-bottom: 0.3mm !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.3px !important;
-    }
-    .attention-desc {
-        font-size: 4.6pt !important;
-        line-height: 1.25 !important;
-        color: #475569 !important;
-        font-weight: 600 !important;
-    }
-    
-    .attention-qr-separator {
-        width: 1px !important;
-        height: 13.0mm !important;
-        background-color: #e2e8f0 !important;
-        align-self: center !important;
-        z-index: 2 !important;
-    }
-    
-    .bottom-right-qr {
-        width: 34% !important;
-        height: 100% !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        box-sizing: border-box !important;
-        padding: 0.8mm 1.0mm !important;
-        z-index: 2 !important;
-    }
-    .qr-border-box {
-        border: 1px solid #e2e8f0 !important;
-        border-radius: 5px !important;
-        padding: 0.5mm !important;
-        background: #ffffff !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
-        margin-bottom: 0.6mm !important;
-    }
-    .card-qr-img {
-        width: 10.5mm !important;
-        height: 10.5mm !important;
-    }
-    .card-qr-img canvas, .card-qr-img img {
-        width: 10.5mm !important;
-        height: 10.5mm !important;
-        margin: 0 auto !important;
-    }
-    
-    /* Green Scan Info Capsule */
-    .scan-info-capsule {
-        background-color: #008744 !important;
-        color: #ffffff !important;
-        border-radius: 12px !important;
-        padding: 0.4mm 1.6mm !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 0.5mm !important;
-        height: 2.8mm !important;
-        width: 19.0mm !important;
-        box-sizing: border-box !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-    .scan-icon {
-        width: 1.8mm !important;
-        height: 1.8mm !important;
-        color: #ffffff !important;
-    }
-    .scan-info-capsule span {
-        font-size: 3.5pt !important;
-        font-weight: 800 !important;
-        white-space: nowrap !important;
-        letter-spacing: 0.1px !important;
     }
 }
 </style>
