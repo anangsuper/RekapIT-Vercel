@@ -160,8 +160,32 @@
                 </div>
             </div>
 
+<!-- Modal Live Camera QR Code / Barcode Scanner -->
+<div class="modal fade" id="modalCameraScanner" tabindex="-1" aria-labelledby="modalCameraScannerLabel" aria-hidden="true" style="z-index: 1076;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; background: var(--modal-bg);">
+            <div class="modal-header border-0 p-4 pb-0">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-primary bg-opacity-10 p-2.5 rounded-4 text-primary">
+                        <i class="bi bi-qr-code-scan fs-3"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-800 m-0 text-dark" id="modalCameraScannerLabel">Scan Stiker Aset Kamera</h5>
+                        <p class="text-muted small m-0">Arahkan kamera Laptop / HP ke QR Code atau Barcode stiker aset.</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body p-4 text-center">
+                <div id="reader" style="width: 100%; min-height: 280px; background: #000; border-radius: 16px; overflow: hidden; position: relative;" class="shadow-sm"></div>
+                <div id="scanner-result-msg" class="mt-3 small text-muted">
+                    <i class="bi bi-camera-fill me-1"></i> Membuka kamera...
+                </div>
+            </div>
+
             <div class="modal-footer border-0 p-4 pt-0">
-                <button type="button" class="btn btn-primary px-4 py-2 fw-bold" data-bs-dismiss="modal" style="border-radius: 12px;">Saya Mengerti</button>
+                <button type="button" class="btn btn-secondary px-4 py-2 fw-bold" data-bs-dismiss="modal" style="border-radius: 12px;">Tutup</button>
             </div>
         </div>
     </div>
@@ -171,6 +195,49 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    let html5QrCodeScanner = null;
+
+    const scannerModalEl = document.getElementById('modalCameraScanner');
+    if (scannerModalEl) {
+        scannerModalEl.addEventListener('shown.bs.modal', function () {
+            const resultMsg = document.getElementById('scanner-result-msg');
+            if (resultMsg) resultMsg.innerHTML = '<span class="text-primary fw-bold"><i class="bi bi-eye-fill me-1"></i> Kamera Aktif. Arahkan ke Stiker QR Code...</span>';
+            
+            if (!html5QrCodeScanner) {
+                html5QrCodeScanner = new Html5Qrcode("reader");
+            }
+            
+            const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+            html5QrCodeScanner.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure)
+                .catch(err => {
+                    if (resultMsg) resultMsg.innerHTML = '<span class="text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill me-1"></i> Gagal membuka kamera. Pastikan izin kamera telah diberikan di browser.</span>';
+                });
+        });
+
+        scannerModalEl.addEventListener('hidden.bs.modal', function () {
+            if (html5QrCodeScanner && html5QrCodeScanner.isScanning) {
+                html5QrCodeScanner.stop().then(() => {
+                    console.log("Scanner stopped.");
+                }).catch(err => console.error(err));
+            }
+        });
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+        if (html5QrCodeScanner && html5QrCodeScanner.isScanning) {
+            html5QrCodeScanner.stop();
+        }
+        const resultMsg = document.getElementById('scanner-result-msg');
+        if (resultMsg) resultMsg.innerHTML = `<span class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i> QR Terdeteksi: "${decodedText}"! Mengarahkan...</span>`;
+        
+        setTimeout(() => {
+            window.location.href = `index.php?page=inventaris&search=${encodeURIComponent(decodedText)}`;
+        }, 600);
+    }
+
+    function onScanFailure(error) {
+        // Silent frame scanning
+    }
     // Move all modals to body to ensure they are on the top stacking context
     const modals = document.querySelectorAll('.modal');
     modals.forEach(modal => {

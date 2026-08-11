@@ -30,6 +30,8 @@ $pendingTicketCount = $hModel->countPending();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 
     <style>
         @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap");
@@ -1172,6 +1174,12 @@ $pendingTicketCount = $hModel->countPending();
         <button type="button" class="btn btn-outline-info btn-sm px-3 py-1.5 d-flex align-items-center gap-2" style="font-size: 0.75rem; border-radius: 10px; height: 36px; border: 1px solid var(--sidebar-border); background: var(--input-bg); color: var(--text-main);" data-bs-toggle="modal" data-bs-target="#modalGlobalHelp" title="Panduan & Cara Penggunaan Website">
             <i class="bi bi-question-circle text-info fs-6"></i>
             <span class="d-none d-sm-inline">Panduan</span>
+        </button>
+
+        <!-- Live Camera Scanner Button -->
+        <button type="button" class="btn btn-outline-primary btn-sm px-3 py-1.5 d-flex align-items-center gap-2" style="font-size: 0.75rem; border-radius: 10px; height: 36px; border: 1px solid var(--sidebar-border); background: var(--input-bg); color: var(--text-main);" data-bs-toggle="modal" data-bs-target="#modalCameraScanner" title="Scan QR Code / Barcode Stiker Aset via Kamera">
+            <i class="bi bi-qr-code-scan text-primary fs-6"></i>
+            <span class="d-none d-sm-inline">Scan Kamera</span>
         </button>
 
         <!-- Theme Toggle Button -->

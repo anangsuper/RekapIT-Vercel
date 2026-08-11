@@ -699,6 +699,18 @@ foreach ($allMutations as $m) {
                         <?php endif; ?>
 
                         <div class="col-md-12">
+                            <label class="form-label small fw-bold text-muted d-flex justify-content-between align-items-center">
+                                <span>✍️ Tanda Tangan Serah Terima Digital (Opsional)</span>
+                                <button type="button" class="btn btn-link btn-sm text-danger p-0 text-decoration-none" id="btnClearSignature">Reset Tanda Tangan</button>
+                            </label>
+                            <div class="border rounded-4 p-2 bg-white text-center shadow-sm">
+                                <canvas id="signatureCanvas" class="w-100" height="130" style="border: 1px dashed #cbd5e1; border-radius: 12px; cursor: crosshair; touch-action: none;"></canvas>
+                                <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">Gunakan Mouse / Layar Sentuh HP untuk membubuhkan tanda tangan serah terima.</small>
+                            </div>
+                            <input type="hidden" name="tanda_tangan" id="inputTandaTanganData">
+                        </div>
+
+                        <div class="col-md-12">
                             <label class="form-label small fw-bold text-muted">Keterangan / Alasan Mutasi</label>
                             <textarea name="keterangan" class="form-control bg-light border-0" rows="3" placeholder="Jelaskan alasan perpindahan perangkat..."></textarea>
                         </div>
@@ -793,5 +805,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (filterCabang) filterCabang.addEventListener('change', filterAssetOptions);
     if (searchInput) searchInput.addEventListener('input', filterAssetOptions);
+
+    let signaturePad = null;
+    const canvas = document.getElementById('signatureCanvas');
+    if (canvas && typeof SignaturePad !== 'undefined') {
+        signaturePad = new SignaturePad(canvas, {
+            backgroundColor: 'rgb(255, 255, 255)',
+            penColor: 'rgb(15, 23, 42)'
+        });
+
+        document.getElementById('btnClearSignature')?.addEventListener('click', function() {
+            if (signaturePad) signaturePad.clear();
+            const inputData = document.getElementById('inputTandaTanganData');
+            if (inputData) inputData.value = '';
+        });
+
+        const form = canvas.closest('form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                if (signaturePad && !signaturePad.isEmpty()) {
+                    const inputData = document.getElementById('inputTandaTanganData');
+                    if (inputData) inputData.value = signaturePad.toDataURL();
+                }
+            });
+        }
+    }
 });
 </script>
