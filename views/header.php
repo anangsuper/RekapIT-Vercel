@@ -187,19 +187,25 @@ $pendingTicketCount = $hModel->countPending();
             opacity: var(--blob-opacity);
             transition: opacity 0.3s ease;
         }
+        @keyframes floatBlob {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(35px, -35px) scale(1.08); }
+        }
         .main-blob-1 {
             top: -10%;
             left: 20%;
-            width: 400px;
-            height: 400px;
+            width: 450px;
+            height: 450px;
             background: rgba(99, 102, 241, 0.25);
+            animation: floatBlob 18s ease-in-out infinite;
         }
         .main-blob-2 {
             bottom: -10%;
             right: 10%;
-            width: 450px;
-            height: 450px;
+            width: 500px;
+            height: 500px;
             background: rgba(6, 182, 212, 0.2);
+            animation: floatBlob 22s ease-in-out infinite reverse;
         }
 
         /* Sidebar styling */
@@ -226,10 +232,10 @@ $pendingTicketCount = $hModel->countPending();
             align-items: center;
             gap: 10px;
             text-decoration: none;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.05) 100%);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.18) 0%, rgba(168, 85, 247, 0.08) 100%);
             border: 1px solid var(--sidebar-border);
             border-radius: 18px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.12);
         }
 
         .sidebar-brand h4 {
@@ -277,18 +283,19 @@ $pendingTicketCount = $hModel->countPending();
             font-weight: 600;
             font-size: 0.85rem;
             border-radius: 12px;
-            transition: all 0.2s ease;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .sidebar-link:hover {
             color: var(--text-dark);
             background: var(--sidebar-hover);
+            transform: translateX(3px);
         }
 
         .sidebar-link.active {
             color: #ffffff !important;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%) !important;
-            box-shadow: 0 4px 15px -3px rgba(99, 102, 241, 0.4);
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+            box-shadow: 0 4px 18px -2px rgba(99, 102, 241, 0.45);
         }
         
         .sidebar-link.active i {
@@ -302,8 +309,8 @@ $pendingTicketCount = $hModel->countPending();
         /* Top Header Bar */
         .top-header-bar {
             background: var(--topbar-bg);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
             border-bottom: 1px solid var(--topbar-border);
             padding: 16px 40px;
             display: flex;
@@ -335,9 +342,9 @@ $pendingTicketCount = $hModel->countPending();
             border: 1px solid var(--card-border) !important;
             border-radius: 20px !important;
             box-shadow: var(--card-shadow) !important;
-            backdrop-filter: blur(20px) !important;
-            -webkit-backdrop-filter: blur(20px) !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            backdrop-filter: blur(22px) !important;
+            -webkit-backdrop-filter: blur(22px) !important;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
             color: var(--text-main) !important;
             position: relative;
         }
@@ -345,6 +352,7 @@ $pendingTicketCount = $hModel->countPending();
         .card:hover {
             box-shadow: var(--card-shadow-hover) !important;
             border-color: var(--card-border-hover) !important;
+            transform: translateY(-3px);
         }
 
         .card-body, .card-header, .card-footer {
@@ -408,7 +416,7 @@ $pendingTicketCount = $hModel->countPending();
             padding: 10px 20px;
             font-weight: 600;
             font-size: 0.875rem;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -416,15 +424,55 @@ $pendingTicketCount = $hModel->countPending();
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%) !important;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
             border: none !important;
             color: #ffffff !important;
-            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3) !important;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35) !important;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45) !important;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.5) !important;
+            filter: brightness(1.05);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            border: none !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3) !important;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.45) !important;
+            filter: brightness(1.05);
+        }
+
+        .btn-outline-primary {
+            border: 1px solid rgba(99, 102, 241, 0.4) !important;
+            color: var(--primary-color) !important;
+            background: rgba(99, 102, 241, 0.08) !important;
+        }
+
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+            color: #ffffff !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35) !important;
+        }
+
+        .btn-outline-success {
+            border: 1px solid rgba(16, 185, 129, 0.4) !important;
+            color: #10b981 !important;
+            background: rgba(16, 185, 129, 0.08) !important;
+        }
+
+        .btn-outline-success:hover {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            color: #ffffff !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35) !important;
         }
 
         .btn-secondary,
@@ -441,9 +489,16 @@ $pendingTicketCount = $hModel->countPending();
         }
 
         .btn-outline-danger {
-            border-color: rgba(239, 68, 68, 0.3) !important;
+            border-color: rgba(239, 68, 68, 0.35) !important;
             color: #ef4444 !important;
-            background: rgba(239, 68, 68, 0.05) !important;
+            background: rgba(239, 68, 68, 0.08) !important;
+        }
+
+        .btn-outline-danger:hover {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+            color: #ffffff !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35) !important;
         }
 
         /* SaaS Table Layout */

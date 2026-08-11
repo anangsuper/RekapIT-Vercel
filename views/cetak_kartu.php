@@ -140,36 +140,38 @@ $preload_logo_path = $base_dir_path . '/assets/LOGO TYPE 2.png';
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <div class="container-fluid animate-fade-in">
-    <!-- Header Section -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <div class="d-flex align-items-center">
-            <div class="bg-primary bg-opacity-10 p-2.5 rounded-3 me-3 text-primary">
-                <i class="bi bi-card-heading fs-4"></i>
+    <!-- Header Hero Card Section -->
+    <div class="card border-0 shadow-lg rounded-4 p-4 mb-4" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(6, 182, 212, 0.06) 100%) !important; border: 1px solid rgba(99, 102, 241, 0.2) !important;">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="p-3 rounded-4 text-white shadow-sm" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
+                    <i class="bi bi-card-heading fs-3"></i>
+                </div>
+                <div>
+                    <h4 class="fw-800 m-0 text-dark">Cetak Kartu Inventaris <span class="badge bg-primary bg-opacity-10 text-primary fs-6 fw-bold ms-2">Rekap IT</span></h4>
+                    <p class="text-muted small m-0 mt-1">Kelola dan cetak kartu inventaris berukuran ATM (CR80) secara massal & presisi.</p>
+                </div>
             </div>
-            <div>
-                <h4 class="fw-800 m-0">Cetak Kartu Inventaris <span class="badge bg-primary bg-opacity-10 text-primary fs-6 fw-bold ms-2">Rekap IT - Asset Management</span></h4>
-                <p class="text-muted small m-0">Kelola dan cetak kartu inventaris berukuran ATM (CR80) secara massal - Rekap IT - Asset Management.</p>
+            <div class="d-flex gap-2 flex-wrap">
+                <button type="button" id="btnClearSelection" class="btn btn-outline-secondary shadow-sm" style="display: none;" title="Batalkan semua pilihan kartu">
+                    <i class="bi bi-x-circle me-1"></i> Batalkan Pilihan
+                </button>
+                <button type="button" id="btnHapusMassal" class="btn btn-outline-danger shadow-sm" disabled title="Hapus kartu terpilih secara sekaligus">
+                    <i class="bi bi-trash me-1"></i> Hapus Terpilih (<span id="deleteSelectedCount">0</span>)
+                </button>
+                <button type="button" id="btnCetakMassal" class="btn btn-outline-primary shadow-sm" disabled>
+                    <i class="bi bi-printer me-2"></i> Cetak Kartu Pilihan (<span id="selectedCount">0</span>)
+                </button>
+                <button type="button" id="btnExportCsv" class="btn btn-outline-success shadow-sm" title="Ekspor data kartu terpilih/terfilter ke CSV / Excel">
+                    <i class="bi bi-file-earmark-excel me-2"></i> Ekspor CSV / Excel
+                </button>
+                <button class="btn btn-outline-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalImportAsset">
+                    <i class="bi bi-box-seam me-2"></i> Pilih dari Aset IT
+                </button>
+                <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambah">
+                    <i class="bi bi-plus-lg me-2"></i> Tambah Data Kartu
+                </button>
             </div>
-        </div>
-        <div class="d-flex gap-2 flex-wrap">
-            <button type="button" id="btnClearSelection" class="btn btn-outline-secondary shadow-sm" style="display: none;" title="Batalkan semua pilihan kartu">
-                <i class="bi bi-x-circle me-1"></i> Batalkan Pilihan
-            </button>
-            <button type="button" id="btnHapusMassal" class="btn btn-outline-danger shadow-sm" disabled title="Hapus kartu terpilih secara sekaligus">
-                <i class="bi bi-trash me-1"></i> Hapus Terpilih (<span id="deleteSelectedCount">0</span>)
-            </button>
-            <button type="button" id="btnCetakMassal" class="btn btn-outline-primary shadow-sm" disabled>
-                <i class="bi bi-printer me-2"></i> Cetak Kartu Pilihan (<span id="selectedCount">0</span>)
-            </button>
-            <button type="button" id="btnExportCsv" class="btn btn-outline-success shadow-sm" title="Ekspor data kartu terpilih/terfilter ke CSV / Excel">
-                <i class="bi bi-file-earmark-excel me-2"></i> Ekspor CSV / Excel
-            </button>
-            <button class="btn btn-outline-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalImportAsset">
-                <i class="bi bi-box-seam me-2"></i> Pilih dari Aset IT
-            </button>
-            <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambah">
-                <i class="bi bi-plus-lg me-2"></i> Tambah Data Kartu
-            </button>
         </div>
     </div>
 
