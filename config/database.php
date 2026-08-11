@@ -275,6 +275,9 @@ class GoogleSheetsSync {
                 id_karyawan_baru INTEGER,
                 tanggal_mutasi TEXT NOT NULL,
                 keterangan TEXT,
+                status TEXT DEFAULT 'Disetujui',
+                approved_by INTEGER,
+                alasan_penolakan TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );",
             "audits" => "CREATE TABLE IF NOT EXISTS audits (
