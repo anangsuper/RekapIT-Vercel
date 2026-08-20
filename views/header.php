@@ -971,120 +971,36 @@ $pendingTicketCount = $hModel->countPending();
         <h4>REKAP IT</h4>
     </a>
 
-    <div class="sidebar-heading">MONITORING</div>
+    <?php
+    $sidebarMenu = getSidebarMenuGrouped($page, $pendingTicketCount ?? 0);
+    foreach ($sidebarMenu as $groupHeading => $menuItems):
+        $hasVisibleItems = false;
+        foreach ($menuItems as $item) {
+            if ($item['role'] === null || hasRole($item['role'])) {
+                $hasVisibleItems = true;
+                break;
+            }
+        }
+        if (!$hasVisibleItems) continue;
+    ?>
+    <div class="sidebar-heading"><?= htmlspecialchars($groupHeading) ?></div>
     <ul class="sidebar-nav">
-        <li>
-            <a href="index.php?page=dashboard" class="sidebar-link <?= ($page == 'dashboard') ? 'active' : '' ?>">
-                <i class="bi bi-grid-1x2-fill"></i> Dashboard
-            </a>
-        </li>
-        <?php if (hasRole('admin')): ?>
-        <li>
-            <a href="index.php?page=logs" class="sidebar-link <?= ($page == 'logs') ? 'active' : '' ?>">
-                <i class="bi bi-clock-history"></i> Log Aktivitas
-            </a>
-        </li>
-        <?php endif; ?>
+        <?php foreach ($menuItems as $item): ?>
+            <?php if ($item['role'] !== null && !hasRole($item['role'])) continue; ?>
+            <li>
+                <a href="<?= htmlspecialchars($item['url']) ?>" class="sidebar-link <?= ($page == $item['page']) ? 'active' : '' ?>">
+                    <i class="<?= htmlspecialchars($item['icon']) ?>"></i> <?= htmlspecialchars($item['label']) ?>
+                    <?php if (!empty($item['badge'])): ?>
+                        <span class="badge <?= htmlspecialchars($item['badge_class'] ?? 'bg-danger') ?> rounded-pill ms-auto" style="font-size: 0.7rem;"><?= $item['badge'] ?></span>
+                    <?php endif; ?>
+                </a>
+            </li>
+        <?php endforeach; ?>
     </ul>
-
-    <div class="sidebar-heading">OPERASIONAL</div>
-    <ul class="sidebar-nav">
-        <li>
-            <a href="index.php?page=maintenance&sub=history" class="sidebar-link <?= ($page == 'maintenance') ? 'active' : '' ?>">
-                <i class="bi bi-calendar-check"></i> Maintenance Aset
-            </a>
-        </li>
-        <li>
-            <a href="index.php?page=perbaikan" class="sidebar-link <?= ($page == 'perbaikan') ? 'active' : '' ?>">
-                <i class="bi bi-tools"></i> Tiket Perbaikan
-            </a>
-        </li>
-        <li>
-            <a href="index.php?page=tiket_helpdesk" class="sidebar-link <?= ($page == 'tiket_helpdesk') ? 'active' : '' ?>">
-                <i class="bi bi-headset"></i> Tiket Helpdesk
-                <?php if (!empty($pendingTicketCount) && $pendingTicketCount > 0): ?>
-                    <span class="badge bg-danger rounded-pill ms-auto" style="font-size: 0.7rem;"><?= $pendingTicketCount ?></span>
-                <?php endif; ?>
-            </a>
-        </li>
-        <li>
-            <a href="index.php?page=sparepart" class="sidebar-link <?= ($page == 'sparepart') ? 'active' : '' ?>">
-                <i class="bi bi-cpu-fill"></i> Suku Cadang (Sparepart)
-            </a>
-        </li>
-        <?php if (hasRole('admin')): ?>
-        <li>
-            <a href="index.php?page=audit" class="sidebar-link <?= ($page == 'audit') ? 'active' : '' ?>">
-                <i class="bi bi-shield-check"></i> Audit Fisik
-            </a>
-        </li>
-        <?php endif; ?>
-    </ul>
-
-    <div class="sidebar-heading">MANAJEMEN ASET</div>
-    <ul class="sidebar-nav">
-        <li>
-            <a href="index.php?page=inventaris" class="sidebar-link <?= ($page == 'inventaris') ? 'active' : '' ?>">
-                <i class="bi bi-laptop"></i> Data Aset
-            </a>
-        </li>
-        <li>
-            <a href="index.php?page=cetak_kartu" class="sidebar-link <?= ($page == 'cetak_kartu') ? 'active' : '' ?>">
-                <i class="bi bi-card-heading"></i> Cetak Kartu
-            </a>
-        </li>
-        <li>
-            <a href="index.php?page=kategori" class="sidebar-link <?= ($page == 'kategori') ? 'active' : '' ?>">
-                <i class="bi bi-tags"></i> Kategori Aset
-            </a>
-        </li>
-        <li>
-            <a href="index.php?page=mutasi" class="sidebar-link <?= ($page == 'mutasi') ? 'active' : '' ?>">
-                <i class="bi bi-arrow-left-right"></i> Mutasi Aset
-            </a>
-        </li>
-    </ul>
+    <?php endforeach; ?>
 
     <?php if (hasRole('admin')): ?>
-    <div class="sidebar-heading">MASTER DATA</div>
-    <ul class="sidebar-nav">
-        <li>
-            <a href="index.php?page=cabang" class="sidebar-link <?= ($page == 'cabang') ? 'active' : '' ?>">
-                <i class="bi bi-building"></i> Cabang
-            </a>
-        </li>
-        <li>
-            <a href="index.php?page=divisi" class="sidebar-link <?= ($page == 'divisi') ? 'active' : '' ?>">
-                <i class="bi bi-people"></i> Divisi
-            </a>
-        </li>
-        <li>
-            <a href="index.php?page=karyawan" class="sidebar-link <?= ($page == 'karyawan') ? 'active' : '' ?>">
-                <i class="bi bi-person-badge"></i> Karyawan
-            </a>
-        </li>
-        <li>
-            <a href="index.php?page=pengguna" class="sidebar-link <?= ($page == 'pengguna') ? 'active' : '' ?>">
-                <i class="bi bi-person-gear"></i> Pengguna
-            </a>
-        </li>
-    </ul>
-
-    <div class="sidebar-heading">LAPORAN</div>
-    <ul class="sidebar-nav">
-        <li>
-            <a href="index.php?page=laporan_maintenance" class="sidebar-link <?= ($page == 'laporan_maintenance') ? 'active' : '' ?>">
-                <i class="bi bi-file-earmark-bar-graph"></i> Report Bulanan
-            </a>
-        </li>
-        <li>
-            <a href="index.php?page=laporan" class="sidebar-link <?= ($page == 'laporan') ? 'active' : '' ?>">
-                <i class="bi bi-file-earmark-excel"></i> Export Excel
-            </a>
-        </li>
-    </ul>
-
-    <div class="sidebar-heading">INTEGRASI / API</div>
+    <div class="sidebar-heading">ALAT & DIAGNOSTIK</div>
     <ul class="sidebar-nav">
         <li>
             <a href="api/test_telegram.php" target="_blank" class="sidebar-link">

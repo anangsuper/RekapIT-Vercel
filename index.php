@@ -5,6 +5,7 @@ require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/helpers/auth.php';
 require_once __DIR__ . '/helpers/pagination.php'; // Include pagination helper
 require_once __DIR__ . '/helpers/ui.php'; // Include UI helper
+require_once __DIR__ . '/helpers/menu.php'; // Include menu configuration helper
 
 // Inactivity timeout: 24 hours (86400 seconds)
 if (isset($_SESSION['user_id'])) {
