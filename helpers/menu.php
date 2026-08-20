@@ -6,11 +6,11 @@
 if (!function_exists('getSidebarMenuGrouped')) {
     function getSidebarMenuGrouped($currentPage, $pendingTicketCount = 0) {
         return [
-            'DASHBOARD & MONITORING' => [
+            'MONITORING' => [
                 [
                     'page' => 'dashboard',
                     'url' => 'index.php?page=dashboard',
-                    'label' => 'Dashboard Utama',
+                    'label' => 'Dashboard',
                     'icon' => 'bi bi-grid-1x2-fill',
                     'role' => null
                 ],

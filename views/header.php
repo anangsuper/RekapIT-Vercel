@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../helpers/auth.php';
+require_once __DIR__ . '/../helpers/menu.php';
 require_once 'models/Maintenance.php';
 require_once 'models/HelpdeskTicket.php';
 $mModel = new Maintenance($conn);
