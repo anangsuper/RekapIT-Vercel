@@ -247,6 +247,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Sidebar Toggler (Desktop & Mobile)
     const toggleBtn = document.getElementById('sidebarToggleBtn');
     const sidebar = document.getElementById('sidebarContainer');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    function toggleMobileSidebar() {
+        if (sidebar) sidebar.classList.toggle('show');
+        if (overlay) overlay.classList.toggle('show');
+    }
+
+    function hideMobileSidebar() {
+        if (sidebar) sidebar.classList.remove('show');
+        if (overlay) overlay.classList.remove('show');
+    }
+
     if (toggleBtn && sidebar) {
         toggleBtn.addEventListener('click', function(e) {
             e.stopPropagation();
@@ -256,14 +268,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.setItem('sidebar-hidden-pref', document.body.classList.contains('sidebar-hidden') ? 'true' : 'false');
             } else {
                 // Mobile Drawer Toggle
-                sidebar.classList.toggle('show');
+                toggleMobileSidebar();
             }
         });
         
+        if (overlay) {
+            overlay.addEventListener('click', hideMobileSidebar);
+        }
+
         document.addEventListener('click', function(e) {
             if (window.innerWidth < 992) {
                 if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
-                    sidebar.classList.remove('show');
+                    hideMobileSidebar();
                 }
             }
         });

@@ -720,6 +720,32 @@ $pendingTicketCount = $hModel->countPending();
             box-shadow: none !important;
         }
 
+        /* Desktop Sidebar Collapse State */
+        body.sidebar-hidden .sidebar {
+            transform: translateX(-100%);
+        }
+        body.sidebar-hidden .top-header-bar,
+        body.sidebar-hidden .main-content {
+            margin-left: 0 !important;
+        }
+
+        /* Sidebar Mobile Overlay */
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 1045;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .sidebar-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
         /* Responsive Mobile Layout overrides */
         @media (max-width: 991.98px) {
             .sidebar-toggle-btn {
@@ -727,32 +753,37 @@ $pendingTicketCount = $hModel->countPending();
             }
             .sidebar {
                 transform: translateX(-100%);
+                z-index: 1050 !important;
+                box-shadow: 0 0 35px rgba(0, 0, 0, 0.6) !important;
+                width: 280px !important;
             }
             .sidebar.show {
-                transform: translateX(0);
+                transform: translateX(0) !important;
             }
             .top-header-bar {
-                margin-left: 0;
-                padding: 12px 20px;
+                margin-left: 0 !important;
+                padding: 10px 16px;
                 position: fixed;
                 top: 0;
                 left: 0;
                 right: 0;
+                z-index: 1030 !important;
                 background: var(--sidebar-bg);
                 border-bottom: 1px solid var(--sidebar-border);
                 color: var(--text-main);
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             }
             .top-header-bar .top-bar-title {
                 color: var(--text-dark) !important;
+                font-size: 1.05rem !important;
             }
             .top-header-bar .text-muted {
                 color: var(--text-soft) !important;
             }
             .main-content {
-                margin-left: 0;
-                padding: 20px 16px;
-                padding-top: 88px;
+                margin-left: 0 !important;
+                padding: 16px 12px !important;
+                padding-top: 82px !important;
             }
         }
         
@@ -1034,10 +1065,10 @@ $pendingTicketCount = $hModel->countPending();
             <li class="mb-1">Lakukan audit kondisi aset secara berkala.</li>
             <li class="mb-1">Catat maintenance massal pada jadwal rutin.</li>
             <li class="mb-1">Buat tiket perbaikan jika terdeteksi kerusakan.</li>
-            <li>Ekspor laporan bulanan untuk arsip & audit.</li>
-        </ul>
     </div>
 </div>
+<!-- Mobile Sidebar Overlay Backdrop -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 <?php endif; ?>
 
 <!-- Floating Top Header Bar -->
