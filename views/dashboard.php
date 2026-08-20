@@ -157,6 +157,8 @@ $upcomingMaint = $maintModel->getUpcomingNotifications(7); // Next 7 days
         border: 1px solid var(--card-border) !important;
         color: var(--text-main) !important;
     }
+</style>
+
 <!-- Quick Search Asset Widget on Dashboard -->
 <div class="card border-0 shadow-lg rounded-4 p-4 mb-4" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(6, 182, 212, 0.06) 100%) !important; border: 1px solid rgba(99, 102, 241, 0.2) !important;">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
