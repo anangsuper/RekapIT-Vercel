@@ -4,12 +4,12 @@
  * Dilengkapi UI Progress Bar Interaktif untuk menghindari timeout di Vercel (Limit 10s).
  */
 
-// 1. Konfigurasi MySQL Lama
-$mysql_host = 'z74bzi.h.filess.io';
-$mysql_port = '3307';
-$mysql_user = 'rekapit_momenthelp';
-$mysql_pass = '00e2bc34ce76ea678fa903001f3ec5f24e91ba49';
-$mysql_name = 'rekapit_momenthelp';
+// 1. Konfigurasi MySQL Lama (Gunakan .env atau Environment Variable)
+$mysql_host = getenv('MYSQL_HOST') ?: ($_ENV['MYSQL_HOST'] ?? 'z74bzi.h.filess.io');
+$mysql_port = getenv('MYSQL_PORT') ?: ($_ENV['MYSQL_PORT'] ?? '3307');
+$mysql_user = getenv('MYSQL_USER') ?: ($_ENV['MYSQL_USER'] ?? 'rekapit_momenthelp');
+$mysql_pass = getenv('MYSQL_PASS') ?: ($_ENV['MYSQL_PASS'] ?? '');
+$mysql_name = getenv('MYSQL_NAME') ?: ($_ENV['MYSQL_NAME'] ?? 'rekapit_momenthelp');
 
 // Load local .env file if it exists to populate getenv/$_ENV
 $envPath = __DIR__ . '/.env';
