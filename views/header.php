@@ -265,7 +265,27 @@ $pendingTicketCount = $hModel->countPending();
             color: var(--text-soft);
             font-weight: 700;
             margin: 18px 0 8px 10px;
-            opacity: 0.8;
+            opacity: 0.85;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-right: 8px;
+            user-select: none;
+            transition: color 0.2s ease;
+        }
+
+        .sidebar-heading:hover {
+            color: var(--primary-color);
+        }
+
+        .sidebar-heading .toggle-chevron {
+            font-size: 0.75rem;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-heading.collapsed .toggle-chevron {
+            transform: rotate(-90deg);
         }
 
         .sidebar-nav {
@@ -275,6 +295,17 @@ $pendingTicketCount = $hModel->countPending();
             display: flex;
             flex-direction: column;
             gap: 4px;
+            overflow: hidden;
+            max-height: 1000px;
+            opacity: 1;
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin 0.3s ease;
+        }
+
+        .sidebar-nav.collapsed {
+            max-height: 0 !important;
+            opacity: 0 !important;
+            margin: 0 !important;
+            pointer-events: none;
         }
 
         .sidebar-link {
@@ -1006,7 +1037,9 @@ $pendingTicketCount = $hModel->countPending();
 
     <?php
     $sidebarMenu = getSidebarMenuGrouped($page, $pendingTicketCount ?? 0);
+    $groupIndex = 0;
     foreach ($sidebarMenu as $groupHeading => $menuItems):
+        $groupIndex++;
         $hasVisibleItems = false;
         foreach ($menuItems as $item) {
             if ($item['role'] === null || hasRole($item['role'])) {
@@ -1015,9 +1048,13 @@ $pendingTicketCount = $hModel->countPending();
             }
         }
         if (!$hasVisibleItems) continue;
+        $targetId = "sidebar-group-" . $groupIndex;
     ?>
-    <div class="sidebar-heading"><?= htmlspecialchars($groupHeading) ?></div>
-    <ul class="sidebar-nav">
+    <div class="sidebar-heading" data-bs-toggle="collapse-sidebar" data-target="#<?= $targetId ?>">
+        <span><?= htmlspecialchars($groupHeading) ?></span>
+        <i class="bi bi-chevron-down toggle-chevron"></i>
+    </div>
+    <ul class="sidebar-nav" id="<?= $targetId ?>">
         <?php foreach ($menuItems as $item): ?>
             <?php if ($item['role'] !== null && !hasRole($item['role'])) continue; ?>
             <li>
@@ -1033,8 +1070,11 @@ $pendingTicketCount = $hModel->countPending();
     <?php endforeach; ?>
 
     <?php if (hasRole('admin')): ?>
-    <div class="sidebar-heading">ALAT & DIAGNOSTIK</div>
-    <ul class="sidebar-nav">
+    <div class="sidebar-heading" data-bs-toggle="collapse-sidebar" data-target="#sidebar-group-diag">
+        <span>ALAT & DIAGNOSTIK</span>
+        <i class="bi bi-chevron-down toggle-chevron"></i>
+    </div>
+    <ul class="sidebar-nav" id="sidebar-group-diag">
         <li>
             <a href="api/test_telegram.php" target="_blank" class="sidebar-link">
                 <i class="bi bi-telegram text-info"></i> Telegram Diagnostics

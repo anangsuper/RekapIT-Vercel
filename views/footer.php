@@ -285,6 +285,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Collapsible Sidebar Menu Sections (Slide Up / Slide Down)
+    const collapseHeadings = document.querySelectorAll('.sidebar-heading[data-bs-toggle="collapse-sidebar"]');
+    collapseHeadings.forEach(heading => {
+        const targetSelector = heading.getAttribute('data-target');
+        const targetNav = document.querySelector(targetSelector);
+        
+        if (targetNav) {
+            const savedState = localStorage.getItem('sidebar-collapse-' + targetSelector);
+            const hasActiveChild = targetNav.querySelector('.sidebar-link.active') !== null;
+            
+            // If active link is inside, force open section; otherwise restore saved state
+            if (hasActiveChild) {
+                heading.classList.remove('collapsed');
+                targetNav.classList.remove('collapsed');
+            } else if (savedState === 'collapsed') {
+                heading.classList.add('collapsed');
+                targetNav.classList.add('collapsed');
+            }
+
+            heading.addEventListener('click', function(e) {
+                e.preventDefault();
+                const isCollapsed = targetNav.classList.toggle('collapsed');
+                heading.classList.toggle('collapsed', isCollapsed);
+                localStorage.setItem('sidebar-collapse-' + targetSelector, isCollapsed ? 'collapsed' : 'expanded');
+            });
+        }
+    });
+
     // Restore desktop sidebar preference on load
     if (window.innerWidth >= 992) {
         const isHidden = localStorage.getItem('sidebar-hidden-pref') === 'true';
