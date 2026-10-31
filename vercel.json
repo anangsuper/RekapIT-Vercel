@@ -15,12 +15,12 @@
     {
       "src": "^/scan(\\.php)?(.*)",
       "status": 301,
-      "headers": { "Location": "https://maintenance-qr.vercel.app/scan$2" }
+      "headers": { "Location": "https://it.bankmitra.co.id/scan$2" }
     },
     {
       "src": "^/kartu_detail(\\.php)?(.*)",
       "status": 301,
-      "headers": { "Location": "https://maintenance-qr.vercel.app/kartu_detail.php$2" }
+      "headers": { "Location": "https://it.bankmitra.co.id/kartu_detail.php$2" }
     },
     {
       "src": "/test_db.php",

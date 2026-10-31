@@ -9,14 +9,14 @@ if (
     isset($_GET['token']) ||
     (isset($_GET['page']) && $_GET['page'] === 'scan')
 ) {
-    $targetDomain = getenv('TARGET_SCAN_DOMAIN') ?: 'maintenance-qr.vercel.app';
+    $targetDomain = getenv('TARGET_SCAN_DOMAIN') ?: 'it.bankmitra.co.id';
     $targetDomain = preg_replace('#^https?://#i', '', rtrim($targetDomain, '/'));
     $qs = $_SERVER['QUERY_STRING'] ?? '';
     header("Location: https://{$targetDomain}/scan" . ($qs !== '' ? '?' . $qs : ''), true, 301);
     exit();
 }
 if (preg_match('#^/kartu_detail(\.php)?#i', $reqUri)) {
-    $targetDomain = getenv('TARGET_SCAN_DOMAIN') ?: 'maintenance-qr.vercel.app';
+    $targetDomain = getenv('TARGET_SCAN_DOMAIN') ?: 'it.bankmitra.co.id';
     $targetDomain = preg_replace('#^https?://#i', '', rtrim($targetDomain, '/'));
     $qs = $_SERVER['QUERY_STRING'] ?? '';
     header("Location: https://{$targetDomain}/kartu_detail.php" . ($qs !== '' ? '?' . $qs : ''), true, 301);
