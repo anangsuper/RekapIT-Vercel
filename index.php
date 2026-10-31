@@ -1,6 +1,24 @@
 <?php
 ob_start();
 
+// Auto-forward QR Scan dari stiker fisik lama ke sistem Maintenance-QR baru
+$reqUri = $_SERVER['REQUEST_URI'] ?? '';
+if (
+    preg_match('#^/scan(\.php)?#i', $reqUri) ||
+    isset($_GET['t']) ||
+    isset($_GET['token']) ||
+    (isset($_GET['page']) && $_GET['page'] === 'scan')
+) {
+    $qs = $_SERVER['QUERY_STRING'] ?? '';
+    header("Location: https://maintenance-qr.vercel.app/scan" . ($qs !== '' ? '?' . $qs : ''), true, 301);
+    exit();
+}
+if (preg_match('#^/kartu_detail(\.php)?#i', $reqUri)) {
+    $qs = $_SERVER['QUERY_STRING'] ?? '';
+    header("Location: https://maintenance-qr.vercel.app/kartu_detail.php" . ($qs !== '' ? '?' . $qs : ''), true, 301);
+    exit();
+}
+
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/helpers/auth.php';
 require_once __DIR__ . '/helpers/pagination.php'; // Include pagination helper
